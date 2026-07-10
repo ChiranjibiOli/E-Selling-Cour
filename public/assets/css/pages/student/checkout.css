@@ -1,0 +1,6 @@
+.checkout-page { min-height: 100vh; padding: 32px 0 70px; background: var(--color-soft); }
+.checkout-layout { width: min(var(--container), 94%); margin: 0 auto; display: grid; grid-template-columns: 1fr 340px; gap: 24px; }
+.checkout-box, .checkout-summary { padding: 22px; border: 1px solid var(--color-border); border-radius: var(--radius-xl); background: var(--color-white); box-shadow: var(--shadow-sm); }
+.payment-methods { display: grid; gap: 12px; margin-top: 16px; }
+.payment-method { padding: 14px; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-soft); }
+@media (max-width: 860px) { .checkout-layout { grid-template-columns: 1fr; } }

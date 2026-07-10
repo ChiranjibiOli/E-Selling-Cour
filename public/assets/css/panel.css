@@ -1,0 +1,342 @@
+.authenticated-panel {
+    min-height: 100vh;
+    margin: 0;
+    color: #172033;
+    background:
+        radial-gradient(circle at 5% 0%, rgba(79, 70, 229, .08), transparent 28rem),
+        radial-gradient(circle at 95% 10%, rgba(14, 165, 233, .07), transparent 26rem),
+        #f5f7fb;
+}
+
+.authenticated-panel .site-footer { display: none !important; }
+
+.role-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    width: 100%;
+    border-bottom: 1px solid rgba(226, 232, 240, .9);
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
+    backdrop-filter: blur(18px);
+}
+
+.role-nav-container {
+    width: min(1440px, calc(100% - 32px));
+    min-height: 72px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.role-logo {
+    display: inline-flex;
+    align-items: center;
+    min-width: max-content;
+    color: #111827 !important;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 900;
+    letter-spacing: -.025em;
+}
+
+.role-logo::before {
+    content: '';
+    width: 34px;
+    height: 34px;
+    margin-right: 10px;
+    border-radius: 11px;
+    background: linear-gradient(135deg, #6366f1, #4338ca 58%, #0ea5e9);
+    box-shadow: 0 8px 18px rgba(79, 70, 229, .25);
+}
+
+.role-nav-menu {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.role-nav-menu li { margin: 0; }
+.role-nav-menu form { margin: 0; }
+
+.role-nav-menu a,
+.role-logout-btn,
+.student-logout-item .confirm-logout-btn {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 11px;
+    padding: 0 11px;
+    color: #5b6475 !important;
+    background: transparent;
+    text-decoration: none;
+    font-size: .78rem;
+    font-weight: 800;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: .18s ease;
+}
+
+.role-nav-menu a:hover,
+.role-nav-menu a.active {
+    color: #4338ca !important;
+    background: #eef2ff;
+}
+
+.role-logout-btn,
+.student-logout-item .confirm-logout-btn {
+    margin-left: 6px;
+    color: #b91c1c !important;
+    background: #fef2f2;
+}
+
+.nav-toggle {
+    display: none;
+    width: 42px;
+    height: 42px;
+    margin-left: auto;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.nav-toggle span:not(.sr-only) {
+    display: block;
+    width: 18px;
+    height: 2px;
+    margin: 3px auto;
+    border-radius: 999px;
+    background: #334155;
+}
+
+.authenticated-panel main {
+    width: 100%;
+}
+
+.authenticated-panel :is(
+    .admin-dashboard-page, .admin-courses-page, .admin-instructors-page,
+    .admin-users-page, .admin-orders-page, .admin-order-details-page,
+    .admin-reports-page, .admin-settings-page, .admin-withdrawals-page,
+    .notifications-page, .instructor-dashboard-page, .instructor-my-courses-page,
+    .instructor-students-page, .instructor-sales-page, .instructor-withdrawals-page,
+    .payout-account-page, .instructor-profile-page, .student-dashboard-page,
+    .student-courses-page, .student-page, .student-learning-page,
+    .cart-page, .checkout-page, .edit-course-page
+) {
+    min-height: calc(100vh - 72px);
+    padding: 32px 18px 64px !important;
+    background: transparent !important;
+}
+
+.authenticated-panel :is(
+    .admin-dashboard-wrapper, .admin-courses-wrapper, .admin-instructors-wrapper,
+    .admin-users-wrapper, .admin-orders-wrapper, .admin-order-details-wrapper,
+    .admin-reports-wrapper, .admin-settings-wrapper, .admin-withdrawals-wrapper,
+    .notifications-wrapper, .instructor-dashboard-page > .container,
+    .instructor-my-courses-wrapper, .instructor-students-wrapper,
+    .instructor-sales-wrapper, .instructor-withdrawals-wrapper,
+    .payout-account-wrapper, .instructor-profile-wrapper,
+    .student-dashboard-wrapper, .student-courses-wrapper, .student-section,
+    .student-learning-wrapper, .cart-wrapper, .checkout-wrapper, .edit-course-shell
+) {
+    width: min(1280px, 100%) !important;
+    margin: 0 auto !important;
+}
+
+.authenticated-panel :is(
+    .dashboard-header, .admin-dashboard-header, .courses-header,
+    .my-courses-main-header, .students-header, .sales-header,
+    .withdrawals-header, .payout-header, .profile-header,
+    .page-header, .edit-course-heading, .courses-hero
+) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin: 0 0 22px !important;
+    padding: 24px 26px !important;
+    border: 1px solid rgba(226, 232, 240, .9) !important;
+    border-radius: 24px !important;
+    background: linear-gradient(135deg, #fff 0%, #f8faff 65%, #eef2ff 100%) !important;
+    box-shadow: 0 16px 45px rgba(15, 23, 42, .07) !important;
+}
+
+.authenticated-panel :is(
+    .dashboard-header, .admin-dashboard-header, .courses-header,
+    .my-courses-main-header, .students-header, .sales-header,
+    .withdrawals-header, .payout-header, .profile-header,
+    .page-header, .edit-course-heading, .courses-hero
+) h1 {
+    margin: 2px 0 5px !important;
+    color: #101828 !important;
+    font-size: clamp(1.65rem, 3vw, 2.35rem) !important;
+    line-height: 1.1 !important;
+    letter-spacing: -.04em !important;
+}
+
+.authenticated-panel :is(.page-label, .eyebrow, .studio-label) {
+    margin: 0 !important;
+    color: #4f46e5 !important;
+    font-size: .72rem !important;
+    font-weight: 900 !important;
+    letter-spacing: .12em !important;
+    text-transform: uppercase !important;
+}
+
+.authenticated-panel :is(
+    .dashboard-header, .admin-dashboard-header, .courses-header,
+    .my-courses-main-header, .students-header, .sales-header,
+    .withdrawals-header, .payout-header, .profile-header,
+    .page-header, .edit-course-heading, .courses-hero
+) p:not(.page-label):not(.eyebrow) {
+    max-width: 720px;
+    margin: 0 !important;
+    color: #667085 !important;
+    line-height: 1.65 !important;
+}
+
+.authenticated-panel :is(
+    .dashboard-card, .stat-card, .metric-card, .summary-card,
+    .instructor-course-card, .student-course-card, .user-card,
+    .student-card, .order-card, .withdrawal-request-card,
+    .withdrawal-form-card, .withdrawal-history-card, .profile-card,
+    .settings-card, .report-card, .table-card, .filter-card
+) {
+    border: 1px solid #e5eaf1 !important;
+    border-radius: 20px !important;
+    background: #fff !important;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, .055) !important;
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease !important;
+}
+
+.authenticated-panel :is(
+    .dashboard-card, .instructor-course-card, .student-course-card,
+    .user-card, .student-card
+):hover {
+    transform: translateY(-3px);
+    border-color: #c7d2fe !important;
+    box-shadow: 0 18px 42px rgba(79, 70, 229, .09) !important;
+}
+
+.authenticated-panel :is(
+    .dashboard-grid, .stats-grid, .metrics-grid, .summary-grid,
+    .withdrawal-summary-grid, .withdrawal-stats-grid
+) {
+    gap: 16px !important;
+}
+
+.authenticated-panel :is(table, .data-table) {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    background: #fff;
+}
+
+.authenticated-panel :is(table, .data-table) th {
+    padding: 13px 15px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #475467;
+    background: #f8fafc;
+    text-align: left;
+    font-size: .72rem;
+    font-weight: 900;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.authenticated-panel :is(table, .data-table) td {
+    padding: 14px 15px;
+    border-bottom: 1px solid #eef2f7;
+    color: #344054;
+    vertical-align: middle;
+}
+
+.authenticated-panel :is(table, .data-table) tr:last-child td { border-bottom: 0; }
+
+.authenticated-panel :is(input, select, textarea) {
+    accent-color: #4f46e5;
+}
+
+.authenticated-panel :is(.btn, button, .create-course-btn, .details-btn, .card-action, .filter-actions a) {
+    transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
+}
+
+.authenticated-panel :is(.btn, button, .create-course-btn, .details-btn, .card-action):hover {
+    transform: translateY(-1px);
+}
+
+.status-pill,
+.course-status,
+.student-card-status {
+    display: inline-flex !important;
+    align-items: center;
+    min-height: 28px;
+    border-radius: 999px !important;
+    padding: 0 10px !important;
+    font-size: .7rem !important;
+    font-weight: 900 !important;
+}
+
+@media (max-width: 1180px) {
+    .role-nav-container { width: min(100% - 24px, 1440px); }
+    .nav-toggle { display: block; }
+    .role-nav-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        right: 12px;
+        left: 12px;
+        display: none;
+        max-height: calc(100vh - 100px);
+        overflow-y: auto;
+        align-items: stretch;
+        flex-direction: column;
+        gap: 4px;
+        padding: 12px;
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 22px 60px rgba(15, 23, 42, .16);
+    }
+    .role-navbar.menu-open .role-nav-menu { display: flex; }
+    .role-nav-menu a, .role-logout-btn, .student-logout-item .confirm-logout-btn {
+        width: 100%;
+        justify-content: flex-start;
+        margin: 0;
+        padding: 0 14px;
+    }
+}
+
+@media (max-width: 700px) {
+    .role-nav-container { min-height: 64px; }
+    .role-logo { font-size: .9rem; }
+    .role-logo::before { width: 30px; height: 30px; }
+    .authenticated-panel :is(
+        .admin-dashboard-page, .admin-courses-page, .admin-instructors-page,
+        .admin-users-page, .admin-orders-page, .admin-order-details-page,
+        .admin-reports-page, .admin-settings-page, .admin-withdrawals-page,
+        .notifications-page, .instructor-dashboard-page, .instructor-my-courses-page,
+        .instructor-students-page, .instructor-sales-page, .instructor-withdrawals-page,
+        .payout-account-page, .instructor-profile-page, .student-dashboard-page,
+        .student-courses-page, .student-page, .student-learning-page,
+        .cart-page, .checkout-page, .edit-course-page
+    ) { padding: 20px 12px 44px !important; }
+    .authenticated-panel :is(
+        .dashboard-header, .admin-dashboard-header, .courses-header,
+        .my-courses-main-header, .students-header, .sales-header,
+        .withdrawals-header, .payout-header, .profile-header,
+        .page-header, .edit-course-heading, .courses-hero
+    ) { align-items: flex-start; flex-direction: column; padding: 20px !important; border-radius: 20px !important; }
+    .authenticated-panel table { min-width: 680px; }
+    .authenticated-panel :is(.table-wrapper, .table-responsive) { overflow-x: auto; }
+}

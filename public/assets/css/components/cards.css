@@ -1,0 +1,78 @@
+.ui-card, .dashboard-card, .stat-card, .info-card, .action-card, .panel-card {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+}
+.ui-card-padding, .panel-card { padding: 22px; }
+.dashboard-card, .stat-card, .action-card { transition: var(--transition-fast); }
+.dashboard-card:hover, .stat-card:hover, .action-card:hover {
+    transform: translateY(-3px);
+    border-color: #c7d2fe;
+    box-shadow: var(--shadow-md);
+}
+.card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+.card-header span {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--color-primary);
+    font-size: 0.72rem;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+.card-header h2, .card-header h3 { margin: 0; color: var(--color-dark); }
+.card-header a { color: var(--color-primary); font-size: 0.84rem; font-weight: 900; }
+.card-icon {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 44px;
+    border-radius: var(--radius-md);
+    background: #eef2ff;
+    font-size: 1.15rem;
+}
+.metric-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 18px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+}
+.metric-card h3 { margin-bottom: 5px; color: var(--color-muted); font-size: 0.82rem; }
+.metric-card p, .metric-card strong { color: var(--color-dark); font-size: 1.55rem; font-weight: 950; line-height: 1; }
+.empty-box {
+    padding: 34px 22px;
+    border: 1px dashed #c7d2fe;
+    border-radius: var(--radius-xl);
+    background: var(--color-white);
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+}
+.empty-box span {
+    display: grid;
+    width: 56px;
+    height: 56px;
+    place-items: center;
+    margin: 0 auto 14px;
+    border-radius: var(--radius-lg);
+    background: #eef2ff;
+    font-size: 1.4rem;
+}
+.empty-box h3 { margin-bottom: 8px; }
+.empty-box p { max-width: 520px; margin: 0 auto 18px; }
+@media (max-width: 700px) {
+    .ui-card-padding, .panel-card { padding: 18px; }
+    .card-header { flex-direction: column; gap: 8px; }
+    .metric-card { padding: 16px; }
+}

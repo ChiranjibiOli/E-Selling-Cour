@@ -1,0 +1,10 @@
+.public-courses-page { min-height: 100vh; padding: 42px 0 70px; background: var(--color-soft); }
+.public-courses-wrapper { width: min(var(--container-wide), 94%); margin: 0 auto; }
+.public-courses-hero {
+    margin-bottom: 24px;
+    padding: 30px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+}

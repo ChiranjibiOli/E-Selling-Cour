@@ -1,0 +1,31 @@
+# Environment secrets
+.env
+.env.local
+
+# Editor / OS files
+.idea/
+.vscode/
+node_modules/
+Thumbs.db
+.DS_Store
+
+# Zip backups
+*.zip
+
+# Runtime uploads must never be committed
+/storage/private_uploads/**
+!/storage/private_uploads/
+!/storage/private_uploads/.gitkeep
+
+/public/assets/uploads/**
+!/public/assets/uploads/
+!/public/assets/uploads/.gitkeep
+
+# Logs and temporary files
+/storage/logs/**
+!/storage/logs/
+!/storage/logs/.gitkeep
+
+/storage/tmp/**
+!/storage/tmp/
+!/storage/tmp/.gitkeep

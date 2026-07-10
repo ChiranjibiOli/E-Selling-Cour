@@ -1,0 +1,12 @@
+{
+  "name": "coursehub-instructor-course-builder",
+  "private": true,
+  "scripts": {
+    "css:dev": "tailwindcss -i ./resources/css/instructor-create-course.css -o ./public/assets/css/pages/instructor/create-course.css --watch",
+    "css:build": "tailwindcss -i ./resources/css/instructor-create-course.css -o ./public/assets/css/pages/instructor/create-course.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "4.3.2",
+    "tailwindcss": "4.3.2"
+  }
+}

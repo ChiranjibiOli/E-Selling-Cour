@@ -1,0 +1,12 @@
+.contact-page { min-height: 100vh; padding: 50px 0 70px; background: var(--color-soft); }
+.contact-layout { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 24px; align-items: start; }
+.contact-info, .contact-form-card {
+    padding: 24px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    background: var(--color-white);
+    box-shadow: var(--shadow-sm);
+}
+.contact-list { display: grid; gap: 14px; margin-top: 20px; }
+.contact-item { padding: 14px; border-radius: var(--radius-lg); background: var(--color-soft); }
+@media (max-width: 820px) { .contact-layout { grid-template-columns: 1fr; } }
