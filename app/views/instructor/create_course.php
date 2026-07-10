@@ -18,6 +18,84 @@ function course_builder_h(mixed $value): string
     return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
 }
 
+
+function course_builder_length(string $value): int
+{
+    return function_exists('mb_strlen') ? mb_strlen($value, 'UTF-8') : strlen($value);
+}
+
+function course_builder_clean_text(mixed $value, bool $multiline = false): string
+{
+    if (!is_scalar($value) && $value !== null) {
+        return '';
+    }
+
+    $text = strip_tags((string) $value);
+    $text = str_replace("\0", '', $text);
+    $text = (string) preg_replace('/[\x{0001}-\x{0008}\x{000B}\x{000C}\x{000E}-\x{001F}\x{007F}]/u', '', $text);
+    $text = str_replace(["\r\n", "\r"], "\n", $text);
+
+    if ($multiline) {
+        $text = (string) preg_replace('/[\t ]+/u', ' ', $text);
+        $text = (string) preg_replace('/\n{3,}/u', "\n\n", $text);
+        return trim($text);
+    }
+
+    return trim((string) preg_replace('/\s+/u', ' ', $text));
+}
+
+function course_builder_clean_rich_text(mixed $value): string
+{
+    if (!is_scalar($value) && $value !== null) {
+        return '';
+    }
+
+    return trim(Security::sanitizeRichText((string) $value));
+}
+
+function course_builder_normalize_url(mixed $value): ?string
+{
+    if (!is_scalar($value) && $value !== null) {
+        return null;
+    }
+
+    $url = trim((string) $value);
+
+    if ($url === '') {
+        return '';
+    }
+
+    if (course_builder_length($url) > 2048 || filter_var($url, FILTER_VALIDATE_URL) === false) {
+        return null;
+    }
+
+    $parts = parse_url($url);
+    $scheme = strtolower((string) ($parts['scheme'] ?? ''));
+    $host = (string) ($parts['host'] ?? '');
+
+    if (!in_array($scheme, ['http', 'https'], true) || $host === '') {
+        return null;
+    }
+
+    if (isset($parts['user']) || isset($parts['pass'])) {
+        return null;
+    }
+
+    return $url;
+}
+
+function course_builder_upload_error_message(int $code): string
+{
+    return match ($code) {
+        UPLOAD_ERR_INI_SIZE, UPLOAD_ERR_FORM_SIZE => 'The uploaded file is larger than the server allows.',
+        UPLOAD_ERR_PARTIAL => 'The file was only partially uploaded.',
+        UPLOAD_ERR_NO_TMP_DIR => 'The server upload directory is unavailable.',
+        UPLOAD_ERR_CANT_WRITE => 'The server could not write the uploaded file.',
+        UPLOAD_ERR_EXTENSION => 'A server extension stopped the upload.',
+        default => 'The file upload failed.',
+    };
+}
+
 function course_builder_slug(string $title): string
 {
     $slug = strtolower(trim($title));
@@ -71,29 +149,59 @@ function course_builder_delete_file(string $directory, ?string $fileName): void
 
 function course_builder_upload_thumbnail(array $file, array &$errors): ?string
 {
-    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+    $errorCode = (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE);
+
+    if ($errorCode === UPLOAD_ERR_NO_FILE) {
         return null;
     }
 
-    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-        $errors[] = 'The thumbnail upload failed.';
+    if ($errorCode !== UPLOAD_ERR_OK) {
+        $errors[] = course_builder_upload_error_message($errorCode);
         return null;
     }
 
-    if ((int) ($file['size'] ?? 0) > 2 * 1024 * 1024) {
-        $errors[] = 'The thumbnail must be 2 MB or smaller.';
+    $tmpName = (string) ($file['tmp_name'] ?? '');
+    $size = (int) ($file['size'] ?? 0);
+
+    if ($tmpName === '' || !is_uploaded_file($tmpName)) {
+        $errors[] = 'The thumbnail upload could not be verified.';
         return null;
     }
 
-    $mime = (new finfo(FILEINFO_MIME_TYPE))->file((string) $file['tmp_name']);
+    if ($size < 1 || $size > 2 * 1024 * 1024) {
+        $errors[] = 'The thumbnail must be a non-empty image no larger than 2 MB.';
+        return null;
+    }
+
+    $imageInfo = @getimagesize($tmpName);
+
+    if ($imageInfo === false || empty($imageInfo[0]) || empty($imageInfo[1])) {
+        $errors[] = 'The thumbnail content is not a valid image.';
+        return null;
+    }
+
+    $width = (int) $imageInfo[0];
+    $height = (int) $imageInfo[1];
+
+    if ($width < 320 || $height < 180) {
+        $errors[] = 'The thumbnail must be at least 320 × 180 pixels.';
+        return null;
+    }
+
+    if ($width > 8000 || $height > 8000 || ($width * $height) > 40_000_000) {
+        $errors[] = 'The thumbnail dimensions are too large.';
+        return null;
+    }
+
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($tmpName);
     $allowed = [
         'image/jpeg' => 'jpg',
         'image/png' => 'png',
         'image/webp' => 'webp',
     ];
 
-    if (!isset($allowed[$mime])) {
-        $errors[] = 'The thumbnail must be a JPG, PNG, or WebP image.';
+    if (!is_string($mime) || !isset($allowed[$mime])) {
+        $errors[] = 'The thumbnail must contain a genuine JPG, PNG, or WebP image.';
         return null;
     }
 
@@ -104,49 +212,89 @@ function course_builder_upload_thumbnail(array $file, array &$errors): ?string
         return null;
     }
 
-    $fileName = bin2hex(random_bytes(16)) . '.' . $allowed[$mime];
+    $fileName = bin2hex(random_bytes(24)) . '.' . $allowed[$mime];
+    $destination = $directory . DIRECTORY_SEPARATOR . $fileName;
 
-    if (!move_uploaded_file((string) $file['tmp_name'], $directory . '/' . $fileName)) {
+    if (!move_uploaded_file($tmpName, $destination)) {
         $errors[] = 'The thumbnail could not be saved.';
         return null;
     }
 
+    @chmod($destination, 0644);
     return $fileName;
 }
 
 function course_builder_upload_resource(array $file, string $type, array &$errors): ?string
 {
-    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+    $errorCode = (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE);
+
+    if ($errorCode === UPLOAD_ERR_NO_FILE) {
         return null;
     }
 
-    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-        $errors[] = 'A lesson resource failed to upload.';
+    if ($errorCode !== UPLOAD_ERR_OK) {
+        $errors[] = course_builder_upload_error_message($errorCode);
         return null;
     }
 
-    if ((int) ($file['size'] ?? 0) > 20 * 1024 * 1024) {
-        $errors[] = 'Lesson resources must be 20 MB or smaller.';
+    $tmpName = (string) ($file['tmp_name'] ?? '');
+    $size = (int) ($file['size'] ?? 0);
+
+    if ($tmpName === '' || !is_uploaded_file($tmpName)) {
+        $errors[] = 'A lesson resource upload could not be verified.';
         return null;
     }
 
-    $extension = strtolower(pathinfo((string) ($file['name'] ?? ''), PATHINFO_EXTENSION));
-    $mime = (new finfo(FILEINFO_MIME_TYPE))->file((string) $file['tmp_name']);
-    $allowed = $type === 'pdf'
-        ? ['pdf' => ['application/pdf']]
-        : [
-            'doc' => ['application/msword', 'application/octet-stream'],
-            'docx' => [
-                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'application/zip',
-                'application/octet-stream',
-            ],
-        ];
+    if ($size < 1 || $size > 20 * 1024 * 1024) {
+        $errors[] = 'Lesson resources must be non-empty and 20 MB or smaller.';
+        return null;
+    }
 
-    if (!isset($allowed[$extension]) || !in_array($mime, $allowed[$extension], true)) {
+    $originalName = (string) ($file['name'] ?? '');
+    $extension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->file($tmpName);
+    $header = (string) file_get_contents($tmpName, false, null, 0, 8);
+    $isValid = false;
+
+    if ($type === 'pdf' && $extension === 'pdf') {
+        $isValid = str_starts_with($header, '%PDF-') && $mime === 'application/pdf';
+    }
+
+    if ($type === 'word' && $extension === 'doc') {
+        $isOleDocument = $header === "\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1";
+        $isValid = $isOleDocument && in_array($mime, [
+            'application/msword',
+            'application/CDFV2',
+            'application/x-ole-storage',
+            'application/octet-stream',
+        ], true);
+    }
+
+    if ($type === 'word' && $extension === 'docx') {
+        $isZipDocument = str_starts_with($header, "PK\x03\x04");
+        $isValid = $isZipDocument && in_array($mime, [
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'application/zip',
+            'application/octet-stream',
+        ], true);
+
+        if ($isValid && class_exists('ZipArchive')) {
+            $zip = new ZipArchive();
+            $opened = $zip->open($tmpName) === true;
+            $isValid = $opened
+                && $zip->locateName('[Content_Types].xml') !== false
+                && $zip->locateName('word/document.xml') !== false;
+
+            if ($opened) {
+                $zip->close();
+            }
+        }
+    }
+
+    if (!$isValid) {
         $errors[] = $type === 'pdf'
-            ? 'PDF lessons must contain a valid PDF file.'
-            : 'Word lessons must contain a valid DOC or DOCX file.';
+            ? 'PDF lessons must contain a genuine PDF document.'
+            : 'Word lessons must contain a genuine DOC or DOCX document.';
         return null;
     }
 
@@ -157,13 +305,15 @@ function course_builder_upload_resource(array $file, string $type, array &$error
         return null;
     }
 
-    $fileName = bin2hex(random_bytes(16)) . '.' . $extension;
+    $fileName = bin2hex(random_bytes(24)) . '.' . $extension;
+    $destination = $directory . DIRECTORY_SEPARATOR . $fileName;
 
-    if (!move_uploaded_file((string) $file['tmp_name'], $directory . '/' . $fileName)) {
+    if (!move_uploaded_file($tmpName, $destination)) {
         $errors[] = 'A lesson resource could not be saved.';
         return null;
     }
 
+    @chmod($destination, 0640);
     return $fileName;
 }
 
@@ -331,13 +481,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $newFiles = [];
     $retainedResourceFiles = [];
 
-    $form['title'] = trim((string) ($_POST['title'] ?? ''));
-    $form['category_id'] = (int) ($_POST['category_id'] ?? 0);
-    $form['price'] = trim((string) ($_POST['price'] ?? '0'));
-    $form['level'] = trim((string) ($_POST['level'] ?? 'beginner'));
-    $form['language'] = trim((string) ($_POST['language'] ?? 'English'));
-    $form['short_description'] = trim((string) ($_POST['short_description'] ?? ''));
-    $form['full_description'] = trim((string) ($_POST['full_description'] ?? ''));
+    $form['title'] = course_builder_clean_text($_POST['title'] ?? '');
+    $form['category_id'] = filter_var($_POST['category_id'] ?? 0, FILTER_VALIDATE_INT, [
+        'options' => ['default' => 0, 'min_range' => 0],
+    ]);
+    $form['price'] = course_builder_clean_text($_POST['price'] ?? '0');
+    $form['level'] = course_builder_clean_text($_POST['level'] ?? 'beginner');
+    $form['language'] = course_builder_clean_text($_POST['language'] ?? 'English');
+    $form['short_description'] = course_builder_clean_text($_POST['short_description'] ?? '', true);
+    $form['full_description'] = course_builder_clean_text($_POST['full_description'] ?? '', true);
 
     if ($isPublishedEdit) {
         if ($action !== 'submit_review') {
@@ -362,7 +514,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Choose Save draft or Submit for review.';
     }
 
-    if ($form['title'] === '' || strlen($form['title']) > 180) {
+    if ($form['title'] === '' || course_builder_length($form['title']) > 180) {
         $errors[] = 'Course title is required and must be 180 characters or fewer.';
     }
 
@@ -374,12 +526,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Choose a valid course level.';
     }
 
-    if ($form['language'] === '' || strlen($form['language']) > 60) {
+    if ($form['language'] === '' || course_builder_length($form['language']) > 60) {
         $errors[] = 'Language is required and must be 60 characters or fewer.';
     }
 
-    if (strlen($form['short_description']) > 500) {
+    if (course_builder_length($form['short_description']) > 500) {
         $errors[] = 'Short description must be 500 characters or fewer.';
+    }
+
+
+    if (course_builder_length($form['full_description']) > 10000) {
+        $errors[] = 'Full description must be 10,000 characters or fewer.';
+    }
+
+    if (preg_match('/[<>]/', $form['title'] . $form['language'])) {
+        $errors[] = 'Course title and language cannot contain HTML markup.';
     }
 
     if ($form['category_id'] > 0) {
@@ -396,12 +557,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Choose a category before submitting the course.';
     }
 
-    if ($isSubmitting && $form['short_description'] === '') {
-        $errors[] = 'Add a short description before submitting the course.';
+    if ($isSubmitting && course_builder_length($form['title']) < 8) {
+        $errors[] = 'Use at least 8 characters for the course title before submitting.';
     }
 
-    if ($isSubmitting && $form['full_description'] === '') {
-        $errors[] = 'Add a full description before submitting the course.';
+    if ($isSubmitting && course_builder_length($form['short_description']) < 30) {
+        $errors[] = 'Write at least 30 characters in the short description before submitting.';
+    }
+
+    if ($isSubmitting && course_builder_length($form['full_description']) < 80) {
+        $errors[] = 'Write at least 80 characters in the full description before submitting.';
     }
 
     $newThumbnail = $isPublishedEdit
@@ -419,7 +584,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $existingLessons = $editingCourse ? course_builder_existing_lessons($conn, $draftId) : [];
     $builderSections = [];
-    $sectionKeys = is_array($_POST['section_keys'] ?? null) ? $_POST['section_keys'] : [];
+    $sectionKeys = is_array($_POST['section_keys'] ?? null) ? array_values($_POST['section_keys']) : [];
+
+    if (count($sectionKeys) > 50) {
+        $errors[] = 'A course can contain at most 50 chapters.';
+        $sectionKeys = array_slice($sectionKeys, 0, 50);
+    }
+
+    $seenSectionKeys = [];
     $allowedLessonTypes = ['text', 'video', 'link', 'pdf', 'word'];
     $totalLessonCount = 0;
     $totalDurationMinutes = 0;
@@ -427,12 +599,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($sectionKeys as $rawSectionKey) {
         $sectionKey = course_builder_safe_key((string) $rawSectionKey);
 
-        if ($sectionKey === '') {
+        if ($sectionKey === '' || isset($seenSectionKeys[$sectionKey])) {
             continue;
         }
 
-        $sectionTitle = trim((string) ($_POST['section_title'][$sectionKey] ?? ''));
+        $seenSectionKeys[$sectionKey] = true;
+        $sectionTitle = course_builder_clean_text($_POST['section_title'][$sectionKey] ?? '');
+
+        if (course_builder_length($sectionTitle) > 160) {
+            $errors[] = 'Chapter titles must be 160 characters or fewer.';
+        }
         $lessonKeys = $_POST['lesson_keys'][$sectionKey] ?? [];
+        $lessonKeys = is_array($lessonKeys) ? array_values($lessonKeys) : [];
+
+        if (count($lessonKeys) > 100) {
+            $errors[] = 'A chapter can contain at most 100 lessons.';
+            $lessonKeys = array_slice($lessonKeys, 0, 100);
+        }
+
+        $seenLessonKeys = [];
         $section = [
             'key' => $sectionKey,
             'title' => $sectionTitle,
@@ -446,21 +631,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         foreach (is_array($lessonKeys) ? $lessonKeys : [] as $rawLessonKey) {
             $lessonKey = course_builder_safe_key((string) $rawLessonKey);
 
-            if ($lessonKey === '') {
+            if ($lessonKey === '' || isset($seenLessonKeys[$lessonKey])) {
                 continue;
             }
 
-            $lessonId = (int) ($_POST['lesson_id'][$sectionKey][$lessonKey] ?? 0);
-            $lessonTitle = trim((string) ($_POST['lesson_title'][$sectionKey][$lessonKey] ?? ''));
-            $lessonType = trim((string) ($_POST['lesson_type'][$sectionKey][$lessonKey] ?? 'text'));
-            $contentText = trim((string) ($_POST['lesson_content'][$sectionKey][$lessonKey] ?? ''));
-            $contentUrl = trim((string) ($_POST['lesson_url'][$sectionKey][$lessonKey] ?? ''));
+            $seenLessonKeys[$lessonKey] = true;
+            $lessonId = filter_var($_POST['lesson_id'][$sectionKey][$lessonKey] ?? 0, FILTER_VALIDATE_INT, [
+                'options' => ['default' => 0, 'min_range' => 0],
+            ]);
+            $lessonTitle = course_builder_clean_text($_POST['lesson_title'][$sectionKey][$lessonKey] ?? '');
+            $lessonType = course_builder_clean_text($_POST['lesson_type'][$sectionKey][$lessonKey] ?? 'text');
+            $contentText = (string) ($_POST['lesson_content'][$sectionKey][$lessonKey] ?? '');
+            $contentUrlInput = $_POST['lesson_url'][$sectionKey][$lessonKey] ?? '';
+            $contentUrl = is_scalar($contentUrlInput) ? trim((string) $contentUrlInput) : '';
             $duration = max(0, min(1440, (int) ($_POST['lesson_duration'][$sectionKey][$lessonKey] ?? 0)));
             $isPreview = isset($_POST['lesson_preview'][$sectionKey][$lessonKey]);
 
             if (!in_array($lessonType, $allowedLessonTypes, true)) {
                 $lessonType = 'text';
                 $errors[] = 'A lesson contains an invalid content type.';
+            }
+
+
+            if (course_builder_length($lessonTitle) > 180) {
+                $errors[] = 'Lesson titles must be 180 characters or fewer.';
+            }
+
+            if ($lessonId > 0 && !isset($existingLessons[$lessonId])) {
+                $errors[] = 'A lesson reference does not belong to this course.';
+                $lessonId = 0;
+            }
+
+            if ($totalLessonCount >= 300) {
+                $errors[] = 'A course can contain at most 300 lessons.';
+                break 2;
             }
 
             if ($isSubmitting && $lessonTitle === '') {
@@ -473,7 +677,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 : null;
 
             if ($lessonType === 'text') {
-                $contentText = Security::sanitizeRichText($contentText);
+                $contentText = course_builder_clean_rich_text($contentText);
+
+                if (course_builder_length($contentText) > 100000) {
+                    $errors[] = 'Text lessons must be 100,000 characters or fewer.';
+                }
 
                 if ($isSubmitting && trim(strip_tags($contentText)) === '') {
                     $errors[] = 'Text lessons must contain lesson content.';
@@ -483,8 +691,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif (in_array($lessonType, ['video', 'link'], true)) {
                 $contentText = null;
 
-                if ($contentUrl !== '' && filter_var($contentUrl, FILTER_VALIDATE_URL) === false) {
-                    $errors[] = 'Video and link lessons must contain a valid URL.';
+                $normalizedUrl = course_builder_normalize_url($contentUrl);
+
+                if ($normalizedUrl === null) {
+                    $errors[] = 'Video and link lessons must use a valid HTTP or HTTPS URL without embedded credentials.';
+                    $contentUrl = '';
+                } else {
+                    $contentUrl = $normalizedUrl;
                 }
 
                 if ($isSubmitting && $contentUrl === '') {
@@ -764,388 +977,415 @@ while ($draft = $draftResult->fetch_assoc()) {
 $draftStmt->close();
 $pageTitle = $isPublishedEdit ? 'Manage course lessons' : ($editingCourse ? 'Edit course draft' : 'Create course');
 
+$pageStyles = [
+    'assets/css/navbars/instructor-navbar.css?v=1',
+    'assets/css/pages/instructor/create-course.css?v=20',
+];
+
 require_once __DIR__ . '/../layouts/header.php';
 require_once __DIR__ . '/../layouts/instructor_navbar.php';
 ?>
 
-<link rel="stylesheet" href="assets/css/pages/instructor/create-course.css?v=2">
+<link rel="stylesheet" href="assets/css/pages/instructor/create-course.css?v=4">
 
-<main class="course-builder-page">
-    <section class="course-builder-shell">
-        <header class="builder-heading">
-            <div>
-                <p class="eyebrow">Instructor course builder</p>
-                <h1><?php echo $isPublishedEdit ? 'Manage course lessons' : ($editingCourse ? 'Edit draft' : 'Create a new course'); ?></h1>
-                <p>Add the course information first, then organize learning material chapter by chapter.</p>
+
+<main class="course-studio-page" data-published-edit="<?php echo $isPublishedEdit ? '1' : '0'; ?>">
+    <section class="course-studio-shell">
+        <header class="studio-hero">
+            <div class="studio-hero-copy">
+                <nav class="studio-breadcrumb" aria-label="Breadcrumb">
+                    <a href="instructor-dashboard.php">Instructor</a>
+                    <span aria-hidden="true">/</span>
+                    <a href="instructor-courses.php">My courses</a>
+                    <span aria-hidden="true">/</span>
+                    <strong><?php echo $editingCourse ? 'Course studio' : 'New course'; ?></strong>
+                </nav>
+                <div class="studio-title-row">
+                    <div>
+                        <p class="studio-eyebrow">Course production workspace</p>
+                        <h1><?php echo $isPublishedEdit ? 'Update course curriculum' : ($editingCourse ? 'Continue building your course' : 'Build a course students will trust'); ?></h1>
+                    </div>
+                    <span class="studio-status-badge <?php echo $editingCourse ? 'is-' . course_builder_h($editingCourse['status']) : 'is-new'; ?>">
+                        <span></span>
+                        <?php echo $editingCourse ? ucfirst(course_builder_h($editingCourse['status'])) : 'New course'; ?>
+                    </span>
+                </div>
+                <p class="studio-intro">
+                    Structure the offer, build the curriculum, and inspect the exact marketplace card before sending anything to admin.
+                    Drafts stay private until you deliberately submit them.
+                </p>
             </div>
-            <?php if ($editingCourse): ?>
-                <a class="new-course-link" href="instructor-create-course.php">Create another course</a>
-            <?php endif; ?>
+            <div class="hero-actions">
+                <a class="studio-button studio-button-ghost" href="instructor-courses.php">Back to courses</a>
+                <?php if ($editingCourse): ?>
+                    <a class="studio-button studio-button-dark" href="instructor-create-course.php">Create another</a>
+                <?php endif; ?>
+            </div>
         </header>
 
-        <p class="privacy-note">
-            <?php if ($isPublishedEdit): ?>
-                <strong>Course information is locked.</strong> You can change only chapters and lessons. Every saved content change is recorded and sent to admin for approval.
-            <?php else: ?>
-                <strong>Drafts are private.</strong> Saving a draft does not send it to admin and does not show it to students.
-                Admin receives the course only when you choose <strong>Submit for review</strong>.
-            <?php endif; ?>
-        </p>
-
         <?php if ($message !== ''): ?>
-            <div class="alert alert-<?php echo course_builder_h($messageType); ?>">
-                <?php echo course_builder_h($message); ?>
+            <div class="studio-alert studio-alert-<?php echo course_builder_h($messageType); ?>" role="alert">
+                <span class="studio-alert-icon" aria-hidden="true"><?php echo $messageType === 'success' ? '✓' : '!'; ?></span>
+                <p><?php echo course_builder_h($message); ?></p>
             </div>
         <?php endif; ?>
 
         <?php if ($draftCourses): ?>
-            <section class="draft-panel">
-                <div class="draft-panel-header">
-                    <h2>Your private drafts</h2>
-                    <span><?php echo count($draftCourses); ?> saved</span>
-                </div>
-                <div class="draft-list">
+            <details class="draft-drawer">
+                <summary>
+                    <span>
+                        <strong>Saved drafts</strong>
+                        <small>Resume another private or rejected course</small>
+                    </span>
+                    <span class="draft-count"><?php echo count($draftCourses); ?></span>
+                </summary>
+                <div class="draft-grid">
                     <?php foreach ($draftCourses as $draft): ?>
-                        <div class="draft-row">
-                            <div>
+                        <a class="draft-tile" href="instructor-create-course.php?draft_id=<?php echo (int) $draft['id']; ?>">
+                            <span class="draft-tile-icon" aria-hidden="true">✦</span>
+                            <span>
                                 <strong><?php echo course_builder_h($draft['title']); ?></strong>
                                 <small>
-                                    <?php echo $draft['status'] === 'rejected' ? 'Rejected — revise and resubmit' : 'Private draft'; ?>
-                                    · Updated <?php echo course_builder_h(date('M j, Y g:i A', strtotime($draft['updated_at']))); ?>
+                                    <?php echo $draft['status'] === 'rejected' ? 'Needs revision' : 'Private draft'; ?>
+                                    · <?php echo course_builder_h(date('M j, Y', strtotime($draft['updated_at']))); ?>
                                 </small>
-                            </div>
-                            <a href="instructor-create-course.php?draft_id=<?php echo (int) $draft['id']; ?>">Edit draft</a>
-                        </div>
+                            </span>
+                            <span aria-hidden="true">→</span>
+                        </a>
                     <?php endforeach; ?>
                 </div>
-            </section>
+            </details>
         <?php endif; ?>
 
-        <form method="post" enctype="multipart/form-data" id="courseBuilderForm">
-            <?php echo csrf_field(); ?>
-            <input type="hidden" name="draft_id" value="<?php echo (int) $draftId; ?>">
+        <div class="studio-workspace">
+            <aside class="studio-rail" aria-label="Course builder navigation">
+                <div class="rail-card">
+                    <p class="rail-label">Build sequence</p>
+                    <a class="rail-step is-active" href="#course-basics" data-step-link="basics">
+                        <span>01</span>
+                        <div><strong>Course offer</strong><small>Title, positioning and price</small></div>
+                    </a>
+                    <a class="rail-step" href="#course-curriculum" data-step-link="curriculum">
+                        <span>02</span>
+                        <div><strong>Curriculum</strong><small>Chapters and lessons</small></div>
+                    </a>
+                    <a class="rail-step" href="#course-review" data-step-link="review">
+                        <span>03</span>
+                        <div><strong>Review</strong><small>Quality and submission</small></div>
+                    </a>
+                </div>
 
-            <section class="builder-card">
-                <div class="card-title">
-                    <span class="step-number">1</span>
+                <div class="rail-card quality-card">
+                    <div class="quality-heading">
+                        <span>Course readiness</span>
+                        <strong id="qualityScore">0%</strong>
+                    </div>
+                    <div class="quality-track" aria-hidden="true"><span id="qualityBar"></span></div>
+                    <p id="qualityMessage">Start with a clear title and course thumbnail.</p>
+                </div>
+
+                <div class="security-note">
+                    <span aria-hidden="true">🔒</span>
                     <div>
-                        <h2>Course details</h2>
-                        <p>Information students see before purchasing the course.</p>
+                        <strong>Protected workflow</strong>
+                        <p>CSRF checks, ownership checks, prepared queries, strict file inspection and server-side validation are applied before saving.</p>
                     </div>
                 </div>
+            </aside>
 
-                <div class="form-grid">
-                    <fieldset class="form-group form-group-wide" <?php echo $isPublishedEdit ? 'disabled' : ''; ?> style="display:contents">
-                    <div class="form-group form-group-wide">
-                        <label for="title">Course title *</label>
-                        <input id="title" name="title" maxlength="180" required
-                               value="<?php echo course_builder_h($form['title']); ?>"
-                               placeholder="Example: Complete Web Application Security">
+            <form method="post" enctype="multipart/form-data" id="courseBuilderForm" class="studio-form" novalidate>
+                <?php echo csrf_field(); ?>
+                <input type="hidden" name="draft_id" value="<?php echo (int) $draftId; ?>">
+
+                <section class="studio-panel" id="course-basics" data-studio-section="basics">
+                    <div class="panel-heading">
+                        <div class="panel-heading-icon" aria-hidden="true">01</div>
+                        <div>
+                            <p class="panel-kicker">Marketplace offer</p>
+                            <h2>Design the course students discover</h2>
+                            <p>This information powers public cards, search results and the course detail page.</p>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="category_id">Category</label>
-                        <select id="category_id" name="category_id">
-                            <option value="0">Choose category</option>
-                            <?php foreach ($categories as $category): ?>
-                                <option value="<?php echo (int) $category['id']; ?>"
-                                    <?php echo (int) $form['category_id'] === (int) $category['id'] ? 'selected' : ''; ?>>
-                                    <?php echo course_builder_h($category['name']); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
+                    <?php if ($isPublishedEdit): ?>
+                        <div class="locked-banner">
+                            <span aria-hidden="true">🔐</span>
+                            <p><strong>Published details are locked.</strong> Curriculum changes can still be submitted to admin for approval.</p>
+                        </div>
+                    <?php endif; ?>
 
-                    <div class="form-group">
-                        <label for="price">Price (Rs.)</label>
-                        <input id="price" name="price" type="number" min="0" max="9999999999.99" step="0.01"
-                               value="<?php echo course_builder_h($form['price']); ?>">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="level">Level</label>
-                        <select id="level" name="level">
-                            <?php foreach (['beginner', 'intermediate', 'advanced'] as $level): ?>
-                                <option value="<?php echo $level; ?>" <?php echo $form['level'] === $level ? 'selected' : ''; ?>>
-                                    <?php echo ucfirst($level); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="language">Language</label>
-                        <input id="language" name="language" maxlength="60"
-                               value="<?php echo course_builder_h($form['language']); ?>">
-                    </div>
-
-                    <div class="form-group form-group-wide">
-                        <label for="short_description">Short description</label>
-                        <textarea id="short_description" name="short_description" rows="3" maxlength="500"
-                                  placeholder="A short summary for the course card"><?php echo course_builder_h($form['short_description']); ?></textarea>
-                    </div>
-
-                    <div class="form-group form-group-wide">
-                        <label for="full_description">Full description</label>
-                        <textarea id="full_description" name="full_description" rows="7"
-                                  placeholder="Explain what students will learn, prerequisites, and outcomes"><?php echo course_builder_h($form['full_description']); ?></textarea>
-                    </div>
-
-                    <div class="form-group form-group-wide">
-                        <label for="thumbnail">Course thumbnail</label>
-                        <?php if ($form['thumbnail'] !== ''): ?>
-                            <div class="current-thumbnail">
-                                <img src="assets/uploads/course_thumbnails/<?php echo rawurlencode(basename($form['thumbnail'])); ?>"
-                                     alt="Current course thumbnail">
-                                <span class="form-hint">Upload a new image only if you want to replace this thumbnail.</span>
+                    <fieldset <?php echo $isPublishedEdit ? 'disabled' : ''; ?> class="offer-fields">
+                        <div class="field-group field-span-2" data-field="title">
+                            <div class="field-label-row">
+                                <label for="title">Course title <span>*</span></label>
+                                <span class="character-counter" data-counter-for="title">0 / 180</span>
                             </div>
-                        <?php endif; ?>
-                        <input id="thumbnail" name="thumbnail" type="file" accept="image/jpeg,image/png,image/webp">
-                        <span class="form-hint">JPG, PNG, or WebP. Maximum 2 MB.</span>
-                    </div>
-                    </fieldset>
-                </div>
-            </section>
+                            <input id="title" name="title" maxlength="180" required autocomplete="off"
+                                   value="<?php echo course_builder_h($form['title']); ?>"
+                                   placeholder="Example: Practical Web Security from HTTP to Exploitation">
+                            <p class="field-help">Be specific about the result, skill or transformation students will receive.</p>
+                            <p class="field-error" data-error-for="title"></p>
+                        </div>
 
-            <section class="builder-card">
-                <div class="card-title">
-                    <span class="step-number">2</span>
-                    <div>
-                        <h2>Chapters and lessons</h2>
-                        <p>Organize the complete course curriculum in the order students should learn it.</p>
-                    </div>
-                </div>
-
-                <div class="chapter-list" id="chapterList">
-                    <?php foreach ($builderSections as $section): ?>
-                        <article class="chapter-card" data-section-key="<?php echo course_builder_h($section['key']); ?>">
-                            <input type="hidden" name="section_keys[]" value="<?php echo course_builder_h($section['key']); ?>">
-                            <div class="chapter-header">
-                                <input name="section_title[<?php echo course_builder_h($section['key']); ?>]"
-                                       value="<?php echo course_builder_h($section['title']); ?>"
-                                       placeholder="Chapter title">
-                                <button type="button" class="builder-button button-danger remove-chapter">Remove chapter</button>
-                            </div>
-                            <div class="lessons-list">
-                                <?php foreach ($section['lessons'] as $lesson): ?>
-                                    <article class="lesson-card" data-lesson-key="<?php echo course_builder_h($lesson['key']); ?>">
-                                        <input type="hidden" name="lesson_keys[<?php echo course_builder_h($section['key']); ?>][]" value="<?php echo course_builder_h($lesson['key']); ?>">
-                                        <input type="hidden" name="lesson_id[<?php echo course_builder_h($section['key']); ?>][<?php echo course_builder_h($lesson['key']); ?>]" value="<?php echo (int) $lesson['id']; ?>">
-                                        <div class="lesson-top">
-                                            <input name="lesson_title[<?php echo course_builder_h($section['key']); ?>][<?php echo course_builder_h($lesson['key']); ?>]"
-                                                   value="<?php echo course_builder_h($lesson['title']); ?>" placeholder="Lesson title">
-                                            <select class="lesson-type" name="lesson_type[<?php echo course_builder_h($section['key']); ?>][<?php echo course_builder_h($lesson['key']); ?>]">
-                                                <?php foreach (['text' => 'Text lesson', 'video' => 'Video URL', 'link' => 'External link', 'pdf' => 'PDF file', 'word' => 'Word file'] as $type => $label): ?>
-                                                    <option value="<?php echo $type; ?>" <?php echo $lesson['type'] === $type ? 'selected' : ''; ?>><?php echo $label; ?></option>
-                                                <?php endforeach; ?>
-                                            </select>
-                                            <button type="button" class="builder-button button-danger remove-lesson">Remove</button>
-                                        </div>
-                                        <div class="lesson-fields">
-                                            <div class="lesson-content-field text-field">
-                                                <textarea name="lesson_content[<?php echo course_builder_h($section['key']); ?>][<?php echo course_builder_h($lesson['key']); ?>]" placeholder="Write the lesson content here"><?php echo course_builder_h($lesson['content_text']); ?></textarea>
-                                            </div>
-                                            <div class="lesson-content-field url-field">
-                                                <input name="lesson_url[<?php echo course_builder_h($section['key']); ?>][<?php echo course_builder_h($lesson['key']); ?>]"
-                                                       value="<?php echo in_array($lesson['type'], ['video', 'link'], true) ? course_builder_h($lesson['content_url']) : ''; ?>"
-                                                       placeholder="https://example.com/video-or-resource">
-                                            </div>
-                                            <div class="lesson-content-field file-field">
-                                                <?php if (in_array($lesson['type'], ['pdf', 'word'], true) && $lesson['content_url'] !== ''): ?>
-                                                    <p class="resource-current">Current private file: <?php echo course_builder_h(basename($lesson['content_url'])); ?></p>
-                                                <?php endif; ?>
-                                                <input type="file" name="lesson_file_<?php echo course_builder_h($section['key']); ?>_<?php echo course_builder_h($lesson['key']); ?>">
-                                            </div>
-                                            <div>
-                                                <label>Duration (minutes)</label>
-                                                <input type="number" min="0" max="1440"
-                                                       name="lesson_duration[<?php echo course_builder_h($section['key']); ?>][<?php echo course_builder_h($lesson['key']); ?>]"
-                                                       value="<?php echo (int) $lesson['duration']; ?>">
-                                            </div>
-                                            <label class="preview-check">
-                                                <input type="checkbox"
-                                                       name="lesson_preview[<?php echo course_builder_h($section['key']); ?>][<?php echo course_builder_h($lesson['key']); ?>]"
-                                                       value="1" <?php echo $lesson['is_preview'] ? 'checked' : ''; ?>>
-                                                Free preview lesson
-                                            </label>
-                                        </div>
-                                    </article>
+                        <div class="field-group">
+                            <label for="category_id">Category <span>*</span></label>
+                            <select id="category_id" name="category_id" required>
+                                <option value="0">Select the best category</option>
+                                <?php foreach ($categories as $category): ?>
+                                    <option value="<?php echo (int) $category['id']; ?>"
+                                            data-category-name="<?php echo course_builder_h($category['name']); ?>"
+                                        <?php echo (int) $form['category_id'] === (int) $category['id'] ? 'selected' : ''; ?>>
+                                        <?php echo course_builder_h($category['name']); ?>
+                                    </option>
                                 <?php endforeach; ?>
+                            </select>
+                            <p class="field-error" data-error-for="category_id"></p>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="price">Price in NPR <span>*</span></label>
+                            <div class="money-input"><span>Rs.</span><input id="price" name="price" type="number" min="0" max="9999999999.99" step="0.01" required inputmode="decimal" value="<?php echo course_builder_h($form['price']); ?>"></div>
+                            <p class="field-help">Use 0 for a free course.</p>
+                            <p class="field-error" data-error-for="price"></p>
+                        </div>
+
+                        <div class="field-group">
+                            <label for="level">Learning level</label>
+                            <select id="level" name="level">
+                                <?php foreach (['beginner', 'intermediate', 'advanced'] as $level): ?>
+                                    <option value="<?php echo $level; ?>" <?php echo $form['level'] === $level ? 'selected' : ''; ?>><?php echo ucfirst($level); ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="field-group">
+                            <div class="field-label-row">
+                                <label for="language">Language <span>*</span></label>
+                                <span class="character-counter" data-counter-for="language">0 / 60</span>
                             </div>
-                            <div class="chapter-actions">
-                                <button type="button" class="builder-button button-secondary add-lesson">+ Add lesson</button>
+                            <input id="language" name="language" maxlength="60" required autocomplete="off" value="<?php echo course_builder_h($form['language']); ?>" placeholder="English, Nepali, Hindi...">
+                            <p class="field-error" data-error-for="language"></p>
+                        </div>
+
+                        <div class="field-group field-span-2">
+                            <div class="field-label-row">
+                                <label for="short_description">Course-card summary <span>*</span></label>
+                                <span class="character-counter" data-counter-for="short_description">0 / 500</span>
                             </div>
-                        </article>
-                    <?php endforeach; ?>
+                            <textarea id="short_description" name="short_description" rows="4" maxlength="500" required placeholder="Explain the course value in two or three direct sentences."><?php echo course_builder_h($form['short_description']); ?></textarea>
+                            <p class="field-help">This is the first explanation students see in search and course cards.</p>
+                            <p class="field-error" data-error-for="short_description"></p>
+                        </div>
+
+                        <div class="field-group field-span-2">
+                            <div class="field-label-row">
+                                <label for="full_description">Full course description <span>*</span></label>
+                                <span class="character-counter" data-counter-for="full_description">0 / 10000</span>
+                            </div>
+                            <textarea id="full_description" name="full_description" rows="9" maxlength="10000" required placeholder="Describe learning outcomes, audience, prerequisites, teaching approach and what is included."><?php echo course_builder_h($form['full_description']); ?></textarea>
+                            <p class="field-help">Plain text is stored here. HTML and executable markup are removed server-side.</p>
+                            <p class="field-error" data-error-for="full_description"></p>
+                        </div>
+
+                        <div class="field-group field-span-2">
+                            <label for="thumbnail">Course thumbnail <span>*</span></label>
+                            <label class="thumbnail-dropzone" for="thumbnail" id="thumbnailDropzone">
+                                <input id="thumbnail" name="thumbnail" type="file" accept="image/jpeg,image/png,image/webp" <?php echo $form['thumbnail'] === '' ? 'required' : ''; ?>>
+                                <span class="dropzone-art" aria-hidden="true">⬆</span>
+                                <span class="dropzone-copy">
+                                    <strong>Drop a course cover here or browse</strong>
+                                    <small>JPG, PNG or WebP · maximum 2 MB · landscape format recommended</small>
+                                </span>
+                                <span class="dropzone-action">Choose image</span>
+                            </label>
+                            <p class="field-error" data-error-for="thumbnail"></p>
+                        </div>
+                    </fieldset>
+                </section>
+
+                <section class="studio-panel" id="course-curriculum" data-studio-section="curriculum">
+                    <div class="panel-heading curriculum-heading">
+                        <div class="panel-heading-icon" aria-hidden="true">02</div>
+                        <div>
+                            <p class="panel-kicker">Learning architecture</p>
+                            <h2>Build a curriculum, not a file dump</h2>
+                            <p>Group lessons into chapters and control the exact order students follow.</p>
+                        </div>
+                        <button type="button" class="studio-button studio-button-primary" id="addChapter">+ Add chapter</button>
+                    </div>
+
+                    <div class="curriculum-toolbar">
+                        <div>
+                            <strong id="curriculumSummary">0 chapters · 0 lessons · 0 minutes</strong>
+                            <small>Use the arrows to reorder content. Changes are saved in the displayed order.</small>
+                        </div>
+                        <button type="button" class="text-action" id="expandAllChapters">Expand all</button>
+                    </div>
+
+                    <div class="chapter-list" id="chapterList">
+                        <?php foreach ($builderSections as $sectionIndex => $section): ?>
+                            <article class="chapter-card" data-section-key="<?php echo course_builder_h($section['key']); ?>">
+                                <input type="hidden" name="section_keys[]" value="<?php echo course_builder_h($section['key']); ?>">
+                                <header class="chapter-header">
+                                    <button type="button" class="drag-indicator" aria-label="Chapter position" tabindex="-1">⋮⋮</button>
+                                    <span class="chapter-number"><?php echo str_pad((string) ($sectionIndex + 1), 2, '0', STR_PAD_LEFT); ?></span>
+                                    <div class="chapter-title-field">
+                                        <label>Chapter title</label>
+                                        <input name="section_title[<?php echo course_builder_h($section['key']); ?>]" maxlength="160" value="<?php echo course_builder_h($section['title']); ?>" placeholder="Example: Understanding the HTTP request lifecycle">
+                                    </div>
+                                    <div class="chapter-header-actions">
+                                        <button type="button" class="icon-action move-chapter-up" aria-label="Move chapter up">↑</button>
+                                        <button type="button" class="icon-action move-chapter-down" aria-label="Move chapter down">↓</button>
+                                        <button type="button" class="icon-action toggle-chapter" aria-label="Collapse chapter" aria-expanded="true">⌃</button>
+                                        <button type="button" class="icon-action danger remove-chapter" aria-label="Remove chapter">×</button>
+                                    </div>
+                                </header>
+                                <div class="chapter-body">
+                                    <div class="lessons-list">
+                                        <?php foreach ($section['lessons'] as $lessonIndex => $lesson): ?>
+                                            <article class="lesson-card" data-lesson-key="<?php echo course_builder_h($lesson['key']); ?>">
+                                                <input type="hidden" name="lesson_keys[<?php echo course_builder_h($section['key']); ?>][]" value="<?php echo course_builder_h($lesson['key']); ?>">
+                                                <input type="hidden" name="lesson_id[<?php echo course_builder_h($section['key']); ?>][<?php echo course_builder_h($lesson['key']); ?>]" value="<?php echo (int) $lesson['id']; ?>">
+                                                <div class="lesson-order">L<?php echo $lessonIndex + 1; ?></div>
+                                                <div class="lesson-editor">
+                                                    <div class="lesson-primary-row">
+                                                        <div class="lesson-title-wrap">
+                                                            <label>Lesson title</label>
+                                                            <input name="lesson_title[<?php echo course_builder_h($section['key']); ?>][<?php echo course_builder_h($lesson['key']); ?>]" maxlength="180" value="<?php echo course_builder_h($lesson['title']); ?>" placeholder="Describe this lesson clearly">
+                                                        </div>
+                                                        <div class="lesson-type-wrap">
+                                                            <label>Content type</label>
+                                                            <select class="lesson-type" name="lesson_type[<?php echo course_builder_h($section['key']); ?>][<?php echo course_builder_h($lesson['key']); ?>]">
+                                                                <?php foreach (['text' => 'Text lesson', 'video' => 'Video URL', 'link' => 'External link', 'pdf' => 'PDF document', 'word' => 'Word document'] as $type => $label): ?>
+                                                                    <option value="<?php echo $type; ?>" <?php echo $lesson['type'] === $type ? 'selected' : ''; ?>><?php echo $label; ?></option>
+                                                                <?php endforeach; ?>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="lesson-content-panels">
+                                                        <div class="lesson-content-field text-field">
+                                                            <label>Lesson content</label>
+                                                            <textarea name="lesson_content[<?php echo course_builder_h($section['key']); ?>][<?php echo course_builder_h($lesson['key']); ?>]" rows="7" placeholder="Write the learning material. Safe headings, paragraphs and lists are supported."><?php echo course_builder_h($lesson['content_text']); ?></textarea>
+                                                        </div>
+                                                        <div class="lesson-content-field url-field">
+                                                            <label>Secure HTTP(S) URL</label>
+                                                            <input type="url" maxlength="2048" name="lesson_url[<?php echo course_builder_h($section['key']); ?>][<?php echo course_builder_h($lesson['key']); ?>]" value="<?php echo in_array($lesson['type'], ['video', 'link'], true) ? course_builder_h($lesson['content_url']) : ''; ?>" placeholder="https://example.com/resource">
+                                                        </div>
+                                                        <div class="lesson-content-field file-field">
+                                                            <label>Private lesson document</label>
+                                                            <?php if (in_array($lesson['type'], ['pdf', 'word'], true) && $lesson['content_url'] !== ''): ?>
+                                                                <p class="resource-current">Stored privately: <?php echo course_builder_h(basename($lesson['content_url'])); ?></p>
+                                                            <?php endif; ?>
+                                                            <input type="file" name="lesson_file_<?php echo course_builder_h($section['key']); ?>_<?php echo course_builder_h($lesson['key']); ?>">
+                                                            <small>Documents are stored outside the public web root and served only after authorization.</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="lesson-meta-row">
+                                                        <label class="duration-field"><span>Duration</span><input type="number" min="0" max="1440" name="lesson_duration[<?php echo course_builder_h($section['key']); ?>][<?php echo course_builder_h($lesson['key']); ?>]" value="<?php echo (int) $lesson['duration']; ?>"><small>minutes</small></label>
+                                                        <label class="preview-toggle"><input type="checkbox" name="lesson_preview[<?php echo course_builder_h($section['key']); ?>][<?php echo course_builder_h($lesson['key']); ?>]" value="1" <?php echo $lesson['is_preview'] ? 'checked' : ''; ?>><span></span><strong>Free preview</strong></label>
+                                                        <div class="lesson-actions">
+                                                            <button type="button" class="icon-action move-lesson-up" aria-label="Move lesson up">↑</button>
+                                                            <button type="button" class="icon-action move-lesson-down" aria-label="Move lesson down">↓</button>
+                                                            <button type="button" class="text-action danger remove-lesson">Remove lesson</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <button type="button" class="add-lesson-button add-lesson">+ Add another lesson to this chapter</button>
+                                </div>
+                            </article>
+                        <?php endforeach; ?>
+                    </div>
+
+                    <div class="curriculum-empty" id="emptyBuilder" <?php echo $builderSections ? 'hidden' : ''; ?>>
+                        <span class="empty-illustration" aria-hidden="true">▦</span>
+                        <h3>Your curriculum starts with one chapter</h3>
+                        <p>Create a chapter, then add text, video, link, PDF or Word lessons in the order students should learn them.</p>
+                        <button type="button" class="studio-button studio-button-primary" id="emptyAddChapter">Create first chapter</button>
+                    </div>
+                </section>
+
+                <section class="studio-panel review-panel" id="course-review" data-studio-section="review">
+                    <div class="panel-heading">
+                        <div class="panel-heading-icon" aria-hidden="true">03</div>
+                        <div>
+                            <p class="panel-kicker">Final quality gate</p>
+                            <h2>Review before admin sees it</h2>
+                            <p>Draft saving is flexible. Admin submission requires a complete, valid course.</p>
+                        </div>
+                    </div>
+                    <div class="review-grid">
+                        <div class="review-checklist" id="reviewChecklist">
+                            <div data-check="title"><span>○</span><p><strong>Clear course title</strong><small>At least 8 useful characters</small></p></div>
+                            <div data-check="category"><span>○</span><p><strong>Correct category</strong><small>Helps search and discovery</small></p></div>
+                            <div data-check="description"><span>○</span><p><strong>Useful descriptions</strong><small>Short summary and detailed explanation</small></p></div>
+                            <div data-check="thumbnail"><span>○</span><p><strong>Course thumbnail</strong><small>Valid JPG, PNG or WebP</small></p></div>
+                            <div data-check="curriculum"><span>○</span><p><strong>Learning curriculum</strong><small>At least one chapter and lesson</small></p></div>
+                        </div>
+                        <div class="submission-explainer">
+                            <span class="submission-icon" aria-hidden="true">⌁</span>
+                            <div>
+                                <h3><?php echo $isPublishedEdit ? 'Submit curriculum changes' : 'What happens after submission?'; ?></h3>
+                                <p>Admin receives a pending version for review. The course is not publicly visible until it is approved. Rejected courses return with a review note and remain editable.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <footer class="studio-submit-bar">
+                    <div class="submit-state">
+                        <span class="save-indicator" aria-hidden="true"></span>
+                        <div><strong id="submitStateTitle">Ready to continue</strong><small id="submitStateText">Save privately or submit when the checklist is complete.</small></div>
+                    </div>
+                    <div class="submit-actions">
+                        <?php if (!$isPublishedEdit): ?>
+                            <button type="submit" class="studio-button studio-button-ghost" name="course_action" value="save_draft">Save private draft</button>
+                        <?php endif; ?>
+                        <button type="submit" class="studio-button studio-button-submit" name="course_action" value="submit_review" id="submitReview"><?php echo $isPublishedEdit ? 'Submit curriculum changes' : 'Submit for admin review'; ?><span aria-hidden="true">→</span></button>
+                    </div>
+                </footer>
+            </form>
+
+            <aside class="preview-column" aria-label="Live course preview">
+                <div class="preview-sticky">
+                    <div class="preview-heading">
+                        <div><p>Live marketplace preview</p><h2>Student view</h2></div>
+                        <span>Live</span>
+                    </div>
+
+                    <article class="marketplace-card" id="liveCourseCard">
+                        <div class="marketplace-cover">
+                            <?php if ($form['thumbnail'] !== ''): ?>
+                                <img id="previewImage" src="assets/uploads/course_thumbnails/<?php echo rawurlencode(basename($form['thumbnail'])); ?>" alt="Course thumbnail preview">
+                            <?php else: ?>
+                                <img id="previewImage" src="assets/images/course-placeholder.svg" alt="Course thumbnail preview">
+                            <?php endif; ?>
+                            <span class="preview-category" id="previewCategory">Uncategorized</span>
+                            <span class="preview-level" id="previewLevel"><?php echo course_builder_h(ucfirst($form['level'])); ?></span>
+                        </div>
+                        <div class="marketplace-content">
+                            <div class="preview-meta"><span id="previewLanguage"><?php echo course_builder_h($form['language'] ?: 'Language'); ?></span><span>•</span><span id="previewDuration">0 min</span></div>
+                            <h3 id="previewTitle"><?php echo course_builder_h($form['title'] ?: 'Your course title appears here'); ?></h3>
+                            <p id="previewDescription"><?php echo course_builder_h($form['short_description'] ?: 'Write a concise promise explaining what students will learn and why it matters.'); ?></p>
+                            <div class="preview-rating"><span>★ ★ ★ ★ ★</span><small>New course</small></div>
+                            <div class="preview-price-row"><strong id="previewPrice">Rs. <?php echo course_builder_h(number_format((float) $form['price'], 0)); ?></strong><button type="button" tabindex="-1">View course</button></div>
+                        </div>
+                    </article>
+
+                    <div class="outline-preview-card">
+                        <div class="outline-heading"><div><p>Curriculum map</p><h3>What students will see</h3></div><span id="outlineCount">0 lessons</span></div>
+                        <div class="outline-list" id="previewOutline"><p class="outline-empty">Add chapters to build the course outline.</p></div>
+                    </div>
+
+                    <p class="preview-disclaimer">This preview is generated locally from your form. The server validates and sanitizes every submitted value again.</p>
                 </div>
-
-                <div class="empty-builder" id="emptyBuilder" <?php echo $builderSections ? 'hidden' : ''; ?>>
-                    No chapters yet. You may save an incomplete draft, or add a chapter now.
-                </div>
-
-                <p style="margin:16px 0 0">
-                    <button type="button" class="builder-button button-secondary" id="addChapter">+ Add chapter</button>
-                </p>
-            </section>
-
-            <div class="form-actions">
-                <?php if (!$isPublishedEdit): ?>
-                    <button type="submit" class="builder-button button-primary" name="course_action" value="save_draft">
-                        Save private draft
-                    </button>
-                <?php endif; ?>
-                <button type="submit" class="builder-button button-submit" name="course_action" value="submit_review" id="submitReview">
-                    <?php echo $isPublishedEdit ? 'Submit lesson changes' : 'Submit for admin review'; ?>
-                </button>
-            </div>
-        </form>
+            </aside>
+        </div>
     </section>
 </main>
 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const chapterList = document.getElementById('chapterList');
-    const emptyBuilder = document.getElementById('emptyBuilder');
-    const addChapterButton = document.getElementById('addChapter');
-    const form = document.getElementById('courseBuilderForm');
-    let sequence = Date.now();
-
-    const safeKey = prefix => `${prefix}_${++sequence}`;
-    const escapeName = value => String(value).replace(/[^A-Za-z0-9_-]/g, '');
-
-    function lessonMarkup(sectionKey, lessonKey) {
-        const section = escapeName(sectionKey);
-        const lesson = escapeName(lessonKey);
-        return `
-            <article class="lesson-card" data-lesson-key="${lesson}">
-                <input type="hidden" name="lesson_keys[${section}][]" value="${lesson}">
-                <input type="hidden" name="lesson_id[${section}][${lesson}]" value="0">
-                <div class="lesson-top">
-                    <input name="lesson_title[${section}][${lesson}]" placeholder="Lesson title">
-                    <select class="lesson-type" name="lesson_type[${section}][${lesson}]">
-                        <option value="text">Text lesson</option>
-                        <option value="video">Video URL</option>
-                        <option value="link">External link</option>
-                        <option value="pdf">PDF file</option>
-                        <option value="word">Word file</option>
-                    </select>
-                    <button type="button" class="builder-button button-danger remove-lesson">Remove</button>
-                </div>
-                <div class="lesson-fields">
-                    <div class="lesson-content-field text-field">
-                        <textarea name="lesson_content[${section}][${lesson}]" placeholder="Write the lesson content here"></textarea>
-                    </div>
-                    <div class="lesson-content-field url-field">
-                        <input name="lesson_url[${section}][${lesson}]" placeholder="https://example.com/video-or-resource">
-                    </div>
-                    <div class="lesson-content-field file-field">
-                        <input type="file" name="lesson_file_${section}_${lesson}">
-                    </div>
-                    <div>
-                        <label>Duration (minutes)</label>
-                        <input type="number" min="0" max="1440" name="lesson_duration[${section}][${lesson}]" value="0">
-                    </div>
-                    <label class="preview-check">
-                        <input type="checkbox" name="lesson_preview[${section}][${lesson}]" value="1">
-                        Free preview lesson
-                    </label>
-                </div>
-            </article>`;
-    }
-
-    function chapterMarkup(sectionKey) {
-        const section = escapeName(sectionKey);
-        const lesson = safeKey('lesson');
-        return `
-            <article class="chapter-card" data-section-key="${section}">
-                <input type="hidden" name="section_keys[]" value="${section}">
-                <div class="chapter-header">
-                    <input name="section_title[${section}]" placeholder="Chapter title">
-                    <button type="button" class="builder-button button-danger remove-chapter">Remove chapter</button>
-                </div>
-                <div class="lessons-list">${lessonMarkup(section, lesson)}</div>
-                <div class="chapter-actions">
-                    <button type="button" class="builder-button button-secondary add-lesson">+ Add lesson</button>
-                </div>
-            </article>`;
-    }
-
-    function updateEmptyState() {
-        emptyBuilder.hidden = chapterList.querySelector('.chapter-card') !== null;
-    }
-
-    function updateLessonFields(lessonCard) {
-        const type = lessonCard.querySelector('.lesson-type').value;
-        const textField = lessonCard.querySelector('.text-field');
-        const urlField = lessonCard.querySelector('.url-field');
-        const fileField = lessonCard.querySelector('.file-field');
-        textField.hidden = type !== 'text';
-        urlField.hidden = !['video', 'link'].includes(type);
-        fileField.hidden = !['pdf', 'word'].includes(type);
-        const fileInput = fileField.querySelector('input[type="file"]');
-        fileInput.accept = type === 'pdf'
-            ? 'application/pdf,.pdf'
-            : '.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-    }
-
-    addChapterButton.addEventListener('click', () => {
-        chapterList.insertAdjacentHTML('beforeend', chapterMarkup(safeKey('section')));
-        const newChapter = chapterList.lastElementChild;
-        updateLessonFields(newChapter.querySelector('.lesson-card'));
-        updateEmptyState();
-        newChapter.querySelector('.chapter-header input').focus();
-    });
-
-    chapterList.addEventListener('click', event => {
-        const addLesson = event.target.closest('.add-lesson');
-        const removeLesson = event.target.closest('.remove-lesson');
-        const removeChapter = event.target.closest('.remove-chapter');
-
-        if (addLesson) {
-            const chapter = addLesson.closest('.chapter-card');
-            const sectionKey = chapter.dataset.sectionKey;
-            chapter.querySelector('.lessons-list').insertAdjacentHTML(
-                'beforeend',
-                lessonMarkup(sectionKey, safeKey('lesson'))
-            );
-            const newLesson = chapter.querySelector('.lessons-list').lastElementChild;
-            updateLessonFields(newLesson);
-            newLesson.querySelector('input:not([type="hidden"])').focus();
-        }
-
-        if (removeLesson && confirm('Remove this lesson from the draft?')) {
-            removeLesson.closest('.lesson-card').remove();
-        }
-
-        if (removeChapter && confirm('Remove this chapter and all lessons inside it?')) {
-            removeChapter.closest('.chapter-card').remove();
-            updateEmptyState();
-        }
-    });
-
-    chapterList.addEventListener('change', event => {
-        if (event.target.classList.contains('lesson-type')) {
-            updateLessonFields(event.target.closest('.lesson-card'));
-        }
-    });
-
-    chapterList.querySelectorAll('.lesson-card').forEach(updateLessonFields);
-    updateEmptyState();
-
-    form.addEventListener('submit', event => {
-        const submitter = event.submitter;
-
-        if (submitter && submitter.value === 'submit_review') {
-            const confirmed = confirm(
-                'Submit this course to admin? You will not be able to edit it while it is pending review.'
-            );
-
-            if (!confirmed) {
-                event.preventDefault();
-            }
-        }
-    });
-});
-</script>
+<script src="assets/js/instructor_create_course.js?v=4" defer></script>
 
 <?php require_once __DIR__ . '/../layouts/panel_end.php'; ?>
