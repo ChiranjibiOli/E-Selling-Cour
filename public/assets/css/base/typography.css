@@ -1,35 +1,64 @@
 body {
-    background: var(--color-soft);
+    background:
+        radial-gradient(circle at 8% 0%, rgba(184, 137, 57, 0.08), transparent 28rem),
+        var(--color-soft);
     color: var(--color-text);
     font-family: var(--font-main);
     font-size: 16px;
-    line-height: 1.55;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
+
 h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
     color: var(--color-dark);
-    font-weight: 900;
-    line-height: 1.15;
+    font-family: var(--font-display);
+    font-weight: 700;
+    line-height: 1.06;
 }
-h1 { font-size: clamp(2rem, 5vw, 4rem); letter-spacing: -0.06em; }
-h2 { font-size: clamp(1.7rem, 4vw, 2.8rem); letter-spacing: -0.045em; }
-h3 { font-size: 1.25rem; letter-spacing: -0.02em; }
+
+h1 { font-size: clamp(2.65rem, 6vw, 5.7rem); letter-spacing: -0.055em; }
+h2 { font-size: clamp(2rem, 4.5vw, 3.65rem); letter-spacing: -0.04em; }
+h3 { font-size: clamp(1.25rem, 2vw, 1.6rem); letter-spacing: -0.025em; }
+h4 { font-size: 1.05rem; letter-spacing: -0.015em; }
+
 p { color: var(--color-muted); }
+a { color: inherit; text-underline-offset: 3px; }
+strong { color: var(--color-dark); }
+
 .text-muted { color: var(--color-muted); }
-.text-primary { color: var(--color-primary); }
+.text-primary { color: var(--color-primary-dark); }
 .text-success { color: var(--color-success); }
 .text-danger { color: var(--color-danger); }
+
 .section-kicker {
     display: inline-flex;
     align-items: center;
     width: fit-content;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
     padding: 7px 13px;
+    border: 1px solid rgba(184, 137, 57, 0.24);
     border-radius: var(--radius-full);
-    background: #eef2ff;
-    color: var(--color-primary);
-    font-size: 0.78rem;
+    background: rgba(184, 137, 57, 0.1);
+    color: var(--color-primary-dark);
+    font-family: var(--font-main);
+    font-size: 0.74rem;
     font-weight: 900;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
 }
-.section-title { margin-bottom: 12px; }
-.section-description { max-width: 720px; color: var(--color-muted); font-size: 1rem; line-height: 1.7; }
+
+.section-title { margin-bottom: 14px; }
+.section-description {
+    max-width: 720px;
+    color: var(--color-muted);
+    font-size: 1.04rem;
+    line-height: 1.78;
+}
 .text-center { text-align: center; }
+
+::selection {
+    background: rgba(184, 137, 57, 0.28);
+    color: var(--color-dark);
+}
