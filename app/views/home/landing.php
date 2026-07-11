@@ -3,12 +3,7 @@
 require_once __DIR__ . '/../../config/database.php';
 
 $featuredCourses = [];
-$stats = [
-    'students' => 0,
-    'courses' => 0,
-    'instructors' => 0,
-    'enrollments' => 0,
-];
+$stats = ['students' => 0, 'courses' => 0, 'instructors' => 0, 'enrollments' => 0];
 
 function landing_h(mixed $value): string
 {
@@ -22,16 +17,12 @@ function landing_price(mixed $price): string
 
 function landing_thumbnail(array $course): string
 {
-    $publicRoot = defined('PUBLIC_PATH')
-        ? PUBLIC_PATH
-        : dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'public';
-
+    $publicRoot = defined('PUBLIC_PATH') ? PUBLIC_PATH : dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'public';
     $thumbnailPath = 'assets/images/course-placeholder.svg';
 
     if (!empty($course['thumbnail'])) {
         $candidate = 'assets/uploads/course_thumbnails/' . basename((string) $course['thumbnail']);
         $fullPath = $publicRoot . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $candidate);
-
         if (is_file($fullPath)) {
             $thumbnailPath = $candidate;
         }
@@ -41,17 +32,8 @@ function landing_thumbnail(array $course): string
 }
 
 $featuredSql = "
-    SELECT
-        c.id,
-        c.title,
-        c.slug,
-        c.short_description,
-        c.thumbnail,
-        c.price,
-        c.level,
-        c.duration,
-        c.language,
-        u.full_name AS instructor_name
+    SELECT c.id, c.title, c.slug, c.short_description, c.thumbnail, c.price,
+           c.level, c.duration, c.language, u.full_name AS instructor_name
     FROM courses c
     INNER JOIN users u ON c.instructor_id = u.id
     WHERE c.status = 'published'
@@ -75,29 +57,33 @@ foreach ($statQueries as $key => $query) {
     $result = $conn->query($query);
     $stats[$key] = $result ? (int) ($result->fetch_assoc()['total'] ?? 0) : 0;
 }
-
 ?>
-<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=6">
-<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=6">
-<link rel="stylesheet" href="assets/css/components/footer.css?v=6">
+<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=7">
+<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=7">
+<link rel="stylesheet" href="assets/css/components/footer.css?v=7">
 
 <main class="landing-page">
     <section class="editorial-hero">
         <div class="container editorial-hero-grid">
             <div class="editorial-hero-copy">
-                <span class="editorial-kicker">Independent learning, built for Nepal</span>
-                <h1>Learn useful skills without the noise.</h1>
-                <p>Discover trusted courses, understand the full learning path, pay securely, and continue from your personal dashboard.</p>
+                <span class="editorial-kicker">Learn from the best</span>
+                <h1>
+                    Education<br>
+                    that <em>transforms</em><br>
+                    your life.
+                </h1>
+                <p>
+                    Handpicked courses from approved instructors, designed for real progress.
+                    Purchase once, complete payment verification, and keep lifetime access.
+                </p>
                 <div class="editorial-actions">
-                    <a class="editorial-button editorial-button-dark" href="courses.php">Browse courses</a>
-                    <a class="editorial-button editorial-button-light" href="register.php">Create account</a>
+                    <a class="editorial-button editorial-button-gold" href="courses.php">Discover courses</a>
+                    <a class="editorial-button editorial-button-light" href="how-it-works.php">How it works</a>
                 </div>
             </div>
 
-            <div class="editorial-hero-note">
-                <span>CourseHub</span>
-                <strong><?php echo number_format($stats['courses']); ?> published courses</strong>
-                <p>Approved instructors. Clear pricing. Lifetime access after payment verification.</p>
+            <div class="editorial-hero-visual">
+                <img src="assets/images/hero-learning.svg" alt="Online learning illustration">
             </div>
         </div>
     </section>
@@ -105,14 +91,14 @@ foreach ($statQueries as $key => $query) {
     <section class="editorial-courses">
         <div class="container">
             <div class="editorial-section-heading">
-                <span>Selected courses</span>
-                <h2>Study one subject properly.</h2>
+                <h2>Featured learning,<br>presented like a collection.</h2>
+                <p>Courses unfold as layered editorial sheets while you scroll, preserving the clean visual direction from the reference.</p>
             </div>
 
             <div class="editorial-course-list">
                 <?php if ($featuredCourses): ?>
                     <?php foreach ($featuredCourses as $index => $course): ?>
-                        <article class="editorial-course-card editorial-tone-<?php echo ($index % 3) + 1; ?>">
+                        <article class="editorial-course-card editorial-tone-<?php echo ($index % 3) + 1; ?>" style="--stack-index: <?php echo $index; ?>;">
                             <div class="editorial-course-copy">
                                 <span class="editorial-course-number">
                                     <?php echo str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT); ?> ·
@@ -137,7 +123,7 @@ foreach ($statQueries as $key => $query) {
                     <article class="editorial-empty-state">
                         <span>Courses are being prepared</span>
                         <h3>Published courses will appear here.</h3>
-                        <p>Explore the full catalogue or return after instructors publish their approved courses.</p>
+                        <p>Explore the full catalogue or return after instructors publish approved courses.</p>
                         <a class="editorial-button editorial-button-dark" href="courses.php">Open courses</a>
                     </article>
                 <?php endif; ?>
@@ -149,7 +135,7 @@ foreach ($statQueries as $key => $query) {
         <div class="container">
             <div class="editorial-directory-intro">
                 <h2>Everything important has its own page.</h2>
-                <p>Move from discovery to course browsing, payment guidance, account creation, and learning without dead ends or decorative clutter.</p>
+                <p>Students can move from discovery to course browsing, instructor profiles, payment guidance, and account creation without dead navigation.</p>
             </div>
 
             <div class="editorial-directory-grid">
