@@ -1,11 +1,11 @@
 .authenticated-panel {
     min-height: 100vh;
     margin: 0;
-    color: #172033;
+    color: var(--color-text);
     background:
-        radial-gradient(circle at 5% 0%, rgba(79, 70, 229, .08), transparent 28rem),
-        radial-gradient(circle at 95% 10%, rgba(14, 165, 233, .07), transparent 26rem),
-        #f5f7fb;
+        radial-gradient(circle at 7% 0%, rgba(184, 137, 57, .08), transparent 28rem),
+        radial-gradient(circle at 94% 10%, rgba(24, 22, 18, .05), transparent 24rem),
+        var(--color-soft);
 }
 
 .authenticated-panel .site-footer { display: none !important; }
@@ -15,15 +15,15 @@
     top: 0;
     z-index: 1000;
     width: 100%;
-    border-bottom: 1px solid rgba(226, 232, 240, .9);
-    background: rgba(255, 255, 255, .94);
-    box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
+    border-bottom: 1px solid rgba(125, 92, 35, .14);
+    background: rgba(255, 253, 248, .94);
+    box-shadow: 0 10px 30px rgba(39, 31, 21, .06);
     backdrop-filter: blur(18px);
 }
 
 .role-nav-container {
     width: min(1440px, calc(100% - 32px));
-    min-height: 72px;
+    min-height: 74px;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -34,21 +34,25 @@
     display: inline-flex;
     align-items: center;
     min-width: max-content;
-    color: #111827 !important;
+    color: var(--color-dark) !important;
     text-decoration: none;
-    font-size: 1rem;
-    font-weight: 900;
-    letter-spacing: -.025em;
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 700;
 }
 
 .role-logo::before {
-    content: '';
-    width: 34px;
-    height: 34px;
+    content: 'C';
+    width: 36px;
+    height: 36px;
     margin-right: 10px;
-    border-radius: 11px;
-    background: linear-gradient(135deg, #6366f1, #4338ca 58%, #0ea5e9);
-    box-shadow: 0 8px 18px rgba(79, 70, 229, .25);
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--color-dark);
+    color: #f2d79e;
+    box-shadow: 0 9px 20px rgba(24, 22, 18, .2);
+    font-family: var(--font-display);
 }
 
 .role-nav-menu {
@@ -61,9 +65,7 @@
     padding: 0;
     list-style: none;
 }
-
-.role-nav-menu li { margin: 0; }
-.role-nav-menu form { margin: 0; }
+.role-nav-menu li, .role-nav-menu form { margin: 0; }
 
 .role-nav-menu a,
 .role-logout-btn,
@@ -73,29 +75,29 @@
     align-items: center;
     justify-content: center;
     border: 0;
-    border-radius: 11px;
-    padding: 0 11px;
-    color: #5b6475 !important;
+    border-radius: 999px;
+    padding: 0 12px;
+    color: var(--color-muted) !important;
     background: transparent;
     text-decoration: none;
     font-size: .78rem;
     font-weight: 800;
     white-space: nowrap;
     cursor: pointer;
-    transition: .18s ease;
+    transition: var(--transition-fast);
 }
 
 .role-nav-menu a:hover,
 .role-nav-menu a.active {
-    color: #4338ca !important;
-    background: #eef2ff;
+    color: var(--color-primary-dark) !important;
+    background: rgba(184, 137, 57, .1);
 }
 
 .role-logout-btn,
 .student-logout-item .confirm-logout-btn {
     margin-left: 6px;
-    color: #b91c1c !important;
-    background: #fef2f2;
+    color: var(--color-danger) !important;
+    background: rgba(167, 68, 61, .08);
 }
 
 .nav-toggle {
@@ -103,23 +105,20 @@
     width: 42px;
     height: 42px;
     margin-left: auto;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    background: var(--color-white);
 }
-
 .nav-toggle span:not(.sr-only) {
     display: block;
     width: 18px;
     height: 2px;
     margin: 3px auto;
     border-radius: 999px;
-    background: #334155;
+    background: var(--color-dark);
 }
 
-.authenticated-panel main {
-    width: 100%;
-}
+.authenticated-panel main { width: 100%; }
 
 .authenticated-panel :is(
     .admin-dashboard-page, .admin-courses-page, .admin-instructors-page,
@@ -131,8 +130,8 @@
     .student-courses-page, .student-page, .student-learning-page,
     .cart-page, .checkout-page, .edit-course-page
 ) {
-    min-height: calc(100vh - 72px);
-    padding: 32px 18px 64px !important;
+    min-height: calc(100vh - 74px);
+    padding: 34px 18px 66px !important;
     background: transparent !important;
 }
 
@@ -161,12 +160,12 @@
     align-items: center;
     justify-content: space-between;
     gap: 20px;
-    margin: 0 0 22px !important;
-    padding: 24px 26px !important;
-    border: 1px solid rgba(226, 232, 240, .9) !important;
-    border-radius: 24px !important;
-    background: linear-gradient(135deg, #fff 0%, #f8faff 65%, #eef2ff 100%) !important;
-    box-shadow: 0 16px 45px rgba(15, 23, 42, .07) !important;
+    margin: 0 0 24px !important;
+    padding: 28px 30px !important;
+    border: 1px solid rgba(125, 92, 35, .14) !important;
+    border-radius: 28px !important;
+    background: linear-gradient(135deg, #fffdf8 0%, #f7f0e5 100%) !important;
+    box-shadow: var(--shadow-sm) !important;
 }
 
 .authenticated-panel :is(
@@ -175,16 +174,15 @@
     .withdrawals-header, .payout-header, .profile-header,
     .page-header, .edit-course-heading, .courses-hero
 ) h1 {
-    margin: 2px 0 5px !important;
-    color: #101828 !important;
-    font-size: clamp(1.65rem, 3vw, 2.35rem) !important;
-    line-height: 1.1 !important;
-    letter-spacing: -.04em !important;
+    margin: 2px 0 6px !important;
+    color: var(--color-dark) !important;
+    font-size: clamp(1.9rem, 3vw, 2.8rem) !important;
+    line-height: 1.03 !important;
 }
 
 .authenticated-panel :is(.page-label, .eyebrow, .studio-label) {
     margin: 0 !important;
-    color: #4f46e5 !important;
+    color: var(--color-primary-dark) !important;
     font-size: .72rem !important;
     font-weight: 900 !important;
     letter-spacing: .12em !important;
@@ -199,8 +197,8 @@
 ) p:not(.page-label):not(.eyebrow) {
     max-width: 720px;
     margin: 0 !important;
-    color: #667085 !important;
-    line-height: 1.65 !important;
+    color: var(--color-muted) !important;
+    line-height: 1.68 !important;
 }
 
 .authenticated-panel :is(
@@ -210,10 +208,10 @@
     .withdrawal-form-card, .withdrawal-history-card, .profile-card,
     .settings-card, .report-card, .table-card, .filter-card
 ) {
-    border: 1px solid #e5eaf1 !important;
-    border-radius: 20px !important;
-    background: #fff !important;
-    box-shadow: 0 10px 28px rgba(15, 23, 42, .055) !important;
+    border: 1px solid var(--color-border) !important;
+    border-radius: 22px !important;
+    background: rgba(255, 253, 248, .96) !important;
+    box-shadow: var(--shadow-xs) !important;
     transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease !important;
 }
 
@@ -222,63 +220,50 @@
     .user-card, .student-card
 ):hover {
     transform: translateY(-3px);
-    border-color: #c7d2fe !important;
-    box-shadow: 0 18px 42px rgba(79, 70, 229, .09) !important;
+    border-color: rgba(184, 137, 57, .42) !important;
+    box-shadow: var(--shadow-md) !important;
 }
 
 .authenticated-panel :is(
     .dashboard-grid, .stats-grid, .metrics-grid, .summary-grid,
     .withdrawal-summary-grid, .withdrawal-stats-grid
-) {
-    gap: 16px !important;
-}
+) { gap: 18px !important; }
 
 .authenticated-panel :is(table, .data-table) {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
     overflow: hidden;
-    border: 1px solid #e5e7eb;
-    border-radius: 16px;
-    background: #fff;
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    background: var(--color-white);
 }
-
 .authenticated-panel :is(table, .data-table) th {
-    padding: 13px 15px;
-    border-bottom: 1px solid #e5e7eb;
-    color: #475467;
-    background: #f8fafc;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--color-border);
+    color: var(--color-muted);
+    background: #f6efe4;
     text-align: left;
-    font-size: .72rem;
+    font-size: .71rem;
     font-weight: 900;
-    letter-spacing: .06em;
+    letter-spacing: .07em;
     text-transform: uppercase;
 }
-
 .authenticated-panel :is(table, .data-table) td {
-    padding: 14px 15px;
-    border-bottom: 1px solid #eef2f7;
-    color: #344054;
+    padding: 15px 16px;
+    border-bottom: 1px solid #eee4d6;
+    color: var(--color-text);
     vertical-align: middle;
 }
-
 .authenticated-panel :is(table, .data-table) tr:last-child td { border-bottom: 0; }
 
-.authenticated-panel :is(input, select, textarea) {
-    accent-color: #4f46e5;
-}
-
+.authenticated-panel :is(input, select, textarea) { accent-color: var(--color-primary); }
 .authenticated-panel :is(.btn, button, .create-course-btn, .details-btn, .card-action, .filter-actions a) {
     transition: transform .16s ease, box-shadow .16s ease, background .16s ease;
 }
+.authenticated-panel :is(.btn, button, .create-course-btn, .details-btn, .card-action):hover { transform: translateY(-1px); }
 
-.authenticated-panel :is(.btn, button, .create-course-btn, .details-btn, .card-action):hover {
-    transform: translateY(-1px);
-}
-
-.status-pill,
-.course-status,
-.student-card-status {
+.status-pill, .course-status, .student-card-status {
     display: inline-flex !important;
     align-items: center;
     min-height: 28px;
@@ -303,10 +288,10 @@
         flex-direction: column;
         gap: 4px;
         padding: 12px;
-        border: 1px solid #e2e8f0;
-        border-radius: 18px;
-        background: #fff;
-        box-shadow: 0 22px 60px rgba(15, 23, 42, .16);
+        border: 1px solid var(--color-border);
+        border-radius: 20px;
+        background: var(--color-white);
+        box-shadow: var(--shadow-lg);
     }
     .role-navbar.menu-open .role-nav-menu { display: flex; }
     .role-nav-menu a, .role-logout-btn, .student-logout-item .confirm-logout-btn {
@@ -314,13 +299,14 @@
         justify-content: flex-start;
         margin: 0;
         padding: 0 14px;
+        border-radius: 12px;
     }
 }
 
 @media (max-width: 700px) {
     .role-nav-container { min-height: 64px; }
-    .role-logo { font-size: .9rem; }
-    .role-logo::before { width: 30px; height: 30px; }
+    .role-logo { font-size: .95rem; }
+    .role-logo::before { width: 31px; height: 31px; }
     .authenticated-panel :is(
         .admin-dashboard-page, .admin-courses-page, .admin-instructors-page,
         .admin-users-page, .admin-orders-page, .admin-order-details-page,
@@ -336,7 +322,11 @@
         .my-courses-main-header, .students-header, .sales-header,
         .withdrawals-header, .payout-header, .profile-header,
         .page-header, .edit-course-heading, .courses-hero
-    ) { align-items: flex-start; flex-direction: column; padding: 20px !important; border-radius: 20px !important; }
-    .authenticated-panel table { min-width: 680px; }
-    .authenticated-panel :is(.table-wrapper, .table-responsive) { overflow-x: auto; }
+    ) {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 22px 20px !important;
+        border-radius: 22px !important;
+    }
+    .authenticated-panel :is(table, .data-table) { min-width: 720px; }
 }
