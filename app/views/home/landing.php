@@ -42,8 +42,6 @@ function landing_thumbnail(array $course): string
     return $thumbnailPath;
 }
 
-
-
 $featuredSql = "
     SELECT
         c.id,
@@ -69,8 +67,6 @@ while ($featuredResult && $row = $featuredResult->fetch_assoc()) {
     $featuredCourses[] = $row;
 }
 
-
-
 $categoryResult = $conn->query("
     SELECT id, name, slug
     FROM categories
@@ -83,8 +79,6 @@ while ($categoryResult && $row = $categoryResult->fetch_assoc()) {
     $categories[] = $row;
 }
 
-
-
 $statQueries = [
     'students' => "SELECT COUNT(*) AS total FROM users WHERE role = 'student' AND status = 'active'",
     'courses' => "SELECT COUNT(*) AS total FROM courses WHERE status = 'published'",
@@ -96,8 +90,6 @@ foreach ($statQueries as $key => $query) {
     $result = $conn->query($query);
     $stats[$key] = $result ? (int) ($result->fetch_assoc()['total'] ?? 0) : 0;
 }
-
-
 
 $learningPaths = [
     [
@@ -210,14 +202,13 @@ $faqs = [
 ];
 
 ?>
-<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=1">
-<link rel="stylesheet" href="assets/css/components/course-card.css?v=1">
-<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=1">
-<link rel="stylesheet" href="assets/css/components/footer.css?v=1">
+<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=5">
+<link rel="stylesheet" href="assets/css/components/course-card.css?v=5">
+<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=5">
+<link rel="stylesheet" href="assets/css/components/footer.css?v=5">
 
 <main class="landing-page">
 
-    
     <section class="hero-section">
         <div class="container hero-content">
 
@@ -261,225 +252,94 @@ $faqs = [
                 </div>
 
                 <div class="hero-trust">
-                    <div>
-                        <strong><?php echo number_format($stats['students']); ?>+</strong>
-                        <span>Students</span>
-                    </div>
-                    <div>
-                        <strong><?php echo number_format($stats['courses']); ?>+</strong>
-                        <span>Courses</span>
-                    </div>
-                    <div>
-                        <strong>Lifetime</strong>
-                        <span>Access</span>
-                    </div>
+                    <div><strong><?php echo number_format($stats['students']); ?>+</strong><span>Students</span></div>
+                    <div><strong><?php echo number_format($stats['courses']); ?>+</strong><span>Courses</span></div>
+                    <div><strong><?php echo number_format($stats['instructors']); ?>+</strong><span>Instructors</span></div>
+                    <div><strong><?php echo number_format($stats['enrollments']); ?>+</strong><span>Enrollments</span></div>
                 </div>
             </div>
 
-            <div class="hero-visual">
+            <div class="hero-visual" aria-hidden="true">
                 <div class="hero-image">
-                    <img src="assets/images/hero-banner.jpg" alt="Student learning online">
+                    <img src="assets/images/hero-learning.svg" alt="">
                 </div>
-
-                <div class="floating-card progress-card">
-                    <span>📈</span>
-                    <div>
-                        <strong>75%</strong>
-                        <small>Learning progress</small>
-                    </div>
-                </div>
-
-                <div class="floating-card instructor-card">
-                    <span>⭐</span>
-                    <div>
-                        <strong>Approved</strong>
-                        <small>Instructor courses</small>
-                    </div>
-                </div>
-
-                <div class="floating-card payment-card">
-                    <span>💳</span>
-                    <div>
-                        <strong>Verified</strong>
-                        <small>Payment access</small>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-    <
-    <section class="stats-section" aria-label="Platform totals">
-        <div class="container stats-grid">
-            <div class="stat-card">
-                <span>👨‍🎓</span>
-                <h2><?php echo number_format($stats['students']); ?>+</h2>
-                <p>Active students</p>
-            </div>
-
-            <div class="stat-card">
-                <span>📚</span>
-                <h2><?php echo number_format($stats['courses']); ?>+</h2>
-                <p>Published courses</p>
-            </div>
-
-            <div class="stat-card">
-                <span>👨‍🏫</span>
-                <h2><?php echo number_format($stats['instructors']); ?>+</h2>
-                <p>Approved instructors</p>
-            </div>
-
-            <div class="stat-card">
-                <span>🎯</span>
-                <h2><?php echo number_format($stats['enrollments']); ?>+</h2>
-                <p>Active enrollments</p>
             </div>
         </div>
     </section>
 
-    
-    <?php if (!empty($categories)): ?>
-        <section class="categories section-padding">
-            <div class="container">
+    <section class="popular-categories">
+        <div class="container">
+            <span class="section-kicker">Explore by category</span>
+            <h2 class="section-title">Popular learning categories</h2>
+            <p class="section-description">Find a clear path based on the skill you want to build.</p>
 
-                <div class="section-heading">
-                    <span class="section-kicker">Explore subjects</span>
-                    <h2>Popular course categories</h2>
-                    <p>Choose a subject and start learning from approved instructors.</p>
-                </div>
-
-                <div class="category-grid">
-                    <a class="category-card all-category" href="courses.php">
-                        <span>🚀</span>
-                        <strong>All Courses</strong>
-                        <small>Browse everything</small>
+            <div class="category-grid">
+                <?php foreach ($categories as $category): ?>
+                    <a class="category-card" href="courses.php?category=<?php echo urlencode((string) $category['slug']); ?>">
+                        <span>📘</span>
+                        <strong><?php echo landing_h($category['name']); ?></strong>
+                        <small>Browse courses</small>
                     </a>
-
-                    <?php foreach ($categories as $index => $category): ?>
-                        <?php
-                            $icons = ['💻', '🛡️', '📊', '🎨', '📱', '🌐', '📷', '🧠'];
-                            $icon = $icons[$index % count($icons)];
-                        ?>
-                        <a
-                            class="category-card"
-                            href="courses.php?category_id=<?php echo (int) $category['id']; ?>"
-                        >
-                            <span><?php echo $icon; ?></span>
-                            <strong><?php echo landing_h($category['name']); ?></strong>
-                            <small>View courses</small>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-
+                <?php endforeach; ?>
+                <a class="category-card all-category" href="courses.php">
+                    <span>→</span>
+                    <strong>View all courses</strong>
+                    <small>Explore everything</small>
+                </a>
             </div>
-        </section>
-    <?php endif; ?>
-
-
-    <section class="featured-courses section-padding">
-        <div class="container">
-
-            <div class="section-heading section-between">
-                <div>
-                    <span class="section-kicker">Featured learning</span>
-                    <h2>Courses students are exploring</h2>
-                    <p>Recently published and highlighted courses from approved instructors.</p>
-                </div>
-
-                <a href="courses.php" class="section-link">View all courses →</a>
-            </div>
-
-            <?php if (empty($featuredCourses)): ?>
-                <div class="empty-state">
-                    <span>📚</span>
-                    <h3>Courses are being prepared</h3>
-                    <p>Approved courses will appear here after instructors publish them.</p>
-                    <a href="register.php?role=instructor" class="btn btn-primary">Become an instructor</a>
-                </div>
-            <?php else: ?>
-                <div class="course-grid">
-                    <?php foreach ($featuredCourses as $course): ?>
-                        <article class="course-card">
-                            <div class="course-thumb">
-                                <img
-                                    src="<?php echo landing_h(landing_thumbnail($course)); ?>"
-                                    alt="<?php echo landing_h($course['title']); ?>"
-                                
-                                <span class="course-badge">
-                                    <?php echo landing_h(ucfirst($course['level'] ?? 'Beginner')); ?>
-                                </span>
-                            </div>
-
-                            <div class="course-card-content">
-                                <div class="course-mini-meta">
-                                    <span>👨‍🏫 <?php echo landing_h($course['instructor_name']); ?></span>
-                                    <span>⭐ 4.8</span>
-                                </div>
-
-                                <h3><?php echo landing_h($course['title']); ?></h3>
-
-                                <p>
-                                    <?php echo landing_h($course['short_description'] ?: 'Course details coming soon.'); ?>
-                                </p>
-
-                                <div class="course-info-row">
-                                    <span>🌐 <?php echo landing_h($course['language'] ?: 'English'); ?></span>
-                                    <span>⏱️ <?php echo landing_h($course['duration'] ?: 'Flexible'); ?></span>
-                                </div>
-
-                                <div class="course-footer">
-                                    <strong><?php echo landing_price($course['price']); ?></strong>
-                                    <a
-                                        href="course-details.php?slug=<?php echo urlencode($course['slug']); ?>"
-                                        class="btn btn-primary"
-                                    >
-                                        View details
-                                    </a>
-                                </div>
-                            </div>
-                        </article>
-                    <?php endforeach; ?>
-                </div>
-            <?php endif; ?>
-
         </div>
     </section>
 
-
-    <section class="learning-paths section-padding">
+    <section class="featured-courses">
         <div class="container">
+            <span class="section-kicker">Featured courses</span>
+            <h2 class="section-title">Learn from approved instructors</h2>
+            <p class="section-description">Published courses selected from the latest available catalogue.</p>
 
-            <div class="section-heading">
-                <span class="section-kicker">Learning paths</span>
-                <h2>Start from your goal</h2>
-                <p>Find courses based on what you want to become or improve.</p>
+            <div class="course-grid">
+                <?php foreach ($featuredCourses as $course): ?>
+                    <article class="course-card">
+                        <div class="course-thumb">
+                            <img src="<?php echo landing_h(landing_thumbnail($course)); ?>" alt="<?php echo landing_h($course['title']); ?>">
+                        </div>
+                        <div class="course-card-content">
+                            <div class="course-mini-meta">
+                                <span><?php echo landing_h(ucfirst((string) $course['level'])); ?></span>
+                                <span><?php echo landing_h($course['language']); ?></span>
+                            </div>
+                            <h3><?php echo landing_h($course['title']); ?></h3>
+                            <p><?php echo landing_h($course['short_description']); ?></p>
+                            <div class="course-footer">
+                                <strong><?php echo landing_price($course['price']); ?></strong>
+                                <a class="btn" href="course-details.php?slug=<?php echo urlencode((string) $course['slug']); ?>">View course</a>
+                            </div>
+                        </div>
+                    </article>
+                <?php endforeach; ?>
             </div>
+        </div>
+    </section>
 
+    <section class="learning-paths">
+        <div class="container">
+            <span class="section-kicker">Learning paths</span>
+            <h2 class="section-title">Choose where to begin</h2>
             <div class="path-grid">
                 <?php foreach ($learningPaths as $path): ?>
                     <a class="path-card" href="courses.php?search=<?php echo urlencode($path['search']); ?>">
-                        <span><?php echo landing_h($path['icon']); ?></span>
+                        <span><?php echo $path['icon']; ?></span>
                         <h3><?php echo landing_h($path['title']); ?></h3>
                         <p><?php echo landing_h($path['description']); ?></p>
-                        <strong>Explore path →</strong>
                     </a>
                 <?php endforeach; ?>
             </div>
-
         </div>
     </section>
 
-    
-    <section class="how-it-works section-padding">
+    <section class="how-it-works">
         <div class="container">
-
-            <div class="section-heading">
-                <span class="section-kicker">Simple process</span>
-                <h2>How learning works here</h2>
-                <p>Clear workflow for students, instructors, and administrators.</p>
-            </div>
-
+            <span class="section-kicker">How it works</span>
+            <h2 class="section-title">From choosing a course to lifetime access</h2>
             <div class="steps-grid">
                 <?php foreach ($steps as $step): ?>
                     <article class="step-card">
@@ -489,118 +349,72 @@ $faqs = [
                     </article>
                 <?php endforeach; ?>
             </div>
-
         </div>
     </section>
 
-    
-    <section class="why-choose-us section-padding">
+    <section class="why-choose-us">
         <div class="container">
-
-            <div class="section-heading">
-                <span class="section-kicker">Why choose us</span>
-                <h2>A trusted course platform workflow</h2>
-                <p>Designed for course selling, access control, instructor approval, and payment verification.</p>
-            </div>
-
+            <span class="section-kicker">Why CourseHub</span>
+            <h2 class="section-title">A safer and clearer course workflow</h2>
             <div class="features-grid">
                 <?php foreach ($features as $feature): ?>
                     <article class="feature-card">
-                        <span><?php echo landing_h($feature['icon']); ?></span>
+                        <span><?php echo $feature['icon']; ?></span>
                         <h3><?php echo landing_h($feature['title']); ?></h3>
                         <p><?php echo landing_h($feature['description']); ?></p>
                     </article>
                 <?php endforeach; ?>
             </div>
-
         </div>
     </section>
 
-    
-    <section class="instructor-cta section-padding">
+    <section class="instructor-cta">
         <div class="container">
             <div class="instructor-box">
-
                 <div>
-                    <span class="section-kicker light">For instructors</span>
-                    <h2>Teach your skills and grow your online presence</h2>
-                    <p>
-                        Create your instructor profile, submit your account for approval,
-                        prepare your course, and publish after admin review.
-                    </p>
-
+                    <span class="section-kicker">For instructors</span>
+                    <h2>Turn your knowledge into a structured course</h2>
+                    <p>Create lessons, submit courses for review, manage students, and request withdrawals from your instructor panel.</p>
                     <div class="instructor-points">
-                        <span>✅ Admin-approved instructor account</span>
-                        <span>✅ Create courses and lessons</span>
-                        <span>✅ Track students and sales</span>
+                        <span>Course builder</span>
+                        <span>Student management</span>
+                        <span>Sales reports</span>
+                        <span>Withdrawal requests</span>
                     </div>
-
-                    <a href="register.php?role=instructor" class="btn btn-light">Start teaching</a>
+                    <a href="register.php?role=instructor" class="btn btn-secondary">Apply as instructor</a>
                 </div>
-
-                <div class="instructor-panel">
-                    <div class="panel-top">
-                        <strong>Instructor Panel</strong>
-                        <span>Approved</span>
-                    </div>
-
-                    <div class="panel-stat">
-                        <small>Total students</small>
-                        <strong>2,540</strong>
-                    </div>
-
-                    <div class="panel-stat">
-                        <small>Course sales</small>
-                        <strong>Rs. 98,450</strong>
-                    </div>
-
-                    <div class="panel-chart">
-                        <i></i><i></i><i></i><i></i><i></i>
-                    </div>
+                <div class="instructor-panel" aria-hidden="true">
+                    <div class="panel-top"><strong>Instructor dashboard</strong><span>This month</span></div>
+                    <div class="panel-stat"><span>Course sales</span><strong>Rs. 48,500</strong></div>
+                    <div class="panel-chart"><span style="height:35%"></span><span style="height:60%"></span><span style="height:48%"></span><span style="height:75%"></span><span style="height:92%"></span></div>
                 </div>
-
             </div>
         </div>
     </section>
 
-    
-    <section class="testimonials section-padding">
+    <section class="testimonials">
         <div class="container">
-
-            <div class="section-heading">
-                <span class="section-kicker">User feedback</span>
-                <h2>Built for students, instructors, and admins</h2>
-                <p>A simple platform experience for real academic project requirements.</p>
-            </div>
-
+            <span class="section-kicker">Community feedback</span>
+            <h2 class="section-title">Built around real platform workflows</h2>
             <div class="testimonial-grid">
                 <?php foreach ($testimonials as $testimonial): ?>
                     <article class="testimonial-card">
                         <div class="stars">★★★★★</div>
                         <p>“<?php echo landing_h($testimonial['quote']); ?>”</p>
                         <div class="testimonial-user">
-                            <span><?php echo strtoupper(substr($testimonial['name'], 0, 1)); ?></span>
-                            <div>
-                                <strong><?php echo landing_h($testimonial['name']); ?></strong>
-                                <small><?php echo landing_h($testimonial['role']); ?></small>
-                            </div>
+                            <span><?php echo landing_h(substr($testimonial['name'], 0, 1)); ?></span>
+                            <div><strong><?php echo landing_h($testimonial['name']); ?></strong><small><?php echo landing_h($testimonial['role']); ?></small></div>
                         </div>
                     </article>
                 <?php endforeach; ?>
             </div>
-
         </div>
     </section>
 
-
-    <section class="faq-section section-padding">
+    <section class="faq-section">
         <div class="container">
-
-            <div class="section-heading">
-                <span class="section-kicker">Questions</span>
-                <h2>Frequently asked questions</h2>
-            </div>
-
+            <span class="section-kicker">Questions</span>
+            <h2 class="section-title">Frequently asked questions</h2>
             <div class="faq-list">
                 <?php foreach ($faqs as $faq): ?>
                     <article class="faq-item">
@@ -609,21 +423,19 @@ $faqs = [
                     </article>
                 <?php endforeach; ?>
             </div>
-
         </div>
     </section>
-    <section class="final-cta section-padding">
+
+    <section class="final-cta">
         <div class="container">
             <div class="final-box">
-                <h2>Ready to start learning?</h2>
-                <p>Explore courses, choose your skill path, and begin after payment verification.</p>
-
-                <div class="hero-buttons center-buttons">
-                    <a href="courses.php" class="btn btn-primary">Browse courses</a>
+                <h2>Start learning with CourseHub</h2>
+                <p>Create an account, choose a course, and continue learning from your dashboard after enrollment is approved.</p>
+                <div class="center-buttons">
                     <a href="register.php" class="btn btn-secondary">Create account</a>
+                    <a href="courses.php" class="btn btn-outline">Browse courses</a>
                 </div>
             </div>
         </div>
     </section>
-
 </main>
