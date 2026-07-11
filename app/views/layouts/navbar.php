@@ -32,9 +32,10 @@ $role = $currentUser['role'] ?? '';
             <span><?php echo htmlspecialchars(APP_NAME); ?></span>
         </a>
 
-        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="publicNav">
-            <span class="sr-only">Toggle navigation</span>
-            <span></span><span></span><span></span>
+        <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="publicNav">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
         </button>
 
         <div class="nav-panel" id="publicNav">
