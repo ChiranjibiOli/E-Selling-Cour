@@ -88,6 +88,7 @@ $pageTitle = 'Published courses';
 require_once __DIR__ . '/../layouts/header.php';
 require_once __DIR__ . '/../layouts/navbar.php';
 ?>
+<link rel="stylesheet" href="assets/css/pages/student/browse-courses.css?v=3">
 
 <main class="student-courses-page public-course-catalog-page">
     <section class="student-courses-wrapper">
