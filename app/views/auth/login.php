@@ -41,6 +41,8 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
         $message = 'Password is required.';
         $messageType = 'error';
     } else {
+        $transactionStarted = false;
+
         try {
             $stmt = $conn->prepare(
                 'SELECT id, full_name, email, password, role, status FROM users WHERE LOWER(email) = ? LIMIT 1'
@@ -78,6 +80,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             } else {
                 $userId = (int) $user['id'];
                 $conn->begin_transaction();
+                $transactionStarted = true;
 
                 if (password_needs_rehash((string) $user['password'], PASSWORD_DEFAULT)) {
                     $newHash = password_hash($password, PASSWORD_DEFAULT);
@@ -92,6 +95,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                 $loginStmt->execute();
                 $loginStmt->close();
                 $conn->commit();
+                $transactionStarted = false;
 
                 Security::clearRateLimit('login', $rateIdentity);
                 Auth::login($user);
@@ -103,9 +107,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
                 Auth::redirectBasedOnRole();
             }
         } catch (Throwable $exception) {
-            if ($conn->errno === 0) {
-                // No active transaction to roll back.
-            } else {
+            if ($transactionStarted) {
                 try {
                     $conn->rollback();
                 } catch (Throwable) {
