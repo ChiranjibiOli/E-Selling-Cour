@@ -5,7 +5,7 @@
  * Create Course desktop scrolling
  * --------------------------------
  * Navbar: top 14px + height 68px = bottom edge at 82px.
- * Sticky panels stop 8px below it, at 90px.
+ * The left panel stops 8px below it; the right preview stops 10px below it.
  * The middle form remains fully expanded so every section is visible.
  */
 
@@ -50,9 +50,8 @@ body:has(.course-studio-page) {
     overflow: visible !important;
   }
 
-  /* Left and right move with the page, then stop 8px below the fixed navbar. */
-  .course-studio-page .studio-rail,
-  .course-studio-page .preview-column {
+  /* Left workflow stops 8px below the fixed navbar. */
+  .course-studio-page .studio-rail {
     position: sticky !important;
     top: 90px !important;
     align-self: start !important;
@@ -62,7 +61,18 @@ body:has(.course-studio-page) {
     z-index: 10;
   }
 
-  /* Prevent the preview's inner wrapper from creating a second sticky layer. */
+  /* Right live preview stops 10px below the fixed navbar and stays there. */
+  .course-studio-page .preview-column {
+    position: sticky !important;
+    top: 92px !important;
+    align-self: start !important;
+    height: fit-content !important;
+    max-height: none !important;
+    overflow: visible !important;
+    z-index: 10;
+  }
+
+  /* The sticky behavior belongs to the column so the whole preview block moves as one unit. */
   .course-studio-page .preview-sticky {
     position: static !important;
     top: auto !important;
