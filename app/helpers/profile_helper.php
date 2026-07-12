@@ -72,6 +72,13 @@ if (!function_exists('profile_photo_directory')) {
     }
 }
 
+if (!function_exists('profile_photo_private_directory')) {
+    function profile_photo_private_directory(): string
+    {
+        return dirname(__DIR__, 2) . '/storage/private_uploads/profile_photos';
+    }
+}
+
 if (!function_exists('profile_photo_public_path')) {
     function profile_photo_public_path(?string $fileName): string
     {
@@ -80,12 +87,17 @@ if (!function_exists('profile_photo_public_path')) {
             return '';
         }
 
-        $fullPath = profile_photo_directory() . DIRECTORY_SEPARATOR . $safeName;
-        if (!is_file($fullPath)) {
-            return '';
+        $publicPath = profile_photo_directory() . DIRECTORY_SEPARATOR . $safeName;
+        if (is_file($publicPath)) {
+            return 'assets/uploads/profile_photos/' . rawurlencode($safeName);
         }
 
-        return 'assets/uploads/profile_photos/' . rawurlencode($safeName);
+        $privatePath = profile_photo_private_directory() . DIRECTORY_SEPARATOR . $safeName;
+        if (is_file($privatePath)) {
+            return 'my-profile-photo.php';
+        }
+
+        return '';
     }
 }
 
@@ -97,9 +109,11 @@ if (!function_exists('profile_delete_photo_file')) {
             return;
         }
 
-        $path = profile_photo_directory() . DIRECTORY_SEPARATOR . $safeName;
-        if (is_file($path)) {
-            @unlink($path);
+        foreach ([profile_photo_directory(), profile_photo_private_directory()] as $directory) {
+            $path = $directory . DIRECTORY_SEPARATOR . $safeName;
+            if (is_file($path)) {
+                @unlink($path);
+            }
         }
     }
 }
@@ -185,8 +199,8 @@ if (!function_exists('profile_upload_photo')) {
             return null;
         }
 
-        $directory = profile_photo_directory();
-        if (!is_dir($directory) && !mkdir($directory, 0755, true) && !is_dir($directory)) {
+        $directory = profile_photo_private_directory();
+        if (!is_dir($directory) && !mkdir($directory, 0750, true) && !is_dir($directory)) {
             $errors[] = 'The profile photo directory could not be created.';
             return null;
         }
@@ -211,7 +225,7 @@ if (!function_exists('profile_upload_photo')) {
             return null;
         }
 
-        @chmod($destination, 0644);
+        @chmod($destination, 0640);
         return $fileName;
     }
 }
