@@ -13,17 +13,11 @@ $safeRedirect = preg_match('/^[A-Za-z0-9_-]+\.php(?:\?[A-Za-z0-9_=&%+.\-]*)?$/',
     ? $redirect
     : '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_user'])) {
-    $email = trim((string) ($_POST['email'] ?? ''));
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+    $email = strtolower(trim((string) ($_POST['email'] ?? '')));
     $password = (string) ($_POST['password'] ?? '');
-    $attemptKey = hash('sha256', strtolower($email) . '|' . ($_SERVER['REMOTE_ADDR'] ?? 'local'));
-    $attempt = $_SESSION['login_attempts'][$attemptKey] ?? ['count' => 0, 'time' => 0];
-    $isRateLimited = (int) $attempt['count'] >= 5 && (time() - (int) $attempt['time']) < 300;
 
-    if ($isRateLimited) {
-        $message = 'Too many login attempts. Please wait five minutes and try again.';
-        $messageType = 'error';
-    } elseif ($email === '') {
+    if ($email === '') {
         $message = 'Email is required.';
         $messageType = 'error';
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -34,66 +28,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_user'])) {
         $messageType = 'error';
     } else {
         try {
-            $stmt = $conn->prepare('SELECT id, full_name, email, password, role, status FROM users WHERE email = ? LIMIT 1');
+            $stmt = $conn->prepare(
+                'SELECT id, full_name, email, password, role, status FROM users WHERE LOWER(email) = ? LIMIT 1'
+            );
             $stmt->bind_param('s', $email);
             $stmt->execute();
-            $result = $stmt->get_result();
-            $user = $result ? $result->fetch_assoc() : null;
+            $user = $stmt->get_result()->fetch_assoc();
             $stmt->close();
 
-            if (!$user) {
+            if (!$user || !password_verify($password, (string) $user['password'])) {
                 $message = 'Invalid email or password.';
                 $messageType = 'error';
+            } elseif ((string) $user['status'] !== 'active') {
+                $message = (string) $user['role'] === 'instructor'
+                    ? 'Your instructor account is waiting for admin approval.'
+                    : 'Your account is not active. Contact the administrator.';
+                $messageType = 'error';
             } else {
-                $storedPassword = (string) ($user['password'] ?? '');
-                $passwordInfo = password_get_info($storedPassword);
-                $usesPasswordHash = !empty($passwordInfo['algo']);
-                $passwordIsValid = $usesPasswordHash
-                    ? password_verify($password, $storedPassword)
-                    : hash_equals($storedPassword, $password);
+                $userId = (int) $user['id'];
 
-                if (!$passwordIsValid) {
-                    $message = 'Invalid email or password.';
-                    $messageType = 'error';
-                } elseif (($user['status'] ?? '') !== 'active') {
-                    $message = ($user['role'] ?? '') === 'instructor'
-                        ? 'Your instructor account is waiting for admin approval.'
-                        : 'Your account is not active. Contact the administrator.';
-                    $messageType = 'error';
-                } else {
-                    unset($_SESSION['login_attempts'][$attemptKey]);
-                    $userId = (int) $user['id'];
+                $loginStmt = $conn->prepare('UPDATE users SET last_login_at = NOW() WHERE id = ?');
+                $loginStmt->bind_param('i', $userId);
+                $loginStmt->execute();
+                $loginStmt->close();
 
-                    if (!$usesPasswordHash || password_needs_rehash($storedPassword, PASSWORD_DEFAULT)) {
-                        $newHash = password_hash($password, PASSWORD_DEFAULT);
-                        $rehashStmt = $conn->prepare('UPDATE users SET password = ? WHERE id = ?');
-                        $rehashStmt->bind_param('si', $newHash, $userId);
-                        $rehashStmt->execute();
-                        $rehashStmt->close();
-                        $user['password'] = $newHash;
-                    }
+                Auth::login($user);
 
-                    Auth::login($user);
-                    session_write_close();
-
-                    if ($safeRedirect !== '' && ($user['role'] ?? '') === 'student') {
-                        Auth::redirect($safeRedirect);
-                    }
-
-                    Auth::redirectBasedOnRole();
+                if ($safeRedirect !== '' && (string) $user['role'] === 'student') {
+                    Auth::redirect($safeRedirect);
                 }
+
+                $destination = match ((string) $user['role']) {
+                    'student' => 'student-dashboard.php',
+                    'instructor' => 'instructor-dashboard.php',
+                    'admin' => 'admin-dashboard.php',
+                    default => 'login.php',
+                };
+
+                Auth::redirect($destination);
             }
         } catch (mysqli_sql_exception $exception) {
             error_log('Login failed: ' . $exception->getMessage());
-            $message = 'Login could not be completed. Check the coursehub database and users table.';
+            $message = 'Login could not be completed. Please try again.';
             $messageType = 'error';
-        }
-
-        if ($messageType === 'error') {
-            $_SESSION['login_attempts'][$attemptKey] = [
-                'count' => (int) $attempt['count'] + 1,
-                'time' => time(),
-            ];
         }
     }
 }
@@ -101,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_user'])) {
 require_once __DIR__ . '/../layouts/header.php';
 require_once __DIR__ . '/../layouts/navbar.php';
 ?>
-<link rel="stylesheet" href="assets/css/pages/public/auth.css?v=11">
+<link rel="stylesheet" href="assets/css/pages/public/auth.css?v=12">
 <main class="auth-page">
     <section class="auth-section">
         <div class="container auth-container">
@@ -121,30 +98,29 @@ require_once __DIR__ . '/../layouts/navbar.php';
                     <h2>Login Now</h2>
 
                     <?php if ($message !== ''): ?>
-                        <div class="form-message <?php echo htmlspecialchars($messageType); ?>">
-                            <?php echo htmlspecialchars($message); ?>
+                        <div class="form-message <?php echo htmlspecialchars($messageType, ENT_QUOTES, 'UTF-8'); ?>">
+                            <?php echo htmlspecialchars($message, ENT_QUOTES, 'UTF-8'); ?>
                         </div>
                     <?php endif; ?>
 
-                    <form method="POST" action="" id="loginForm" novalidate>
+                    <form method="POST" action="login.php" id="loginForm" novalidate>
                         <?php echo csrf_field(); ?>
-                        <input type="hidden" name="redirect" value="<?php echo htmlspecialchars($safeRedirect); ?>">
+                        <input type="hidden" name="redirect" value="<?php echo htmlspecialchars($safeRedirect, ENT_QUOTES, 'UTF-8'); ?>">
 
                         <div class="form-group">
                             <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" placeholder="Enter your email" maxlength="150" required>
-                            <small id="emailFeedback" class="field-note"></small>
+                            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($email, ENT_QUOTES, 'UTF-8'); ?>" placeholder="Enter your email" maxlength="150" autocomplete="email" required>
                         </div>
 
                         <div class="form-group password-group">
                             <label for="password">Password</label>
                             <div class="password-field">
-                                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                                <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
                                 <button type="button" class="toggle-password" data-target="password">Show</button>
                             </div>
                         </div>
 
-                        <button type="submit" name="login_user" class="btn btn-primary auth-submit-btn">Login</button>
+                        <button type="submit" class="btn btn-primary auth-submit-btn">Login</button>
                         <p class="auth-switch">Don't have an account? <a href="register.php">Register here</a></p>
                     </form>
                 </div>
