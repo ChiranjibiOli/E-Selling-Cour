@@ -127,3 +127,53 @@
         margin-top: 34px;
     }
 }
+
+/* Landing hero book: preserve the complete arm and make it feel integrated, not pasted on. */
+.knowledge-4d-stage {
+    min-height: 700px !important;
+    align-items: end !important;
+    overflow: visible !important;
+}
+
+.knowledge-4d-object {
+    width: min(430px, 86%) !important;
+    margin-bottom: 0 !important;
+    transform-origin: 50% 70% !important;
+}
+
+.knowledge-4d-object img {
+    width: 100% !important;
+    height: auto !important;
+    max-height: 680px !important;
+    object-fit: contain !important;
+    object-position: center bottom !important;
+    filter: drop-shadow(0 22px 26px rgba(32,19,10,.24)) !important;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 88%, rgba(0,0,0,.8) 95%, transparent 100%) !important;
+    mask-image: linear-gradient(to bottom, #000 0%, #000 88%, rgba(0,0,0,.8) 95%, transparent 100%) !important;
+}
+
+.knowledge-4d-cover,
+.knowledge-4d-light,
+.knowledge-4d-shadow {
+    display: none !important;
+}
+
+.knowledge-4d-stage::before {
+    width: 520px !important;
+    height: 620px !important;
+    border-radius: 48% !important;
+    background: radial-gradient(ellipse at center, rgba(196,139,45,.12), rgba(196,139,45,.035) 50%, transparent 76%) !important;
+    filter: blur(24px) !important;
+}
+
+@media (max-width: 980px) {
+    .knowledge-4d-stage { min-height: 620px !important; }
+    .knowledge-4d-object { width: min(390px, 84%) !important; }
+    .knowledge-4d-object img { max-height: 600px !important; }
+}
+
+@media (max-width: 620px) {
+    .knowledge-4d-stage { min-height: 520px !important; }
+    .knowledge-4d-object { width: min(320px, 88%) !important; }
+    .knowledge-4d-object img { max-height: 500px !important; }
+}
