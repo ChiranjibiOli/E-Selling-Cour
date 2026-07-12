@@ -1,2 +1,32 @@
 @import url("./create-course-original.css");
 @import url("./create-course-theme.css");
+
+/* Keep one document scrollbar only on the Create Course page. */
+html:has(.course-studio-page),
+body:has(.course-studio-page) {
+  height: auto !important;
+  min-height: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+.course-studio-page,
+.course-studio-page .course-studio-shell,
+.course-studio-page .studio-workspace,
+.course-studio-page .studio-form-column,
+.course-studio-page .studio-form,
+.course-studio-page .preview-column,
+.course-studio-page .preview-sticky,
+.course-studio-page .studio-panel,
+.course-studio-page .chapter-list,
+.course-studio-page .lessons-list {
+  height: auto !important;
+  max-height: none !important;
+  overflow-y: visible !important;
+}
+
+.course-studio-page .preview-column,
+.course-studio-page .preview-sticky,
+.course-studio-page .studio-rail {
+  overscroll-behavior: auto !important;
+}
