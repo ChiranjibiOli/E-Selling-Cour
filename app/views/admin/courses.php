@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../middleware/AdminMiddleware.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../helpers/course_workflow_helper.php';
+require_once __DIR__ . '/../../helpers/security_helper.php';
 
 AdminMiddleware::handle();
 
@@ -36,17 +37,190 @@ function admin_course_label(string $status): string
 
 function admin_table_exists(mysqli $conn, string $table): bool
 {
-    $safeTable = $conn->real_escape_string($table);
-    $result = $conn->query("SHOW TABLES LIKE '{$safeTable}'");
+    $safeTable = preg_replace('/[^A-Za-z0-9_]/', '', $table);
+    if ($safeTable === '') {
+        return false;
+    }
+
+    $result = $conn->query("SHOW TABLES LIKE '" . $conn->real_escape_string($safeTable) . "'");
     return $result instanceof mysqli_result && $result->num_rows > 0;
 }
 
 function admin_column_exists(mysqli $conn, string $table, string $column): bool
 {
-    $safeTable = preg_replace('/[^a-zA-Z0-9_]/', '', $table);
-    $safeColumn = $conn->real_escape_string($column);
-    $result = $conn->query("SHOW COLUMNS FROM `{$safeTable}` LIKE '{$safeColumn}'");
+    $safeTable = preg_replace('/[^A-Za-z0-9_]/', '', $table);
+    $safeColumn = preg_replace('/[^A-Za-z0-9_]/', '', $column);
+    if ($safeTable === '' || $safeColumn === '') {
+        return false;
+    }
+
+    $result = $conn->query("SHOW COLUMNS FROM `{$safeTable}` LIKE '" . $conn->real_escape_string($safeColumn) . "'");
     return $result instanceof mysqli_result && $result->num_rows > 0;
+}
+
+function admin_course_publish_errors(mysqli $conn, array $course): array
+{
+    $errors = [];
+    $courseId = (int) ($course['id'] ?? 0);
+    $title = trim((string) ($course['title'] ?? ''));
+    $shortDescription = trim((string) ($course['short_description'] ?? ''));
+    $fullDescription = trim((string) ($course['full_description'] ?? ''));
+    $language = trim((string) ($course['language'] ?? ''));
+    $level = (string) ($course['level'] ?? '');
+    $price = (float) ($course['price'] ?? -1);
+
+    if ($courseId <= 0) {
+        return ['The course record is invalid.'];
+    }
+
+    if (($course['instructor_role'] ?? '') !== 'instructor' || ($course['instructor_status'] ?? '') !== 'active') {
+        $errors[] = 'The instructor account must be active.';
+    }
+
+    if ((int) ($course['category_id'] ?? 0) <= 0 || (int) ($course['category_active'] ?? 0) !== 1) {
+        $errors[] = 'Select an active course category.';
+    }
+
+    if (security_text_length($title) < 3 || security_text_length($title) > 255) {
+        $errors[] = 'Course title must contain 3 to 255 characters.';
+    }
+
+    if ($shortDescription === '' || security_text_length($shortDescription) > 500) {
+        $errors[] = 'A concise short description is required.';
+    }
+
+    if ($fullDescription === '' || security_text_length($fullDescription) > 10000) {
+        $errors[] = 'A complete course description is required.';
+    }
+
+    if (!in_array($level, ['beginner', 'intermediate', 'advanced'], true)) {
+        $errors[] = 'Select a valid course level.';
+    }
+
+    if ($language === '' || security_text_length($language) > 50) {
+        $errors[] = 'Select a valid course language.';
+    }
+
+    if (!is_finite($price) || $price < 0 || $price > 100000000) {
+        $errors[] = 'Course price is outside the allowed range.';
+    }
+
+    $thumbnail = basename((string) ($course['thumbnail'] ?? ''));
+    $thumbnailPath = PUBLIC_PATH . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'uploads'
+        . DIRECTORY_SEPARATOR . 'course_thumbnails' . DIRECTORY_SEPARATOR . $thumbnail;
+
+    if (
+        $thumbnail === ''
+        || !is_file($thumbnailPath)
+        || !in_array(Security::detectMimeType($thumbnailPath), ['image/jpeg', 'image/png', 'image/webp'], true)
+    ) {
+        $errors[] = 'Upload a valid course thumbnail before publication.';
+    }
+
+    $lessonStmt = $conn->prepare("
+        SELECT s.id AS section_id, s.title AS section_title,
+               l.id AS lesson_id, l.title AS lesson_title,
+               l.content_type, l.content_url, l.content_text
+        FROM course_sections s
+        LEFT JOIN course_lessons l ON l.section_id = s.id
+        WHERE s.course_id = ?
+        ORDER BY s.sort_order, s.id, l.sort_order, l.id
+    ");
+
+    if (!$lessonStmt) {
+        return array_merge($errors, ['The curriculum could not be validated.']);
+    }
+
+    $lessonStmt->bind_param('i', $courseId);
+    $lessonStmt->execute();
+    $result = $lessonStmt->get_result();
+    $sections = [];
+    $lessonCount = 0;
+
+    while ($result && $row = $result->fetch_assoc()) {
+        $sectionId = (int) $row['section_id'];
+        if (!isset($sections[$sectionId])) {
+            $sections[$sectionId] = [
+                'title' => trim((string) $row['section_title']),
+                'lessons' => 0,
+            ];
+        }
+
+        if (empty($row['lesson_id'])) {
+            continue;
+        }
+
+        $sections[$sectionId]['lessons']++;
+        $lessonCount++;
+        $lessonTitle = trim((string) $row['lesson_title']);
+        $contentType = (string) $row['content_type'];
+        $contentUrl = trim((string) ($row['content_url'] ?? ''));
+        $contentText = trim((string) ($row['content_text'] ?? ''));
+
+        if ($lessonTitle === '' || security_text_length($lessonTitle) > 255) {
+            $errors[] = 'Every lesson needs a valid title.';
+        }
+
+        if (!in_array($contentType, ['text', 'video', 'pdf', 'word', 'link'], true)) {
+            $errors[] = 'A lesson contains an unsupported content type.';
+            continue;
+        }
+
+        if ($contentType === 'text' && trim(strip_tags(Security::sanitizeRichText($contentText))) === '') {
+            $errors[] = 'Every text lesson needs meaningful content.';
+        }
+
+        if (in_array($contentType, ['video', 'link'], true)) {
+            $safeUrl = security_safe_external_url($contentUrl);
+            if ($safeUrl === null || $safeUrl === '') {
+                $errors[] = 'Every video or link lesson must use a public HTTP or HTTPS URL.';
+            }
+        }
+
+        if (in_array($contentType, ['pdf', 'word'], true)) {
+            $resourcePath = Security::resolveStoredFile($contentUrl, [
+                STORAGE_PATH . DIRECTORY_SEPARATOR . 'private_uploads' . DIRECTORY_SEPARATOR . 'course_resources',
+                PUBLIC_PATH . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'course_resources',
+                PUBLIC_PATH . DIRECTORY_SEPARATOR . 'assets' . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'lesson_resources',
+            ]);
+
+            $mime = $resourcePath !== null ? Security::detectMimeType($resourcePath) : '';
+            $validMimes = $contentType === 'pdf'
+                ? ['application/pdf']
+                : [
+                    'application/msword',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'application/CDFV2',
+                    'application/x-ole-storage',
+                    'application/zip',
+                    'application/octet-stream',
+                ];
+
+            if ($resourcePath === null || !in_array($mime, $validMimes, true)) {
+                $errors[] = 'Every uploaded lesson resource must still exist and match its declared file type.';
+            }
+        }
+    }
+    $lessonStmt->close();
+
+    if ($sections === []) {
+        $errors[] = 'Add at least one curriculum section.';
+    }
+
+    foreach ($sections as $section) {
+        if ($section['title'] === '') {
+            $errors[] = 'Every curriculum section needs a title.';
+        }
+        if ((int) $section['lessons'] < 1) {
+            $errors[] = 'Every curriculum section needs at least one lesson.';
+        }
+    }
+
+    if ($lessonCount < 1) {
+        $errors[] = 'Add at least one complete lesson.';
+    }
+
+    return array_values(array_unique($errors));
 }
 
 $hasChangeLogs = admin_table_exists($conn, 'course_change_logs');
@@ -70,25 +244,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $courseId = (int) ($_POST['course_id'] ?? 0);
         $decision = (string) ($_POST['decision'] ?? '');
-        $reviewNote = trim((string) ($_POST['review_note'] ?? ''));
+        $rawReviewNote = (string) ($_POST['review_note'] ?? '');
+        $reviewNote = security_clean_text($rawReviewNote, 1000, true);
         $errors = [];
 
         if ($courseId <= 0 || !in_array($decision, ['approve', 'reject'], true)) {
             $errors[] = 'Invalid course review request.';
         }
 
+        if (trim($rawReviewNote) !== '' && $reviewNote === '') {
+            $errors[] = 'Review note must be 1000 characters or fewer.';
+        }
+
         if ($decision === 'reject' && $reviewNote === '') {
             $errors[] = 'Add a clear reason before rejecting the course.';
         }
 
-        if (!$errors) {
+        if ($decision === 'approve' && $reviewNote === '') {
+            $reviewNote = 'Approved after quality review.';
+        }
+
+        if ($errors === []) {
+            $transactionStarted = false;
+
             try {
                 $conn->begin_transaction();
+                $transactionStarted = true;
 
                 $courseStmt = $conn->prepare("
-                    SELECT id, instructor_id, title, status
-                    FROM courses
-                    WHERE id = ? AND status = 'pending'
+                    SELECT c.id, c.instructor_id, c.category_id, c.title,
+                           c.short_description, c.full_description, c.thumbnail,
+                           c.price, c.level, c.language, c.status,
+                           instructor.role AS instructor_role,
+                           instructor.status AS instructor_status,
+                           COALESCE(category.is_active, 0) AS category_active
+                    FROM courses c
+                    INNER JOIN users instructor ON instructor.id = c.instructor_id
+                    LEFT JOIN categories category ON category.id = c.category_id
+                    WHERE c.id = ? AND c.status = 'pending'
                     LIMIT 1
                     FOR UPDATE
                 ");
@@ -98,7 +291,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $courseStmt->close();
 
                 if (!$course) {
-                    throw new RuntimeException('This course is no longer waiting for review.');
+                    throw new DomainException('This course is no longer waiting for review.');
+                }
+
+                if ($decision === 'approve') {
+                    $readinessErrors = admin_course_publish_errors($conn, $course);
+                    if ($readinessErrors !== []) {
+                        throw new DomainException('Course cannot be published: ' . implode(' ', $readinessErrors));
+                    }
                 }
 
                 $newStatus = $decision === 'approve' ? 'published' : 'rejected';
@@ -134,16 +334,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
 
                 $conn->commit();
-                header('Location: admin-courses.php?status=' . rawurlencode($statusFilter) . '&reviewed=' . $newStatus);
-                exit;
-            } catch (Throwable $exception) {
-                $conn->rollback();
-                error_log('Course review failed: ' . $exception->getMessage());
+                $transactionStarted = false;
+                Auth::redirect('admin-courses.php?status=' . rawurlencode($statusFilter) . '&reviewed=' . rawurlencode($newStatus));
+            } catch (DomainException $exception) {
+                if ($transactionStarted) {
+                    $conn->rollback();
+                }
                 $message = $exception->getMessage();
+                $messageType = 'error';
+            } catch (Throwable $exception) {
+                if ($transactionStarted) {
+                    $conn->rollback();
+                }
+                error_log('Course review failed: ' . $exception->getMessage());
+                $message = 'The course review could not be completed. No status was changed.';
                 $messageType = 'error';
             }
         } else {
-            $message = implode(' ', $errors);
+            $message = implode(' ', array_unique($errors));
             $messageType = 'error';
         }
     }
@@ -184,10 +392,13 @@ $pendingChangeSelect = $hasChangeLogs
 
 $sql = "
     SELECT
-        c.id, c.title, c.slug, c.short_description, c.thumbnail, c.price,
+        c.id, c.instructor_id, c.category_id, c.title, c.slug,
+        c.short_description, c.full_description, c.thumbnail, c.price,
         c.level, c.language, c.status, {$submittedAtSelect}, c.updated_at,
-        {$reviewNoteSelect}, u.full_name AS instructor_name, u.email AS instructor_email,
-        cat.name AS category_name,
+        {$reviewNoteSelect}, u.full_name AS instructor_name,
+        u.email AS instructor_email, u.role AS instructor_role,
+        u.status AS instructor_status,
+        cat.name AS category_name, COALESCE(cat.is_active, 0) AS category_active,
         (SELECT COUNT(*) FROM course_sections s WHERE s.course_id = c.id) AS chapter_count,
         (SELECT COUNT(*) FROM course_lessons l INNER JOIN course_sections s ON s.id = l.section_id WHERE s.course_id = c.id) AS lesson_count,
         {$pendingChangeSelect}
@@ -195,9 +406,8 @@ $sql = "
     INNER JOIN users u ON u.id = c.instructor_id
     LEFT JOIN categories cat ON cat.id = c.category_id
     WHERE {$where}
-    ORDER BY
-        CASE c.status WHEN 'pending' THEN 1 WHEN 'rejected' THEN 2 ELSE 3 END,
-        c.updated_at DESC
+    ORDER BY CASE c.status WHEN 'pending' THEN 1 WHEN 'rejected' THEN 2 ELSE 3 END,
+             c.updated_at DESC
 ";
 
 $stmt = $conn->prepare($sql);
@@ -218,7 +428,7 @@ require_once __DIR__ . '/../layouts/admin_navbar.php';
 ?>
 
 <style>
-.review-page{min-height:calc(100vh - 72px);padding:34px 18px 68px}.review-shell{width:min(1320px,100%);margin:auto}.review-head{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:20px;padding:27px;border:1px solid #e5eaf1;border-radius:24px;background:linear-gradient(135deg,#fff,#f7f8ff);box-shadow:0 16px 45px rgba(15,23,42,.07)}.review-head h1{margin:4px 0 6px;color:#101828;font-size:clamp(1.8rem,3vw,2.5rem);letter-spacing:-.04em}.review-head p{margin:0;color:#667085}.review-kicker{color:#4f46e5!important;font-size:.72rem;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.review-tabs{display:flex;gap:8px;margin-bottom:20px;overflow-x:auto}.review-tabs a{display:inline-flex;min-height:40px;align-items:center;gap:8px;padding:0 14px;border:1px solid #e2e8f0;border-radius:999px;color:#475467;background:#fff;text-decoration:none;font-size:.78rem;font-weight:850;white-space:nowrap}.review-tabs a.active{border-color:#4f46e5;color:#fff;background:#4f46e5}.review-tabs span{padding:3px 7px;border-radius:999px;background:rgba(148,163,184,.18)}.review-alert{margin-bottom:18px;padding:14px 16px;border-radius:14px}.review-alert.success{border:1px solid #a7f3d0;color:#065f46;background:#ecfdf5}.review-alert.error{border:1px solid #fecaca;color:#991b1b;background:#fef2f2}.review-alert.warning{border:1px solid #fde68a;color:#92400e;background:#fffbeb}.review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.empty-review{padding:55px 22px;border:2px dashed #cbd5e1;border-radius:22px;background:#fff;text-align:center;color:#667085}.course-unit-feature--admin{margin-top:14px;padding-top:14px;border-top:1px solid #e9edf5}.course-admin-note{margin:0 0 12px;padding:11px 12px;border:1px solid #e5e7eb;border-radius:11px;background:#f8fafc;color:#475467;font-size:.78rem;line-height:1.5}.course-admin-review-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.course-admin-review-actions form{margin:0}.course-admin-approve,.course-admin-reject-toggle,.course-admin-reject-form button{min-height:39px;padding:0 13px;border:0;border-radius:10px;font:inherit;font-size:.74rem;font-weight:900;cursor:pointer}.course-admin-approve{color:#fff;background:#059669}.course-admin-reject-toggle{color:#b91c1c;background:#fee2e2}.course-admin-reject-form{display:none;gap:10px;margin-top:12px;padding:12px;border:1px solid #fecaca;border-radius:12px;background:#fef2f2}.course-admin-reject-form.open{display:grid}.course-admin-reject-form label{display:grid;gap:6px}.course-admin-reject-form label span{color:#991b1b;font-size:.72rem;font-weight:900}.course-admin-reject-form textarea{width:100%;min-height:90px;padding:10px;border:1px solid #fca5a5;border-radius:10px;background:#fff;resize:vertical;font:inherit}.course-admin-reject-form button{color:#fff;background:#dc2626}@media(max-width:950px){.review-grid{grid-template-columns:1fr}}@media(max-width:700px){.review-page{padding:20px 12px 48px}.review-head{align-items:flex-start;flex-direction:column;padding:21px}.course-admin-review-actions,.course-admin-review-actions form,.course-admin-approve,.course-admin-reject-toggle,.course-admin-reject-form button{width:100%}}
+.review-page{min-height:calc(100vh - 72px);padding:34px 18px 68px}.review-shell{width:min(1320px,100%);margin:auto}.review-head{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:20px;padding:27px;border:1px solid #e5eaf1;border-radius:24px;background:linear-gradient(135deg,#fff,#f7f8ff);box-shadow:0 16px 45px rgba(15,23,42,.07)}.review-head h1{margin:4px 0 6px;color:#101828;font-size:clamp(1.8rem,3vw,2.5rem);letter-spacing:-.04em}.review-head p{margin:0;color:#667085}.review-kicker{color:#4f46e5!important;font-size:.72rem;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.review-tabs{display:flex;gap:8px;margin-bottom:20px;overflow-x:auto}.review-tabs a{display:inline-flex;min-height:40px;align-items:center;gap:8px;padding:0 14px;border:1px solid #e2e8f0;border-radius:999px;color:#475467;background:#fff;text-decoration:none;font-size:.78rem;font-weight:850;white-space:nowrap}.review-tabs a.active{border-color:#4f46e5;color:#fff;background:#4f46e5}.review-tabs span{padding:3px 7px;border-radius:999px;background:rgba(148,163,184,.18)}.review-alert{margin-bottom:18px;padding:14px 16px;border-radius:14px}.review-alert.success{border:1px solid #a7f3d0;color:#065f46;background:#ecfdf5}.review-alert.error{border:1px solid #fecaca;color:#991b1b;background:#fef2f2}.review-alert.warning{border:1px solid #fde68a;color:#92400e;background:#fffbeb}.review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.empty-review{padding:55px 22px;border:2px dashed #cbd5e1;border-radius:22px;background:#fff;text-align:center;color:#667085}.course-unit-feature--admin{margin-top:14px;padding-top:14px;border-top:1px solid #e9edf5}.course-admin-note{margin:0 0 12px;padding:11px 12px;border:1px solid #e5e7eb;border-radius:11px;background:#f8fafc;color:#475467;font-size:.78rem;line-height:1.5}.course-admin-note.error{border-color:#fecaca;color:#991b1b;background:#fff1f2}.course-admin-review-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.course-admin-review-actions form{margin:0}.course-admin-approve,.course-admin-reject-toggle,.course-admin-reject-form button{min-height:39px;padding:0 13px;border:0;border-radius:10px;font:inherit;font-size:.74rem;font-weight:900;cursor:pointer}.course-admin-approve{color:#fff;background:#059669}.course-admin-approve:disabled{cursor:not-allowed;opacity:.48}.course-admin-reject-toggle{color:#b91c1c;background:#fee2e2}.course-admin-reject-form{display:none;gap:10px;margin-top:12px;padding:12px;border:1px solid #fecaca;border-radius:12px;background:#fef2f2}.course-admin-reject-form.open{display:grid}.course-admin-reject-form label{display:grid;gap:6px}.course-admin-reject-form label span{color:#991b1b;font-size:.72rem;font-weight:900}.course-admin-reject-form textarea{width:100%;min-height:90px;padding:10px;border:1px solid #fca5a5;border-radius:10px;background:#fff;resize:vertical;font:inherit}.course-admin-reject-form button{color:#fff;background:#dc2626}@media(max-width:950px){.review-grid{grid-template-columns:1fr}}@media(max-width:700px){.review-page{padding:20px 12px 48px}.review-head{align-items:flex-start;flex-direction:column;padding:21px}.course-admin-review-actions,.course-admin-review-actions form,.course-admin-approve,.course-admin-reject-toggle,.course-admin-reject-form button{width:100%}}
 </style>
 
 <main class="review-page">
@@ -244,7 +454,7 @@ require_once __DIR__ . '/../layouts/admin_navbar.php';
             <?php endforeach; ?>
         </nav>
 
-        <?php if (!$courses): ?>
+        <?php if ($courses === []): ?>
             <div class="empty-review">No courses match this review status.</div>
         <?php else: ?>
             <div class="review-grid">
@@ -254,19 +464,23 @@ require_once __DIR__ . '/../layouts/admin_navbar.php';
                     $image = $thumbnail !== ''
                         ? 'assets/uploads/course_thumbnails/' . rawurlencode($thumbnail)
                         : 'assets/images/course-placeholder.svg';
-
                     $courseId = (int) $course['id'];
                     $pendingChanges = (int) $course['pending_change_count'];
                     $isPending = $course['status'] === 'pending';
-                    $reviewNote = trim((string) ($course['review_note'] ?? ''));
+                    $lastReviewNote = trim((string) ($course['review_note'] ?? ''));
+                    $readinessErrors = $isPending ? admin_course_publish_errors($conn, $course) : [];
 
                     ob_start();
                     ?>
-                    <?php if ($reviewNote !== ''): ?>
-                        <p class="course-admin-note"><strong>Last admin note:</strong> <?php echo admin_course_h($reviewNote); ?></p>
+                    <?php if ($lastReviewNote !== ''): ?>
+                        <p class="course-admin-note"><strong>Last admin note:</strong> <?php echo admin_course_h($lastReviewNote); ?></p>
                     <?php endif; ?>
 
                     <?php if ($isPending): ?>
+                        <?php if ($readinessErrors !== []): ?>
+                            <p class="course-admin-note error"><strong>Publication blocked:</strong> <?php echo admin_course_h(implode(' ', $readinessErrors)); ?></p>
+                        <?php endif; ?>
+
                         <?php if ($workflowSchemaReady): ?>
                             <div class="course-admin-review-actions">
                                 <form method="post">
@@ -274,7 +488,7 @@ require_once __DIR__ . '/../layouts/admin_navbar.php';
                                     <input type="hidden" name="course_id" value="<?php echo $courseId; ?>">
                                     <input type="hidden" name="decision" value="approve">
                                     <input type="hidden" name="review_note" value="Approved after quality review.">
-                                    <button class="course-admin-approve" type="submit" data-confirm="Publish this course?">Approve & publish</button>
+                                    <button class="course-admin-approve" type="submit" data-confirm="Publish this course?" <?php echo $readinessErrors !== [] ? 'disabled' : ''; ?>>Approve &amp; publish</button>
                                 </form>
                                 <button class="course-admin-reject-toggle" type="button">Reject</button>
                             </div>
@@ -296,7 +510,6 @@ require_once __DIR__ . '/../layouts/admin_navbar.php';
                     <?php
                     $adminFeatureHtml = (string) ob_get_clean();
                     $detailsUrl = 'course-details.php?slug=' . rawurlencode((string) $course['slug']);
-
                     $courseCard = [
                         'context' => 'admin',
                         'title' => $course['title'],
@@ -323,7 +536,6 @@ require_once __DIR__ . '/../layouts/admin_navbar.php';
                         ])),
                         'feature_html' => $adminFeatureHtml,
                     ];
-
                     require __DIR__ . '/../components/course_card.php';
                     ?>
                 <?php endforeach; ?>
@@ -337,9 +549,7 @@ document.querySelectorAll('.course-admin-reject-toggle').forEach(function (butto
     button.addEventListener('click', function () {
         const card = button.closest('.course-unit-card--admin');
         const form = card ? card.querySelector('.course-admin-reject-form') : null;
-        if (form) {
-            form.classList.toggle('open');
-        }
+        if (form) form.classList.toggle('open');
     });
 });
 </script>
