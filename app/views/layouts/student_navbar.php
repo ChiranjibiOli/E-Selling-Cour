@@ -31,9 +31,9 @@ $currentPage = basename((string) ($_SERVER['PHP_SELF'] ?? ''));
 
         <ul class="student-nav-menu role-nav-menu" id="studentNav">
             <li><a data-icon="⌂" href="student-dashboard.php" class="<?php echo $currentPage === 'student-dashboard.php' ? 'active' : ''; ?>"><span>Dashboard</span></a></li>
-            <li><a data-icon="⌕" href="courses.php" class="<?php echo in_array($currentPage, ['courses.php', 'course-details.php'], true) ? 'active' : ''; ?>"><span>Browse</span></a></li>
+            <li><a data-icon="⌕" href="student-browse-courses.php" class="<?php echo in_array($currentPage, ['student-browse-courses.php', 'course-details.php'], true) ? 'active' : ''; ?>"><span>Browse</span></a></li>
             <li><a data-icon="◫" href="cart.php" class="<?php echo in_array($currentPage, ['cart.php', 'checkout.php'], true) ? 'active' : ''; ?>"><span>Cart</span></a></li>
-            <li><a data-icon="▤" href="student-my-courses.php" class="<?php echo $currentPage === 'student-my-courses.php' ? 'active' : ''; ?>"><span>My courses</span></a></li>
+            <li><a data-icon="▤" href="student-my-courses.php" class="<?php echo in_array($currentPage, ['student-my-courses.php', 'student-course-view.php'], true) ? 'active' : ''; ?>"><span>My courses</span></a></li>
             <li><a data-icon="●" href="student-notifications.php" class="<?php echo $currentPage === 'student-notifications.php' ? 'active' : ''; ?>"><span>Notifications</span></a></li>
             <li><a data-icon="○" href="student-profile.php" class="<?php echo $currentPage === 'student-profile.php' ? 'active' : ''; ?>"><span>Profile</span></a></li>
             <li class="student-logout-item"><button type="button" class="confirm-logout-btn" id="openLogoutModal" data-icon="↗">Log out</button></li>
