@@ -4,8 +4,16 @@ require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../core/Auth.php';
 
 $currentUser = Auth::user();
-$isStudent = $currentUser && ($currentUser['role'] ?? '') === 'student';
-$studentId = $isStudent ? (int) $currentUser['id'] : 0;
+
+/*
+ * The public catalog remains a public discovery page.
+ * Authenticated students use the dedicated Student Browse -> Cart -> Checkout
+ * -> My Courses pipeline instead of maintaining a second student catalog here.
+ */
+if ($currentUser && ($currentUser['role'] ?? '') === 'student') {
+    header('Location: student-browse-courses.php');
+    exit;
+}
 
 $search = trim($_GET['search'] ?? '');
 $categoryFilter = (int) ($_GET['category_id'] ?? 0);
@@ -20,11 +28,13 @@ if ($search !== '') {
     $params = [$searchValue, $searchValue, $searchValue, $searchValue];
     $types .= 'ssss';
 }
+
 if ($categoryFilter > 0) {
     $whereParts[] = 'c.category_id = ?';
     $params[] = $categoryFilter;
     $types .= 'i';
 }
+
 if (in_array($levelFilter, ['beginner', 'intermediate', 'advanced'], true)) {
     $whereParts[] = 'c.level = ?';
     $params[] = $levelFilter;
@@ -43,116 +53,134 @@ $sql = "
     INNER JOIN users u ON c.instructor_id = u.id
     LEFT JOIN categories cat ON c.category_id = cat.id
     $whereSql
-    ORDER BY c.created_at DESC
+    ORDER BY c.created_at DESC, c.id DESC
 ";
 $stmt = $conn->prepare($sql);
+
 if ($stmt) {
     if ($params) {
         $stmt->bind_param($types, ...$params);
     }
+
     $stmt->execute();
     $result = $stmt->get_result();
+
     while ($result && $row = $result->fetch_assoc()) {
         $courses[] = $row;
     }
+
     $stmt->close();
 }
 
 $categories = [];
 $categoryResult = $conn->query("SELECT id, name FROM categories WHERE status = 'active' ORDER BY name ASC");
+
 while ($categoryResult && $row = $categoryResult->fetch_assoc()) {
     $categories[] = $row;
 }
 
-function h($value)
+function public_course_h(mixed $value): string
 {
-    return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
-}
-function level_label($level)
-{
-    return ucfirst((string) $level);
+    return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+$pageTitle = 'Published courses';
 require_once __DIR__ . '/../layouts/header.php';
-if ($isStudent) {
-    require_once __DIR__ . '/../layouts/student_navbar.php';
-} else {
-    require_once __DIR__ . '/../layouts/navbar.php';
-}
+require_once __DIR__ . '/../layouts/navbar.php';
 ?>
 
-<main class="student-courses-page">
+<main class="student-courses-page public-course-catalog-page">
     <section class="student-courses-wrapper">
-        <div class="courses-hero">
+        <header class="courses-hero">
             <div>
-                <p class="page-label">Browse Courses</p>
+                <p class="page-label">Public course catalog</p>
                 <h1>Learn from approved courses</h1>
-                <p>Explore published courses approved by admin. Real course lessons open only after purchase.</p>
+                <p>Only admin-approved, published courses appear here. Sign in as a student to add courses to your cart and begin the purchase pipeline.</p>
             </div>
-        </div>
+        </header>
 
-        <form method="GET" class="course-filter-box">
+        <form method="get" class="course-filter-box">
             <div class="form-group">
-                <label>Search</label>
-                <input type="text" name="search" value="<?php echo h($search); ?>" placeholder="Search course, instructor, topic">
+                <label for="publicCourseSearch">Search</label>
+                <input id="publicCourseSearch" type="search" name="search" value="<?php echo public_course_h($search); ?>" placeholder="Search course, instructor, topic">
             </div>
+
             <div class="form-group">
-                <label>Category</label>
-                <select name="category_id">
+                <label for="publicCategoryFilter">Category</label>
+                <select id="publicCategoryFilter" name="category_id">
                     <option value="0">All Categories</option>
                     <?php foreach ($categories as $category): ?>
-                        <option value="<?php echo (int) $category['id']; ?>" <?php echo $categoryFilter === (int) $category['id'] ? 'selected' : ''; ?>><?php echo h($category['name']); ?></option>
+                        <option value="<?php echo (int) $category['id']; ?>" <?php echo $categoryFilter === (int) $category['id'] ? 'selected' : ''; ?>>
+                            <?php echo public_course_h($category['name']); ?>
+                        </option>
                     <?php endforeach; ?>
                 </select>
             </div>
+
             <div class="form-group">
-                <label>Level</label>
-                <select name="level">
+                <label for="publicLevelFilter">Level</label>
+                <select id="publicLevelFilter" name="level">
                     <option value="">All Levels</option>
                     <option value="beginner" <?php echo $levelFilter === 'beginner' ? 'selected' : ''; ?>>Beginner</option>
                     <option value="intermediate" <?php echo $levelFilter === 'intermediate' ? 'selected' : ''; ?>>Intermediate</option>
                     <option value="advanced" <?php echo $levelFilter === 'advanced' ? 'selected' : ''; ?>>Advanced</option>
                 </select>
             </div>
-            <div class="filter-actions"><button type="submit">Filter</button><a href="courses.php">Reset</a></div>
+
+            <div class="filter-actions">
+                <button type="submit">Filter</button>
+                <a href="courses.php">Reset</a>
+            </div>
         </form>
 
         <?php if (isset($_GET['login'])): ?>
-            <div class="course-alert warning">Please login as student before adding course to cart.</div>
+            <div class="course-alert warning">Sign in as a student, then use Student Browse to add this course to your cart.</div>
         <?php endif; ?>
 
         <?php if (!$courses): ?>
-            <div class="empty-course-box"><div class="empty-icon">No courses</div><h2>No published courses found</h2><p>Try changing your search or filter.</p></div>
+            <div class="empty-course-box">
+                <div class="empty-icon">No courses</div>
+                <h2>No published courses found</h2>
+                <p>Try changing your search or filter.</p>
+            </div>
         <?php else: ?>
-            <div class="student-course-grid">
+            <div class="student-course-grid" data-page-size="12">
                 <?php foreach ($courses as $course): ?>
                     <?php
                     $thumbnail = basename((string) ($course['thumbnail'] ?? ''));
-                    $thumbnailPath = $thumbnail !== '' ? 'assets/uploads/course_thumbnails/' . rawurlencode($thumbnail) : 'assets/images/course-placeholder.svg';
+                    $thumbnailPath = $thumbnail !== ''
+                        ? 'assets/uploads/course_thumbnails/' . rawurlencode($thumbnail)
+                        : 'assets/images/course-placeholder.svg';
+
                     if ($thumbnail !== '' && !is_file(PUBLIC_PATH . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $thumbnailPath))) {
                         $thumbnailPath = 'assets/images/course-placeholder.svg';
                     }
+
                     $detailsUrl = 'course-details.php?slug=' . rawurlencode((string) $course['slug']);
                     $courseCard = [
-                        'context' => $isStudent ? 'student' : 'marketplace',
+                        'context' => 'marketplace',
                         'title' => $course['title'],
                         'summary' => $course['short_description'] ?: 'No description added.',
                         'thumbnail' => $thumbnailPath,
                         'category' => $course['category_name'] ?: 'General',
-                        'badge' => level_label($course['level']),
+                        'badge' => ucfirst((string) $course['level']),
                         'eyebrow' => 'By ' . $course['instructor_name'],
                         'language' => $course['language'] ?: 'Language not set',
                         'duration' => $course['duration'] ?: 'Self-paced',
-                        'price' => 'Rs. ' . number_format((float) $course['price'], 2),
+                        'price' => (float) $course['price'] > 0
+                            ? 'Rs. ' . number_format((float) $course['price'], 2)
+                            : 'Free',
                         'href' => $detailsUrl,
+                        'rating_label' => 'Published course',
                         'metrics' => [
-                            ['label' => 'Lessons', 'value' => (string) ((int) $course['lesson_count'])],
+                            ['label' => 'Lessons', 'value' => (string) (int) $course['lesson_count']],
                             ['label' => 'Students', 'value' => number_format((int) $course['student_count'])],
                         ],
                         'actions' => [
                             ['label' => 'View details', 'href' => $detailsUrl, 'style' => 'primary'],
                         ],
                     ];
+
                     require __DIR__ . '/../components/course_card.php';
                     ?>
                 <?php endforeach; ?>
