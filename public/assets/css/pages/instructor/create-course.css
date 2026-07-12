@@ -5,9 +5,9 @@
  * Create Course desktop scrolling
  * --------------------------------
  * Navbar: top 14px + height 68px = bottom edge at 82px.
- * The left panel stops 8px below it; the right preview is fixed 10px below it.
- * Page scrolling moves the preview contents in the same direction while its
- * heading remains visible. The middle form stays fully expanded.
+ * The preview keeps its original grid position, then becomes sticky at 102px.
+ * This leaves a 20px safety gap below the fixed navbar.
+ * The middle form remains fully expanded so every section is visible.
  */
 
 html:has(.course-studio-page),
@@ -19,7 +19,7 @@ body:has(.course-studio-page) {
   scrollbar-gutter: stable;
 }
 
-/* Prevent transformed or contained ancestors from trapping the fixed preview. */
+/* Sticky elements must not be trapped by a transformed or clipped ancestor. */
 .course-studio-page,
 .course-studio-page .course-studio-shell,
 .course-studio-page .studio-workspace {
@@ -30,14 +30,13 @@ body:has(.course-studio-page) {
   transform: none !important;
 }
 
-/* Reset older scroll and positioning overrides before the desktop model. */
+/* Reset previous fixed-position and scroll-sync layout rules. */
 .course-studio-page .studio-workspace,
 .course-studio-page .studio-rail,
 .course-studio-page .preview-column,
 .course-studio-page .preview-sticky,
 .course-studio-page .studio-form,
 .course-studio-page .studio-submit-bar {
-  top: auto;
   right: auto;
   bottom: auto;
   left: auto;
@@ -56,7 +55,7 @@ body:has(.course-studio-page) {
   /* Left workflow remains sticky below the fixed navbar. */
   .course-studio-page .studio-rail {
     position: sticky !important;
-    top: 90px !important;
+    top: 102px !important;
     align-self: start !important;
     height: fit-content !important;
     max-height: none !important;
@@ -65,26 +64,27 @@ body:has(.course-studio-page) {
   }
 
   /*
-   * The preview is viewport-fixed, not sticky inside the workspace.
-   * The third grid column remains reserved, so the form never expands under it.
-   * Its right edge follows the centered 1440px studio shell.
+   * Keep the preview in its original third grid column.
+   * It moves with the page until it reaches 102px, then stays there.
+   * The viewport height limit prevents a tall preview from being pushed
+   * underneath the fixed navbar.
    */
   .course-studio-page .preview-column {
-    position: fixed !important;
-    top: 92px !important;
-    right: 18px !important;
-    right: max(18px, calc((100vw - 1440px) / 2)) !important;
-    bottom: 14px !important;
+    position: sticky !important;
+    top: 102px !important;
+    right: auto !important;
+    bottom: auto !important;
     left: auto !important;
-    width: 360px !important;
+    width: auto !important;
+    align-self: start !important;
     height: auto !important;
+    max-height: calc(100vh - 118px) !important;
+    max-height: calc(100dvh - 118px) !important;
     min-height: 0 !important;
-    max-height: none !important;
     overflow: hidden !important;
-    z-index: 40;
+    z-index: 10;
   }
 
-  /* The page-scroll script moves this inner area up and down. */
   .course-studio-page .preview-sticky {
     position: static !important;
     top: auto !important;
@@ -92,17 +92,18 @@ body:has(.course-studio-page) {
     bottom: auto !important;
     left: auto !important;
     width: 100% !important;
-    height: 100% !important;
+    height: auto !important;
+    max-height: calc(100vh - 118px) !important;
+    max-height: calc(100dvh - 118px) !important;
     min-height: 0 !important;
-    max-height: none !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
     overscroll-behavior-y: contain !important;
     scrollbar-gutter: stable;
-    scroll-behavior: auto !important;
+    scroll-behavior: smooth;
   }
 
-  /* Keep the preview title visible while its cards and outline move. */
+  /* Keep the preview title visible while its own lower content is inspected. */
   .course-studio-page .preview-heading {
     position: sticky !important;
     top: 0 !important;
