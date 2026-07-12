@@ -6,22 +6,29 @@ require_once __DIR__ . '/../../config/database.php';
 
 InstructorMiddleware::handle();
 
+$conn = database_connection();
 $user = Auth::user();
 $instructorId = (int) ($user['id'] ?? 0);
+$dashboardDataWarning = false;
 
 function instructor_dashboard_h(mixed $value): string
 {
-    return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
 function instructor_dashboard_scalar(mysqli $conn, string $sql, int $instructorId): float
 {
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param('i', $instructorId);
-    $stmt->execute();
-    $row = $stmt->get_result()->fetch_row();
-    $stmt->close();
-    return (float) ($row[0] ?? 0);
+    try {
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('i', $instructorId);
+        $stmt->execute();
+        $row = $stmt->get_result()->fetch_row();
+        $stmt->close();
+        return (float) ($row[0] ?? 0);
+    } catch (Throwable $exception) {
+        error_log('Instructor dashboard metric failed: ' . $exception->getMessage());
+        return 0;
+    }
 }
 
 $metrics = [
@@ -36,39 +43,49 @@ $metrics = [
 ];
 
 $recentCourses = [];
-$stmt = $conn->prepare("
-    SELECT id, title, slug, status, updated_at,
-           (SELECT COUNT(*) FROM course_lessons l INNER JOIN course_sections s ON s.id = l.section_id WHERE s.course_id = c.id) AS lesson_count,
-           (SELECT COUNT(*) FROM enrollments e WHERE e.course_id = c.id AND e.status = 'active') AS student_count
-    FROM courses c
-    WHERE instructor_id = ?
-    ORDER BY updated_at DESC
-    LIMIT 5
-");
-$stmt->bind_param('i', $instructorId);
-$stmt->execute();
-$result = $stmt->get_result();
-while ($row = $result->fetch_assoc()) {
-    $recentCourses[] = $row;
+try {
+    $stmt = $conn->prepare("
+        SELECT id, title, slug, status, updated_at,
+               (SELECT COUNT(*) FROM course_lessons l INNER JOIN course_sections s ON s.id = l.section_id WHERE s.course_id = c.id) AS lesson_count,
+               (SELECT COUNT(*) FROM enrollments e WHERE e.course_id = c.id AND e.status = 'active') AS student_count
+        FROM courses c
+        WHERE instructor_id = ?
+        ORDER BY updated_at DESC
+        LIMIT 5
+    ");
+    $stmt->bind_param('i', $instructorId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        $recentCourses[] = $row;
+    }
+    $stmt->close();
+} catch (Throwable $exception) {
+    $dashboardDataWarning = true;
+    error_log('Instructor recent courses query failed: ' . $exception->getMessage());
 }
-$stmt->close();
 
 $monthlySales = [];
-$stmt = $conn->prepare("
-    SELECT DATE_FORMAT(created_at, '%Y-%m') AS sale_month,
-           COALESCE(SUM(instructor_amount), 0) AS amount
-    FROM instructor_earnings
-    WHERE instructor_id = ? AND created_at >= DATE_SUB(CURRENT_DATE, INTERVAL 5 MONTH)
-    GROUP BY sale_month
-    ORDER BY sale_month
-");
-$stmt->bind_param('i', $instructorId);
-$stmt->execute();
-$result = $stmt->get_result();
-while ($row = $result->fetch_assoc()) {
-    $monthlySales[$row['sale_month']] = (float) $row['amount'];
+try {
+    $stmt = $conn->prepare("
+        SELECT DATE_FORMAT(created_at, '%Y-%m') AS sale_month,
+               COALESCE(SUM(instructor_amount), 0) AS amount
+        FROM instructor_earnings
+        WHERE instructor_id = ? AND created_at >= DATE_SUB(CURRENT_DATE, INTERVAL 5 MONTH)
+        GROUP BY sale_month
+        ORDER BY sale_month
+    ");
+    $stmt->bind_param('i', $instructorId);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    while ($row = $result->fetch_assoc()) {
+        $monthlySales[$row['sale_month']] = (float) $row['amount'];
+    }
+    $stmt->close();
+} catch (Throwable $exception) {
+    $dashboardDataWarning = true;
+    error_log('Instructor monthly earnings query failed: ' . $exception->getMessage());
 }
-$stmt->close();
 
 $chart = [];
 $start = new DateTimeImmutable('first day of -5 months');
@@ -101,6 +118,10 @@ require_once __DIR__ . '/../layouts/instructor_navbar.php';
                 <a class="hero-secondary" href="instructor-courses.php">Course library</a>
             </div>
         </header>
+
+        <?php if ($dashboardDataWarning): ?>
+            <div class="alert alert-warning">Some finance data is unavailable. Run the coursehub compatibility migration, then refresh this page.</div>
+        <?php endif; ?>
 
         <div class="instructor-metrics">
             <article class="instructor-metric"><span>Published courses</span><strong><?php echo $metrics['published']; ?></strong><small><?php echo $metrics['drafts']; ?> drafts · <?php echo $metrics['pending']; ?> in review</small></article>
