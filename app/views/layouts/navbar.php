@@ -8,7 +8,7 @@ $isLoggedIn = $currentUser !== null;
 $role = $currentUser['role'] ?? '';
 ?>
 
-<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=13">
+<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=14">
 
 <?php if ($isLoggedIn): ?>
 <div class="logout-modal-overlay" id="logoutModal" role="dialog" aria-modal="true" aria-labelledby="logoutTitle">
@@ -29,9 +29,9 @@ $role = $currentUser['role'] ?? '';
 
 <header class="site-header">
     <nav class="navbar container" aria-label="Primary navigation">
-        <a class="logo" href="index.php" aria-label="<?php echo htmlspecialchars(APP_NAME); ?> home">
+        <a class="logo" href="index.php" aria-label="<?php echo htmlspecialchars(APP_NAME, ENT_QUOTES, 'UTF-8'); ?> home">
             <span class="logo-mark" aria-hidden="true">C</span>
-            <span><?php echo htmlspecialchars(APP_NAME); ?></span>
+            <span><?php echo htmlspecialchars(APP_NAME, ENT_QUOTES, 'UTF-8'); ?></span>
         </a>
 
         <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="publicNav">
@@ -45,8 +45,8 @@ $role = $currentUser['role'] ?? '';
                 <li><a href="index.php" class="<?php echo $currentPage === 'index.php' ? 'active' : ''; ?>">Home</a></li>
                 <li><a href="courses.php" class="<?php echo in_array($currentPage, ['courses.php', 'course-details.php'], true) ? 'active' : ''; ?>">Courses</a></li>
                 <?php if ($isLoggedIn && $role === 'student'): ?>
-                    <li><a href="cart.php" class="<?php echo in_array($currentPage, ['cart.php', 'checkout.php'], true) ? 'active' : ''; ?>">Cart</a></li>
-                    <li><a href="student-my-courses.php" class="<?php echo $currentPage === 'student-my-courses.php' ? 'active' : ''; ?>">My courses</a></li>
+                    <li><a href="cart.php" class="<?php echo in_array($currentPage, ['cart.php', 'checkout.php', 'checkout-success.php'], true) ? 'active' : ''; ?>">Cart</a></li>
+                    <li><a href="student-my-courses.php" class="<?php echo in_array($currentPage, ['student-my-courses.php', 'student-course-view.php'], true) ? 'active' : ''; ?>">My courses</a></li>
                 <?php endif; ?>
                 <li><a href="about.php" class="<?php echo $currentPage === 'about.php' ? 'active' : ''; ?>">About</a></li>
                 <li><a href="contact.php" class="<?php echo $currentPage === 'contact.php' ? 'active' : ''; ?>">Contact</a></li>
@@ -54,8 +54,8 @@ $role = $currentUser['role'] ?? '';
 
             <div class="nav-actions">
                 <?php if (!$isLoggedIn): ?>
-                    <a href="login.php" class="btn btn-outline">Log in</a>
-                    <a href="register.php" class="btn btn-primary">Create account</a>
+                    <a href="login.php" class="btn btn-outline <?php echo $currentPage === 'login.php' ? 'active' : ''; ?>">Log in</a>
+                    <a href="register.php" class="btn btn-primary <?php echo $currentPage === 'register.php' ? 'active' : ''; ?>">Create account</a>
                 <?php else: ?>
                     <?php
                     $dashboard = match ($role) {
@@ -65,7 +65,7 @@ $role = $currentUser['role'] ?? '';
                         default => 'index.php',
                     };
                     ?>
-                    <a href="<?php echo $dashboard; ?>" class="btn btn-outline">Dashboard</a>
+                    <a href="<?php echo htmlspecialchars($dashboard, ENT_QUOTES, 'UTF-8'); ?>" class="btn btn-outline">Dashboard</a>
                     <button type="button" class="btn btn-primary" id="openLogoutModal">Log out</button>
                 <?php endif; ?>
             </div>
