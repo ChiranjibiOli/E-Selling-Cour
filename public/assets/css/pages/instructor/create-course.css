@@ -2,33 +2,35 @@
 @import url("./create-course-theme.css");
 
 /*
- * Desktop course-builder scroll model
- * -----------------------------------
- * 1. The document scrolls normally until the workspace reaches the navbar.
- * 2. The full workspace then sticks below the fixed navbar.
- * 3. The workspace never grows beyond the visible browser height.
- * 4. Only the real middle form (.studio-form) scrolls inside that area.
- * 5. Tablet and mobile keep normal document scrolling.
+ * Create Course desktop scrolling
+ * --------------------------------
+ * Navbar: top 14px + height 68px = bottom edge at 82px.
+ * Sticky panels stop 8px below it, at 90px.
+ * The page scrolls until the three columns reach that point.
+ * Only the middle form has an internal scrollbar.
  */
 
 html:has(.course-studio-page),
 body:has(.course-studio-page) {
   min-height: 100%;
-  overflow-x: clip !important;
+  overflow-x: hidden !important;
   overflow-y: auto !important;
   overscroll-behavior-y: auto;
   scrollbar-gutter: stable;
 }
 
+/* Sticky positioning must not be trapped by a clipped vertical ancestor. */
 .course-studio-page,
-.course-studio-page .course-studio-shell {
-  overflow-x: clip !important;
-  overflow-y: visible !important;
+.course-studio-page .course-studio-shell,
+.course-studio-page .studio-workspace {
+  height: auto !important;
+  max-height: none !important;
   contain: none !important;
+  overflow-y: visible !important;
   transform: none !important;
 }
 
-/* Remove older scroll/sticky overrides before the desktop model is applied. */
+/* Reset older rules before applying the wide desktop layout. */
 .course-studio-page .studio-workspace,
 .course-studio-page .studio-rail,
 .course-studio-page .preview-column,
@@ -37,53 +39,49 @@ body:has(.course-studio-page) {
 .course-studio-page .studio-submit-bar {
   top: auto;
   bottom: auto;
-  max-height: none;
   overscroll-behavior: auto;
   will-change: auto;
 }
 
 @media (min-width: 1281px) {
-  /* The navbar occupies 82px including its top offset. Keep a comfortable gap below it. */
   .course-studio-page .studio-workspace {
-    position: sticky !important;
-    top: 104px !important;
-    align-items: stretch !important;
-    height: calc(100vh - 124px) !important;
-    height: calc(100dvh - 124px) !important;
-    max-height: calc(100vh - 124px) !important;
-    max-height: calc(100dvh - 124px) !important;
-    min-height: 0 !important;
-    overflow: hidden !important;
-    z-index: 8;
+    position: relative !important;
+    align-items: start !important;
+    min-height: calc(100vh - 100px) !important;
+    min-height: calc(100dvh - 100px) !important;
+    overflow: visible !important;
   }
 
-  /* Side sections remain fixed inside the sticky workspace. */
+  /* Left and right move with the page, then stop 8px below the fixed navbar. */
   .course-studio-page .studio-rail,
   .course-studio-page .preview-column {
-    position: relative !important;
-    top: auto !important;
-    align-self: stretch !important;
-    height: 100% !important;
-    max-height: 100% !important;
-    min-height: 0 !important;
-    overflow: hidden !important;
+    position: sticky !important;
+    top: 90px !important;
+    align-self: start !important;
+    height: fit-content !important;
+    max-height: none !important;
+    overflow: visible !important;
+    z-index: 10;
   }
 
+  /* Prevent the preview's inner wrapper from creating a second sticky layer. */
   .course-studio-page .preview-sticky {
-    position: relative !important;
+    position: static !important;
     top: auto !important;
-    height: 100% !important;
-    max-height: 100% !important;
-    min-height: 0 !important;
-    overflow: hidden !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 
-  /* The actual middle element in the markup is .studio-form. */
+  /* Only the actual middle form owns an internal scrollbar. */
   .course-studio-page .studio-form {
-    position: relative !important;
-    align-self: stretch !important;
-    height: 100% !important;
-    max-height: 100% !important;
+    position: sticky !important;
+    top: 90px !important;
+    align-self: start !important;
+    height: calc(100vh - 100px) !important;
+    height: calc(100dvh - 100px) !important;
+    max-height: calc(100vh - 100px) !important;
+    max-height: calc(100dvh - 100px) !important;
     min-height: 0 !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
@@ -105,24 +103,18 @@ body:has(.course-studio-page) {
   .course-studio-page .studio-form::-webkit-scrollbar-thumb {
     border: 2px solid transparent;
     border-radius: 999px;
-    background: rgba(15, 118, 110, 0.36);
+    background: rgba(15, 118, 110, 0.38);
     background-clip: padding-box;
   }
 
   .course-studio-page .studio-form::-webkit-scrollbar-thumb:hover {
-    background: rgba(15, 118, 110, 0.58);
+    background: rgba(15, 118, 110, 0.6);
     background-clip: padding-box;
   }
 }
 
-/* Two-column, tablet and mobile layouts use one normal page scrollbar. */
+/* Two-column, tablet and mobile layouts use normal document scrolling. */
 @media (max-width: 1280px) {
-  html:has(.course-studio-page),
-  body:has(.course-studio-page) {
-    height: auto !important;
-    overflow-y: auto !important;
-  }
-
   .course-studio-page .studio-workspace,
   .course-studio-page .studio-rail,
   .course-studio-page .preview-column,
@@ -131,8 +123,8 @@ body:has(.course-studio-page) {
     position: static !important;
     top: auto !important;
     height: auto !important;
-    max-height: none !important;
     min-height: 0 !important;
+    max-height: none !important;
     overflow: visible !important;
     padding-right: 0;
   }
