@@ -8,6 +8,9 @@ body:has(.course-studio-page) {
   min-height: 100% !important;
   overflow-x: hidden !important;
   overflow-y: auto !important;
+  overscroll-behavior-y: auto !important;
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
 
 .course-studio-page,
@@ -25,8 +28,31 @@ body:has(.course-studio-page) {
   overflow-y: visible !important;
 }
 
+.course-studio-page {
+  contain: none !important;
+  background-attachment: scroll !important;
+}
+
+/* Keep the same layout, but stop sticky panels from catching wheel scrolling. */
 .course-studio-page .preview-column,
 .course-studio-page .preview-sticky,
-.course-studio-page .studio-rail {
+.course-studio-page .studio-rail,
+.course-studio-page .studio-submit-bar {
+  position: static !important;
+  top: auto !important;
+  bottom: auto !important;
   overscroll-behavior: auto !important;
+  backface-visibility: visible !important;
+  transform: none !important;
+}
+
+/* Avoid unnecessary compositing while the page moves. */
+.course-studio-page,
+.course-studio-page::before,
+.course-studio-page .studio-hero,
+.course-studio-page .studio-panel,
+.course-studio-page .preview-sticky,
+.course-studio-page .chapter-card,
+.course-studio-page .lesson-card {
+  will-change: auto !important;
 }
