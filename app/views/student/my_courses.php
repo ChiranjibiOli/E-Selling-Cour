@@ -67,7 +67,24 @@ require_once __DIR__ . '/../layouts/header.php';
 require_once __DIR__ . '/../layouts/student_navbar.php';
 ?>
 <style>
-.student-my-courses-page .my-courses-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:15px!important;align-items:stretch!important}@media(max-width:1180px){.student-my-courses-page .my-courses-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}}@media(max-width:900px){.student-my-courses-page .my-courses-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}}@media(max-width:640px){.student-my-courses-page .my-courses-grid{grid-template-columns:1fr!important}}
+.student-my-courses-page .my-courses-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 18px !important;
+    align-items: stretch !important;
+}
+
+@media (max-width: 900px) {
+    .student-my-courses-page .my-courses-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 640px) {
+    .student-my-courses-page .my-courses-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
 </style>
 
 <main class="student-my-courses-page">
