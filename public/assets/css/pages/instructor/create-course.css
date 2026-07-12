@@ -6,8 +6,7 @@
  * --------------------------------
  * Navbar: top 14px + height 68px = bottom edge at 82px.
  * Sticky panels stop 8px below it, at 90px.
- * The page scrolls until the three columns reach that point.
- * Only the middle form has an internal scrollbar.
+ * The middle form remains fully expanded so every section is visible.
  */
 
 html:has(.course-studio-page),
@@ -47,8 +46,7 @@ body:has(.course-studio-page) {
   .course-studio-page .studio-workspace {
     position: relative !important;
     align-items: start !important;
-    min-height: calc(100vh - 100px) !important;
-    min-height: calc(100dvh - 100px) !important;
+    min-height: 0 !important;
     overflow: visible !important;
   }
 
@@ -73,43 +71,17 @@ body:has(.course-studio-page) {
     overflow: visible !important;
   }
 
-  /* Only the actual middle form owns an internal scrollbar. */
+  /* Show every middle form section in normal document flow. */
   .course-studio-page .studio-form {
-    position: sticky !important;
-    top: 90px !important;
+    position: relative !important;
+    top: auto !important;
     align-self: start !important;
-    height: calc(100vh - 100px) !important;
-    height: calc(100dvh - 100px) !important;
-    max-height: calc(100vh - 100px) !important;
-    max-height: calc(100dvh - 100px) !important;
+    height: auto !important;
+    max-height: none !important;
     min-height: 0 !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    overscroll-behavior-y: contain !important;
-    scrollbar-gutter: stable;
-    scroll-behavior: smooth;
-    padding-right: 8px;
-    touch-action: pan-y;
-  }
-
-  .course-studio-page .studio-form::-webkit-scrollbar {
-    width: 8px;
-  }
-
-  .course-studio-page .studio-form::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .course-studio-page .studio-form::-webkit-scrollbar-thumb {
-    border: 2px solid transparent;
-    border-radius: 999px;
-    background: rgba(15, 118, 110, 0.38);
-    background-clip: padding-box;
-  }
-
-  .course-studio-page .studio-form::-webkit-scrollbar-thumb:hover {
-    background: rgba(15, 118, 110, 0.6);
-    background-clip: padding-box;
+    overflow: visible !important;
+    padding-right: 0 !important;
+    touch-action: auto;
   }
 }
 
