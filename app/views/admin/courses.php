@@ -182,7 +182,7 @@ require_once __DIR__ . '/../layouts/admin_navbar.php';
 ?>
 
 <style>
-.review-page{min-height:calc(100vh - 72px);padding:34px 18px 68px}.review-shell{width:min(1320px,100%);margin:auto}.review-head{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:20px;padding:27px;border:1px solid #e5eaf1;border-radius:24px;background:linear-gradient(135deg,#fff,#f7f8ff);box-shadow:0 16px 45px rgba(15,23,42,.07)}.review-head h1{margin:4px 0 6px;color:#101828;font-size:clamp(1.8rem,3vw,2.5rem);letter-spacing:-.04em}.review-head p{margin:0;color:#667085}.review-kicker{color:#4f46e5!important;font-size:.72rem;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.review-tabs{display:flex;gap:8px;margin-bottom:20px;overflow-x:auto}.review-tabs a{display:inline-flex;min-height:40px;align-items:center;gap:8px;padding:0 14px;border:1px solid #e2e8f0;border-radius:999px;color:#475467;background:#fff;text-decoration:none;font-size:.78rem;font-weight:850;white-space:nowrap}.review-tabs a.active{border-color:#4f46e5;color:#fff;background:#4f46e5}.review-tabs span{padding:3px 7px;border-radius:999px;background:rgba(148,163,184,.18)}.review-alert{margin-bottom:18px;padding:14px 16px;border-radius:14px}.review-alert.success{border:1px solid #a7f3d0;color:#065f46;background:#ecfdf5}.review-alert.error{border:1px solid #fecaca;color:#991b1b;background:#fef2f2}.review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.review-card{overflow:hidden;border:1px solid #e5eaf1;border-radius:21px;background:#fff;box-shadow:0 11px 30px rgba(15,23,42,.06)}.review-cover{position:relative;height:185px;background:#e2e8f0}.review-cover img{width:100%;height:100%;object-fit:cover}.review-status{position:absolute;top:12px;left:12px;padding:7px 10px;border-radius:999px;font-size:.68rem;font-weight:900}.review-status.pending{color:#92400e;background:#fef3c7}.review-status.published{color:#065f46;background:#d1fae5}.review-status.rejected{color:#991b1b;background:#fee2e2}.change-flag{position:absolute;top:12px;right:12px;padding:7px 10px;border-radius:999px;color:#3730a3;background:#eef2ff;font-size:.68rem;font-weight:900}.review-body{padding:18px}.review-id{color:#98a2b3;font-size:.68rem;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.review-body h2{margin:6px 0 6px;color:#101828;font-size:1.15rem}.instructor-line{margin:0;color:#667085;font-size:.78rem}.review-summary{display:-webkit-box;overflow:hidden;margin:12px 0;color:#667085;font-size:.82rem;line-height:1.55;-webkit-line-clamp:2;-webkit-box-orient:vertical}.review-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:14px 0}.review-meta div{padding:9px;border-radius:10px;background:#f8fafc}.review-meta span{display:block;color:#98a2b3;font-size:.61rem;font-weight:850;text-transform:uppercase}.review-meta strong{display:block;margin-top:2px;color:#344054;font-size:.75rem}.review-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:15px}.review-actions a,.review-actions button{display:inline-flex;min-height:39px;align-items:center;justify-content:center;border:0;border-radius:10px;padding:0 13px;text-decoration:none;font:inherit;font-size:.75rem;font-weight:900;cursor:pointer}.view-course{color:#4338ca;background:#eef2ff}.approve-course{color:#fff;background:#059669}.reject-toggle{color:#b91c1c;background:#fee2e2}.reject-form{display:none;margin-top:12px;padding:12px;border-radius:12px;background:#fef2f2}.reject-form.open{display:grid;gap:10px}.reject-form textarea{width:100%;min-height:85px;border:1px solid #fca5a5;border-radius:10px;padding:10px;resize:vertical}.reject-submit{min-height:39px;border:0;border-radius:10px;color:#fff;background:#dc2626;font-weight:900;cursor:pointer}.empty-review{padding:55px 22px;border:2px dashed #cbd5e1;border-radius:22px;background:#fff;text-align:center;color:#667085}@media(max-width:950px){.review-grid{grid-template-columns:1fr}}@media(max-width:650px){.review-page{padding:20px 12px 48px}.review-head{align-items:flex-start;flex-direction:column;padding:21px}.review-meta{grid-template-columns:1fr 1fr}.review-cover{height:160px}}
+.review-page{min-height:calc(100vh - 72px);padding:34px 18px 68px}.review-shell{width:min(1320px,100%);margin:auto}.review-head{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:20px;padding:27px;border:1px solid #e5eaf1;border-radius:24px;background:linear-gradient(135deg,#fff,#f7f8ff);box-shadow:0 16px 45px rgba(15,23,42,.07)}.review-head h1{margin:4px 0 6px;color:#101828;font-size:clamp(1.8rem,3vw,2.5rem);letter-spacing:-.04em}.review-head p{margin:0;color:#667085}.review-kicker{color:#4f46e5!important;font-size:.72rem;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.review-tabs{display:flex;gap:8px;margin-bottom:20px;overflow-x:auto}.review-tabs a{display:inline-flex;min-height:40px;align-items:center;gap:8px;padding:0 14px;border:1px solid #e2e8f0;border-radius:999px;color:#475467;background:#fff;text-decoration:none;font-size:.78rem;font-weight:850;white-space:nowrap}.review-tabs a.active{border-color:#4f46e5;color:#fff;background:#4f46e5}.review-tabs span{padding:3px 7px;border-radius:999px;background:rgba(148,163,184,.18)}.review-alert{margin-bottom:18px;padding:14px 16px;border-radius:14px}.review-alert.success{border:1px solid #a7f3d0;color:#065f46;background:#ecfdf5}.review-alert.error{border:1px solid #fecaca;color:#991b1b;background:#fef2f2}.review-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}.empty-review{padding:55px 22px;border:2px dashed #cbd5e1;border-radius:22px;background:#fff;text-align:center;color:#667085}@media(max-width:950px){.review-grid{grid-template-columns:1fr}}@media(max-width:650px){.review-page{padding:20px 12px 48px}.review-head{align-items:flex-start;flex-direction:column;padding:21px}}
 </style>
 
 <main class="review-page">
@@ -218,66 +218,71 @@ require_once __DIR__ . '/../layouts/admin_navbar.php';
                     $image = $thumbnail !== ''
                         ? 'assets/uploads/course_thumbnails/' . rawurlencode($thumbnail)
                         : 'assets/images/course-placeholder.svg';
-                    ?>
-                    <article class="review-card">
-                        <div class="review-cover">
-                            <img src="<?php echo admin_course_h($image); ?>" alt="<?php echo admin_course_h($course['title']); ?>">
-                            <span class="review-status <?php echo admin_course_h($course['status']); ?>">
-                                <?php echo admin_course_h(admin_course_label($course['status'])); ?>
-                            </span>
-                            <?php if ((int) $course['pending_change_count'] > 0): ?>
-                                <span class="change-flag"><?php echo (int) $course['pending_change_count']; ?> change log</span>
+
+                    $courseId = (int) $course['id'];
+                    $pendingChanges = (int) $course['pending_change_count'];
+                    $isPending = $course['status'] === 'pending';
+                    $reviewNote = trim((string) ($course['review_note'] ?? ''));
+
+                    $courseCard = [
+                        'context' => 'admin',
+                        'title' => $course['title'],
+                        'summary' => $course['short_description'] ?: 'No course summary was supplied.',
+                        'thumbnail' => $image,
+                        'category' => $course['category_name'] ?: 'General',
+                        'badge' => admin_course_label((string) $course['status']),
+                        'status_class' => $course['status'],
+                        'eyebrow' => 'Course #' . $courseId . ' · ' . $course['instructor_name'],
+                        'language' => $course['language'],
+                        'price' => 'Rs. ' . number_format((float) $course['price'], 2),
+                        'href' => 'course-details.php?slug=' . rawurlencode((string) $course['slug']),
+                        'metrics' => [
+                            ['label' => 'Curriculum', 'value' => (int) $course['chapter_count'] . ' chapters'],
+                            ['label' => 'Lessons', 'value' => (string) (int) $course['lesson_count']],
+                            ['label' => 'Instructor', 'value' => (string) $course['instructor_email']],
+                            ['label' => 'Change logs', 'value' => (string) $pendingChanges],
+                        ],
+                        'actions' => array_values(array_filter([
+                            ['label' => 'View full course', 'href' => 'course-details.php?slug=' . rawurlencode((string) $course['slug']), 'style' => 'secondary'],
+                            $pendingChanges > 0
+                                ? ['label' => 'View exact changes', 'href' => 'admin-course-changes.php?course_id=' . $courseId, 'style' => 'secondary']
+                                : null,
+                        ])),
+                        'feature_renderer' => static function () use ($courseId, $isPending, $reviewNote): void {
+                            ?>
+                            <?php if ($reviewNote !== ''): ?>
+                                <p class="course-admin-note"><strong>Last admin note:</strong> <?php echo admin_course_h($reviewNote); ?></p>
                             <?php endif; ?>
-                        </div>
 
-                        <div class="review-body">
-                            <span class="review-id">Course #<?php echo (int) $course['id']; ?></span>
-                            <h2><?php echo admin_course_h($course['title']); ?></h2>
-                            <p class="instructor-line">
-                                <?php echo admin_course_h($course['instructor_name']); ?> · <?php echo admin_course_h($course['instructor_email']); ?>
-                            </p>
-                            <p class="review-summary"><?php echo admin_course_h($course['short_description']); ?></p>
-
-                            <div class="review-meta">
-                                <div><span>Curriculum</span><strong><?php echo (int) $course['chapter_count']; ?> chapters</strong></div>
-                                <div><span>Lessons</span><strong><?php echo (int) $course['lesson_count']; ?></strong></div>
-                                <div><span>Price</span><strong>Rs. <?php echo number_format((float) $course['price'], 2); ?></strong></div>
-                            </div>
-
-                            <?php if ($course['review_note']): ?>
-                                <p class="review-summary"><strong>Last admin note:</strong> <?php echo admin_course_h($course['review_note']); ?></p>
-                            <?php endif; ?>
-
-                            <div class="review-actions">
-                                <a class="view-course" href="course-details.php?slug=<?php echo rawurlencode($course['slug']); ?>">View full course</a>
-
-                                <?php if ((int) $course['pending_change_count'] > 0): ?>
-                                    <a class="view-course" href="admin-course-changes.php?course_id=<?php echo (int) $course['id']; ?>">View exact changes</a>
-                                <?php endif; ?>
-
-                                <?php if ($course['status'] === 'pending'): ?>
+                            <?php if ($isPending): ?>
+                                <div class="course-admin-review-actions">
                                     <form method="post">
                                         <?php echo csrf_field(); ?>
-                                        <input type="hidden" name="course_id" value="<?php echo (int) $course['id']; ?>">
+                                        <input type="hidden" name="course_id" value="<?php echo $courseId; ?>">
                                         <input type="hidden" name="decision" value="approve">
                                         <input type="hidden" name="review_note" value="Approved after quality review.">
-                                        <button class="approve-course" type="submit" data-confirm="Publish this course?">Approve & publish</button>
+                                        <button class="course-admin-approve" type="submit" data-confirm="Publish this course?">Approve & publish</button>
                                     </form>
-                                    <button class="reject-toggle" type="button">Reject</button>
-                                <?php endif; ?>
-                            </div>
+                                    <button class="course-admin-reject-toggle" type="button">Reject</button>
+                                </div>
 
-                            <?php if ($course['status'] === 'pending'): ?>
-                                <form class="reject-form" method="post">
+                                <form class="course-admin-reject-form" method="post">
                                     <?php echo csrf_field(); ?>
-                                    <input type="hidden" name="course_id" value="<?php echo (int) $course['id']; ?>">
+                                    <input type="hidden" name="course_id" value="<?php echo $courseId; ?>">
                                     <input type="hidden" name="decision" value="reject">
-                                    <textarea name="review_note" maxlength="1000" required placeholder="Tell the instructor exactly what must be corrected."></textarea>
-                                    <button class="reject-submit" type="submit">Reject and notify instructor</button>
+                                    <label>
+                                        <span>Required correction note</span>
+                                        <textarea name="review_note" maxlength="1000" required placeholder="Tell the instructor exactly what must be corrected."></textarea>
+                                    </label>
+                                    <button type="submit">Reject and notify instructor</button>
                                 </form>
                             <?php endif; ?>
-                        </div>
-                    </article>
+                            <?php
+                        },
+                    ];
+
+                    require __DIR__ . '/../components/course_card.php';
+                    ?>
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
@@ -285,9 +290,13 @@ require_once __DIR__ . '/../layouts/admin_navbar.php';
 </main>
 
 <script>
-document.querySelectorAll('.reject-toggle').forEach(button => {
-    button.addEventListener('click', () => {
-        button.closest('.review-card').querySelector('.reject-form').classList.toggle('open');
+document.querySelectorAll('.course-admin-reject-toggle').forEach(function (button) {
+    button.addEventListener('click', function () {
+        const card = button.closest('.course-unit-card--admin');
+        const form = card ? card.querySelector('.course-admin-reject-form') : null;
+        if (form) {
+            form.classList.toggle('open');
+        }
     });
 });
 </script>
