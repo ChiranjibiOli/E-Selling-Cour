@@ -6,7 +6,8 @@
  * --------------------------------
  * Navbar: top 14px + height 68px = bottom edge at 82px.
  * The left panel stops 8px below it; the right preview is fixed 10px below it.
- * The middle form remains fully expanded so every section is visible.
+ * Page scrolling moves the preview contents in the same direction while its
+ * heading remains visible. The middle form stays fully expanded.
  */
 
 html:has(.course-studio-page),
@@ -64,7 +65,7 @@ body:has(.course-studio-page) {
   }
 
   /*
-   * The preview is truly viewport-fixed, not sticky inside the workspace.
+   * The preview is viewport-fixed, not sticky inside the workspace.
    * The third grid column remains reserved, so the form never expands under it.
    * Its right edge follows the centered 1440px studio shell.
    */
@@ -83,6 +84,7 @@ body:has(.course-studio-page) {
     z-index: 40;
   }
 
+  /* The page-scroll script moves this inner area up and down. */
   .course-studio-page .preview-sticky {
     position: static !important;
     top: auto !important;
@@ -97,6 +99,16 @@ body:has(.course-studio-page) {
     overflow-y: auto !important;
     overscroll-behavior-y: contain !important;
     scrollbar-gutter: stable;
+    scroll-behavior: auto !important;
+  }
+
+  /* Keep the preview title visible while its cards and outline move. */
+  .course-studio-page .preview-heading {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 6;
+    background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.98) 82%, rgba(255, 255, 255, 0.92) 100%);
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
   }
 
   .course-studio-page .preview-sticky::-webkit-scrollbar {
@@ -146,5 +158,10 @@ body:has(.course-studio-page) {
     max-height: none !important;
     overflow: visible !important;
     padding-right: 0;
+  }
+
+  .course-studio-page .preview-heading {
+    position: static !important;
+    box-shadow: none;
   }
 }
