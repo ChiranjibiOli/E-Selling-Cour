@@ -178,7 +178,7 @@
     .knowledge-4d-object img { max-height: 500px !important; }
 }
 
-/* Current transparent hero image: shorten the visible arm in code only. */
+/* Current transparent hero image: crop the arm without enlarging the source image. */
 .real-book-stage {
     min-height: 540px !important;
     overflow: hidden !important;
@@ -186,25 +186,35 @@
 }
 
 .real-book-object {
-    width: min(500px, 96%) !important;
+    width: min(470px, 92%) !important;
     height: 540px !important;
     overflow: hidden !important;
 }
 
 .real-book-object img {
+    display: block !important;
     width: 100% !important;
+    height: auto !important;
     max-height: none !important;
-    transform: translateY(-18px) scale(1.03) !important;
+    object-fit: contain !important;
+    object-position: top center !important;
+    transform: translateY(-10px) !important;
     transform-origin: top center !important;
+    image-rendering: auto !important;
+    backface-visibility: hidden !important;
+    -webkit-font-smoothing: antialiased;
+    filter: contrast(1.045) saturate(1.025) drop-shadow(0 18px 24px rgba(34,22,13,.16)) !important;
 }
 
 @media (max-width: 980px) {
     .real-book-stage,
     .real-book-object { height: 500px !important; min-height: 500px !important; }
+    .real-book-object { width: min(440px, 90%) !important; }
 }
 
 @media (max-width: 620px) {
     .real-book-stage,
     .real-book-object { height: 410px !important; min-height: 410px !important; }
-    .real-book-object img { transform: translateY(-12px) scale(1.04) !important; }
+    .real-book-object { width: min(340px, 92%) !important; }
+    .real-book-object img { transform: translateY(-8px) !important; }
 }
