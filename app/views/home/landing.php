@@ -33,9 +33,13 @@ function landing_thumbnail(array $course): string
 
 $featuredSql = "
     SELECT c.id, c.title, c.slug, c.short_description, c.thumbnail, c.price,
-           c.level, c.duration, c.language, u.full_name AS instructor_name
+           c.level, c.duration, c.language, cat.name AS category_name,
+           u.full_name AS instructor_name,
+           (SELECT COUNT(*) FROM course_lessons l INNER JOIN course_sections s ON s.id = l.section_id WHERE s.course_id = c.id) AS lesson_count,
+           (SELECT COUNT(*) FROM enrollments e WHERE e.course_id = c.id AND e.status = 'active') AS student_count
     FROM courses c
     INNER JOIN users u ON c.instructor_id = u.id
+    LEFT JOIN categories cat ON cat.id = c.category_id
     WHERE c.status = 'published'
     ORDER BY c.is_featured DESC, c.created_at DESC
     LIMIT 3
@@ -59,32 +63,19 @@ foreach ($statQueries as $key => $query) {
 }
 ?>
 <link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=14">
-<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=26">
+<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=27">
 <link rel="stylesheet" href="assets/css/components/footer.css?v=10">
 
 <style>
 .real-book-stage{position:relative;min-height:610px;display:grid;place-items:center;overflow:visible;background:transparent}
-.real-book-object{position:relative;z-index:2;width:min(520px,98%);animation:realBookFloat 4.8s ease-in-out infinite}
-.real-book-object img{display:block;width:100%;height:auto;max-height:610px;object-fit:contain;object-position:center;background:transparent;filter:drop-shadow(0 24px 30px rgba(34,22,13,.18))}
+.real-book-object{position:relative;z-index:2;width:min(500px,92%);height:540px;overflow:hidden;animation:realBookFloat 4.8s ease-in-out infinite}
+.real-book-object img{display:block;width:100%;height:auto;max-height:610px;transform:translateY(-10px);object-fit:contain;object-position:top center;background:transparent;filter:drop-shadow(0 18px 24px rgba(34,22,13,.16))}
 @keyframes realBookFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@media(max-width:980px){.real-book-stage{min-height:560px}.real-book-object{width:min(470px,96%)}}
+.landing-course-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:28px}
+@media(max-width:980px){.real-book-stage{min-height:560px}.real-book-object{width:min(470px,96%)}.landing-course-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.landing-course-grid{grid-template-columns:1fr}}
 @media(max-width:620px){.real-book-stage{min-height:470px}.real-book-object{width:min(370px,98%)}.real-book-object img{max-height:460px}}
 @media(prefers-reduced-motion:reduce){.real-book-object{animation:none}}
-.real-book-object {
-    width: min(500px, 92%);
-    height: 540px;
-    overflow: hidden;
-}
-
-.real-book-object img {
-    display: block;
-    width: 100%;
-    height: auto;
-    transform: translateY(-10px);
-    object-fit: contain;
-    object-position: top center;
-    filter: drop-shadow(0 18px 24px rgba(34, 22, 13, 0.16));
-}
 </style>
 
 <main class="landing-page">
@@ -102,11 +93,8 @@ foreach ($statQueries as $key => $query) {
 
             <div class="real-book-stage" aria-label="A real hand turning the page of an open book">
                 <div class="real-book-object">
-                   <img
-    src="assets/images/image.png"
-    alt="A real hand turning the page of an open book"
->
-    </div>
+                    <img src="assets/images/image.png" alt="A real hand turning the page of an open book">
+                </div>
             </div>
         </div>
     </section>
@@ -117,27 +105,39 @@ foreach ($statQueries as $key => $query) {
                 <h2>Featured learning,<br>presented like a collection.</h2>
                 <p>Explore approved courses built for practical learning and lifetime access.</p>
             </div>
-            <div class="editorial-course-list">
-                <?php if ($featuredCourses): ?>
-                    <?php foreach ($featuredCourses as $index => $course): ?>
-                        <article class="editorial-course-card editorial-tone-<?php echo ($index % 3) + 1; ?>" style="--stack-index: <?php echo $index; ?>;">
-                            <div class="editorial-course-copy">
-                                <span class="editorial-course-number"><?php echo str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT); ?> · <?php echo landing_h(strtoupper((string) $course['level'])); ?></span>
-                                <h3><?php echo landing_h($course['title']); ?></h3>
-                                <p><?php echo landing_h($course['short_description']); ?></p>
-                                <div class="editorial-course-meta"><span><?php echo landing_h($course['instructor_name']); ?></span><span><?php echo landing_price($course['price']); ?></span></div>
-                                <a class="editorial-button editorial-button-dark" href="course-details.php?slug=<?php echo urlencode((string) $course['slug']); ?>">View course</a>
-                            </div>
-                            <a class="editorial-course-art" href="course-details.php?slug=<?php echo urlencode((string) $course['slug']); ?>" aria-label="View <?php echo landing_h($course['title']); ?>">
-                                <img src="<?php echo landing_h(landing_thumbnail($course)); ?>" alt="<?php echo landing_h($course['title']); ?>">
-                                <span><?php echo landing_h(strtoupper(substr((string) $course['title'], 0, 1))); ?></span>
-                            </a>
-                        </article>
+
+            <?php if ($featuredCourses): ?>
+                <div class="landing-course-grid">
+                    <?php foreach ($featuredCourses as $course): ?>
+                        <?php
+                        $detailsUrl = 'course-details.php?slug=' . rawurlencode((string) $course['slug']);
+                        $courseCard = [
+                            'context' => 'marketplace',
+                            'title' => $course['title'],
+                            'summary' => $course['short_description'] ?: 'Explore the complete course and its learning outcomes.',
+                            'thumbnail' => landing_thumbnail($course),
+                            'category' => $course['category_name'] ?: 'General',
+                            'badge' => ucfirst((string) $course['level']),
+                            'eyebrow' => 'By ' . $course['instructor_name'],
+                            'language' => $course['language'] ?: 'Language not set',
+                            'duration' => $course['duration'] ?: 'Self-paced',
+                            'price' => landing_price($course['price']),
+                            'href' => $detailsUrl,
+                            'metrics' => [
+                                ['label' => 'Lessons', 'value' => (string) ((int) $course['lesson_count'])],
+                                ['label' => 'Students', 'value' => number_format((int) $course['student_count'])],
+                            ],
+                            'actions' => [
+                                ['label' => 'View course', 'href' => $detailsUrl, 'style' => 'primary'],
+                            ],
+                        ];
+                        require __DIR__ . '/../components/course_card.php';
+                        ?>
                     <?php endforeach; ?>
-                <?php else: ?>
-                    <article class="editorial-empty-state"><span>Courses are being prepared</span><h3>Published courses will appear here.</h3><p>Explore the full catalogue or return after instructors publish approved courses.</p><a class="editorial-button editorial-button-dark" href="courses.php">Open courses</a></article>
-                <?php endif; ?>
-            </div>
+                </div>
+            <?php else: ?>
+                <article class="editorial-empty-state"><span>Courses are being prepared</span><h3>Published courses will appear here.</h3><p>Explore the full catalogue or return after instructors publish approved courses.</p><a class="editorial-button editorial-button-dark" href="courses.php">Open courses</a></article>
+            <?php endif; ?>
         </div>
     </section>
 
