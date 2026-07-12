@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 require_once __DIR__ . '/../../core/Auth.php';
 require_once __DIR__ . '/../../config/database.php';
 
@@ -8,22 +10,34 @@ Auth::guestOnly();
 $message = '';
 $messageType = '';
 $email = '';
+$allowedStudentRedirects = [
+    'student-dashboard.php',
+    'student-browse-courses.php',
+    'student-my-courses.php',
+    'cart.php',
+    'checkout.php',
+    'course-details.php',
+];
 $redirect = trim((string) ($_POST['redirect'] ?? $_GET['redirect'] ?? ''));
-$safeRedirect = preg_match('/^[A-Za-z0-9_-]+\.php(?:\?[A-Za-z0-9_=&%+.\-]*)?$/', $redirect)
-    ? $redirect
-    : '';
+$safeRedirect = Security::safeInternalPath($redirect, $allowedStudentRedirects) ?? '';
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
     $email = strtolower(trim((string) ($_POST['email'] ?? '')));
     $password = (string) ($_POST['password'] ?? '');
+    $rateIdentity = Security::clientIp() . '|' . $email;
+    $retryAfter = Security::rateLimitRetryAfter('login', $rateIdentity, 5, 900, 900);
 
-    if ($email === '') {
+    if ($retryAfter > 0) {
+        $minutes = max(1, (int) ceil($retryAfter / 60));
+        $message = "Too many login attempts. Try again in about {$minutes} minute(s).";
+        $messageType = 'error';
+    } elseif ($email === '') {
         $message = 'Email is required.';
         $messageType = 'error';
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 150) {
         $message = 'Please enter a valid email address.';
         $messageType = 'error';
-    } elseif ($password === '') {
+    } elseif ($password === '' || strlen($password) > 4096) {
         $message = 'Password is required.';
         $messageType = 'error';
     } else {
@@ -33,41 +47,71 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
             );
             $stmt->bind_param('s', $email);
             $stmt->execute();
-            $user = $stmt->get_result()->fetch_assoc();
+            $user = $stmt->get_result()->fetch_assoc() ?: null;
             $stmt->close();
 
-            if (!$user || !password_verify($password, (string) $user['password'])) {
-                $message = 'Invalid email or password.';
+            static $dummyHash = null;
+            if (!is_string($dummyHash)) {
+                $dummyHash = password_hash('coursehub-invalid-login-placeholder', PASSWORD_DEFAULT);
+            }
+
+            $storedHash = $user ? (string) $user['password'] : $dummyHash;
+            $passwordMatches = password_verify($password, $storedHash);
+
+            if (!$user || !$passwordMatches) {
+                $blockedFor = Security::recordRateLimitFailure('login', $rateIdentity, 5, 900, 900);
+                usleep(random_int(180000, 320000));
+
+                if ($blockedFor > 0) {
+                    $minutes = max(1, (int) ceil($blockedFor / 60));
+                    $message = "Too many login attempts. Try again in about {$minutes} minute(s).";
+                } else {
+                    $message = 'Invalid email or password.';
+                }
                 $messageType = 'error';
             } elseif ((string) $user['status'] !== 'active') {
+                Security::clearRateLimit('login', $rateIdentity);
                 $message = (string) $user['role'] === 'instructor'
                     ? 'Your instructor account is waiting for admin approval.'
                     : 'Your account is not active. Contact the administrator.';
                 $messageType = 'error';
             } else {
                 $userId = (int) $user['id'];
+                $conn->begin_transaction();
+
+                if (password_needs_rehash((string) $user['password'], PASSWORD_DEFAULT)) {
+                    $newHash = password_hash($password, PASSWORD_DEFAULT);
+                    $rehashStmt = $conn->prepare('UPDATE users SET password = ? WHERE id = ?');
+                    $rehashStmt->bind_param('si', $newHash, $userId);
+                    $rehashStmt->execute();
+                    $rehashStmt->close();
+                }
 
                 $loginStmt = $conn->prepare('UPDATE users SET last_login_at = NOW() WHERE id = ?');
                 $loginStmt->bind_param('i', $userId);
                 $loginStmt->execute();
                 $loginStmt->close();
+                $conn->commit();
 
+                Security::clearRateLimit('login', $rateIdentity);
                 Auth::login($user);
 
                 if ($safeRedirect !== '' && (string) $user['role'] === 'student') {
                     Auth::redirect($safeRedirect);
                 }
 
-                $destination = match ((string) $user['role']) {
-                    'student' => 'student-dashboard.php',
-                    'instructor' => 'instructor-dashboard.php',
-                    'admin' => 'admin-dashboard.php',
-                    default => 'login.php',
-                };
-
-                Auth::redirect($destination);
+                Auth::redirectBasedOnRole();
             }
-        } catch (mysqli_sql_exception $exception) {
+        } catch (Throwable $exception) {
+            if ($conn->errno === 0) {
+                // No active transaction to roll back.
+            } else {
+                try {
+                    $conn->rollback();
+                } catch (Throwable) {
+                }
+            }
+
             error_log('Login failed: ' . $exception->getMessage());
             $message = 'Login could not be completed. Please try again.';
             $messageType = 'error';
@@ -115,7 +159,7 @@ require_once __DIR__ . '/../layouts/navbar.php';
                         <div class="form-group password-group">
                             <label for="password">Password</label>
                             <div class="password-field">
-                                <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" required>
+                                <input type="password" id="password" name="password" placeholder="Enter your password" maxlength="4096" autocomplete="current-password" required>
                                 <button type="button" class="toggle-password" data-target="password">Show</button>
                             </div>
                         </div>
