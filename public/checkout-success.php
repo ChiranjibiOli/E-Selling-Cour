@@ -48,20 +48,12 @@ require_once '../app/views/layouts/student_navbar.php';
             </div>
 
             <div class="success-actions">
-                <a href="student-my-courses.php">
-                    My Courses
-                </a>
-
-                <a href="courses.php" class="secondary">
-                    Browse More Courses
-                </a>
-
-                <a href="student-dashboard.php" class="secondary">
-                    Go to Dashboard
-                </a>
+                <a href="student-my-courses.php">My Courses</a>
+                <a href="student-browse-courses.php" class="secondary">Browse More Courses</a>
+                <a href="student-dashboard.php" class="secondary">Go to Dashboard</a>
             </div>
         </div>
     </section>
 </main>
 
-<?php require_once '../app/views/layouts/footer.php'; ?>
+<?php require_once '../app/views/layouts/panel_end.php'; ?>
