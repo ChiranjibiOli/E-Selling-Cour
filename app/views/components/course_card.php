@@ -6,17 +6,17 @@ declare(strict_types=1);
  * Shared course-card pipeline.
  *
  * Expected input in $courseCard:
- * - context: marketplace|student|instructor
+ * - context: marketplace|student|instructor|admin
  * - title, summary, thumbnail, category, badge, eyebrow, language, duration, price
  * - href: optional primary course URL
  * - metrics: [['label' => 'Lessons', 'value' => '12'], ...]
  * - actions: [['label' => 'View course', 'href' => '...', 'style' => 'primary'], ...]
- *            Use ['label' => 'Locked during review', 'style' => 'muted', 'disabled' => true]
+ * - feature_renderer: optional callable rendered inside the shared card after the common footer.
  */
 
 $card = is_array($courseCard ?? null) ? $courseCard : [];
 $context = (string) ($card['context'] ?? 'marketplace');
-$allowedContexts = ['marketplace', 'student', 'instructor'];
+$allowedContexts = ['marketplace', 'student', 'instructor', 'admin'];
 
 if (!in_array($context, $allowedContexts, true)) {
     $context = 'marketplace';
@@ -40,6 +40,7 @@ $price = trim((string) ($card['price'] ?? ''));
 $href = trim((string) ($card['href'] ?? ''));
 $metrics = is_array($card['metrics'] ?? null) ? $card['metrics'] : [];
 $actions = is_array($card['actions'] ?? null) ? $card['actions'] : [];
+$featureRenderer = is_callable($card['feature_renderer'] ?? null) ? $card['feature_renderer'] : null;
 $statusClass = preg_replace('/[^a-z0-9_-]/i', '', (string) ($card['status_class'] ?? ''));
 ?>
 <article class="course-unit-card course-unit-card--<?php echo $escape($context); ?>">
@@ -141,6 +142,12 @@ $statusClass = preg_replace('/[^a-z0-9_-]/i', '', (string) ($card['status_class'
                 </div>
             <?php endif; ?>
         </footer>
+
+        <?php if ($featureRenderer): ?>
+            <div class="course-unit-feature course-unit-feature--<?php echo $escape($context); ?>">
+                <?php $featureRenderer($card, $escape); ?>
+            </div>
+        <?php endif; ?>
     </div>
 </article>
-<?php unset($courseCard, $card); ?>
+<?php unset($courseCard, $card, $featureRenderer); ?>
