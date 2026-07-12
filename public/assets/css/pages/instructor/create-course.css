@@ -1,5 +1,6 @@
 @import url("./create-course-original.css");
 @import url("./create-course-theme.css");
+@import url("../../components/cards.css?v=13");
 
 /*
  * Create Course desktop scrolling
@@ -8,6 +9,7 @@
  * The complete right preview box stays in normal grid flow first.
  * When its top reaches 92px, the entire box stops 10px below the navbar.
  * Nothing inside the preview has separate sticky or scrolling behavior.
+ * Course-card visuals come only from the shared components/cards.css file.
  */
 
 html:has(.course-studio-page),
@@ -145,183 +147,4 @@ body:has(.course-studio-page) {
     top: auto !important;
     box-shadow: none;
   }
-}
-
-/* =========================================================
-   Live marketplace card — matched to the supplied reference
-   ========================================================= */
-
-.course-studio-page .marketplace-card {
-  width: 100%;
-  overflow: hidden;
-  border: 1px solid #dbe4ec;
-  border-radius: 28px;
-  background: #f8fbfd;
-  box-shadow: 0 18px 38px rgba(15, 23, 42, 0.10);
-  transform: none;
-  transform-style: flat;
-}
-
-.course-studio-page .marketplace-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 24px 46px rgba(15, 23, 42, 0.13);
-}
-
-.course-studio-page .marketplace-cover {
-  position: relative;
-  height: 210px;
-  overflow: hidden;
-  background:
-    radial-gradient(circle at 10% 90%, rgba(255, 255, 255, 0.08) 0 22%, transparent 23%),
-    linear-gradient(135deg, #33238f 0%, #4f46e5 54%, #0897c9 100%);
-}
-
-.course-studio-page .marketplace-cover img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.course-studio-page .preview-category {
-  top: 14px;
-  left: 14px;
-  right: auto;
-  bottom: auto;
-  min-height: 34px;
-  max-width: 150px;
-  padding: 0 14px;
-  overflow: hidden;
-  border: 0;
-  border-radius: 999px;
-  background: rgba(239, 247, 242, 0.96);
-  color: #10222d;
-  font-size: 0.72rem;
-  font-weight: 1000;
-  line-height: 1;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
-}
-
-.course-studio-page .preview-level {
-  top: 14px;
-  right: 14px;
-  bottom: 14px;
-  left: auto;
-  width: 76px;
-  min-height: 0;
-  padding: 0 8px;
-  display: grid;
-  place-items: center;
-  border: 0;
-  border-radius: 999px;
-  background: rgba(239, 244, 251, 0.97);
-  color: #10222d;
-  font-size: 0.72rem;
-  font-weight: 1000;
-  line-height: 1.2;
-  text-align: center;
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.10);
-}
-
-.course-studio-page .marketplace-content {
-  min-height: 296px;
-  padding: 20px 18px 16px;
-  display: flex;
-  flex-direction: column;
-  background: #f9fbfd;
-}
-
-.course-studio-page .preview-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 13px;
-  color: #687b88;
-  font-size: 0.78rem;
-  font-weight: 900;
-}
-
-.course-studio-page .marketplace-content h3 {
-  margin: 0;
-  min-height: 46px;
-  overflow: hidden;
-  color: #111827;
-  font-size: 1.16rem;
-  line-height: 1.28;
-  letter-spacing: -0.035em;
-  font-weight: 1000;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.course-studio-page .marketplace-content p {
-  margin: 23px 0 0;
-  min-height: 62px;
-  overflow: hidden;
-  color: #67758b;
-  font-size: 0.84rem;
-  line-height: 1.58;
-  font-weight: 750;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-}
-
-.course-studio-page .preview-rating {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: auto;
-  padding-top: 24px;
-}
-
-.course-studio-page .preview-rating span {
-  color: #f59e0b;
-  font-size: 0.82rem;
-  letter-spacing: -0.08em;
-  line-height: 1;
-}
-
-.course-studio-page .preview-rating small {
-  color: #6f7f89;
-  font-size: 0.66rem;
-  font-weight: 900;
-}
-
-.course-studio-page .preview-price-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 24px;
-  padding-top: 16px;
-  border-top: 1px solid #dce5eb;
-}
-
-.course-studio-page .preview-price-row strong {
-  color: #111827;
-  font-size: 1.08rem;
-  font-weight: 1000;
-  letter-spacing: -0.03em;
-}
-
-.course-studio-page .preview-price-row button {
-  min-height: 40px;
-  padding: 0 14px;
-  border: 0;
-  border-radius: 13px;
-  background: #0d2b31;
-  color: #ffffff;
-  font-size: 0.78rem;
-  font-weight: 1000;
-  box-shadow: 0 8px 18px rgba(13, 43, 49, 0.18);
-}
-
-.course-studio-page .preview-price-row button:hover {
-  background: #071f24;
 }
