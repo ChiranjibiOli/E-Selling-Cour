@@ -59,26 +59,40 @@ foreach ($statQueries as $key => $query) {
 }
 ?>
 <link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=14">
-<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=22">
+<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=23">
 <link rel="stylesheet" href="assets/css/components/footer.css?v=10">
 
 <style>
-.knowledge-4d-stage{position:relative;min-height:560px;display:grid;place-items:center;perspective:1500px;overflow:visible;isolation:isolate}
-.knowledge-4d-stage::before{content:"";position:absolute;width:430px;height:430px;border-radius:50%;background:radial-gradient(circle,rgba(196,139,45,.18),rgba(196,139,45,.06) 46%,transparent 72%);filter:blur(18px)}
-.knowledge-4d-object{position:relative;z-index:2;width:min(390px,88%);transform-style:preserve-3d;animation:bookFloat 4.6s ease-in-out infinite;transition:transform .18s ease-out}
-.knowledge-4d-object img{width:100%;display:block;object-fit:contain;filter:drop-shadow(0 28px 34px rgba(32,19,10,.34))}
-.knowledge-4d-cover{position:absolute;z-index:4;top:14%;left:50%;width:48%;transform:translateX(-50%) translateZ(42px);padding:14px 10px;text-align:center;color:#e0aa52;text-shadow:0 2px 10px rgba(0,0,0,.62);font-family:Georgia,"Times New Roman",serif;font-size:clamp(.9rem,1.8vw,1.25rem);font-weight:700;letter-spacing:.13em;line-height:1.25;text-transform:uppercase;pointer-events:none}
-.knowledge-4d-cover::before{content:"";position:absolute;inset:-10px -8px;border:1px solid rgba(226,174,85,.72);box-shadow:inset 0 0 0 2px rgba(87,48,22,.5)}
-.knowledge-4d-cover small{display:block;margin-bottom:8px;font-family:Arial,sans-serif;font-size:.43rem;font-weight:900;letter-spacing:.24em;color:#bd873b}
-.knowledge-4d-cover span{display:block;margin-top:10px;font-family:Arial,sans-serif;font-size:.44rem;font-weight:900;letter-spacing:.17em;color:#b47c34}
-.knowledge-4d-light{position:absolute;z-index:5;inset:7% 16% 24% 16%;background:linear-gradient(110deg,transparent 30%,rgba(255,229,174,.42) 46%,rgba(255,255,255,.5) 50%,transparent 60%);transform:translateX(-150%) translateZ(70px);mix-blend-mode:screen;pointer-events:none;animation:coverShine 5s ease-in-out infinite}
-.knowledge-4d-shadow{position:absolute;left:50%;bottom:48px;width:250px;height:42px;transform:translateX(-50%);border-radius:50%;background:rgba(48,28,15,.24);filter:blur(18px);animation:shadowPulse 4.6s ease-in-out infinite}
-@keyframes bookFloat{0%,100%{transform:translateY(0) rotateX(1deg) rotateY(-2deg)}50%{transform:translateY(-14px) rotateX(-1deg) rotateY(2deg)}}
-@keyframes shadowPulse{0%,100%{transform:translateX(-50%) scale(1);opacity:.62}50%{transform:translateX(-50%) scale(.84);opacity:.4}}
-@keyframes coverShine{0%,20%{transform:translateX(-150%) translateZ(70px)}58%,100%{transform:translateX(150%) translateZ(70px)}}
-@media(max-width:980px){.knowledge-4d-stage{min-height:500px}.knowledge-4d-object{width:min(360px,86%)}}
-@media(max-width:620px){.knowledge-4d-stage{min-height:430px}.knowledge-4d-object{width:min(300px,88%)}.knowledge-4d-cover{top:14%;width:50%;font-size:.82rem;padding:10px 7px}.knowledge-4d-shadow{bottom:32px;width:190px}}
-@media(prefers-reduced-motion:reduce){.knowledge-4d-object,.knowledge-4d-light,.knowledge-4d-shadow{animation:none}}
+.code-book-stage{position:relative;min-height:560px;display:grid;place-items:center;perspective:1400px;overflow:visible;isolation:isolate}
+.code-book-scene{position:relative;width:min(420px,92%);height:540px;transform-style:preserve-3d;animation:sceneFloat 5s ease-in-out infinite;transition:transform .2s ease-out}
+.code-book-shadow{position:absolute;left:50%;bottom:34px;width:260px;height:48px;transform:translateX(-50%);border-radius:50%;background:rgba(55,32,16,.22);filter:blur(18px);animation:shadowBreath 5s ease-in-out infinite}
+.code-book{position:absolute;top:52px;left:50%;width:250px;height:330px;transform:translateX(-50%) rotateY(-8deg) rotateX(2deg);transform-style:preserve-3d;z-index:4}
+.book-front{position:absolute;inset:0;border-radius:8px 16px 16px 8px;background:linear-gradient(135deg,#2b160b 0%,#5b2c13 46%,#2a1409 100%);box-shadow:inset 0 0 0 2px rgba(223,172,84,.38),inset 0 0 34px rgba(255,191,95,.08),0 28px 44px rgba(44,25,12,.26);transform:translateZ(18px);overflow:hidden}
+.book-front::before{content:"";position:absolute;inset:16px;border:1px solid rgba(227,177,89,.48);box-shadow:inset 0 0 0 3px rgba(63,31,12,.72)}
+.book-front::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 28%,rgba(255,231,176,.18) 46%,transparent 62%);transform:translateX(-120%);animation:bookShine 5.4s ease-in-out infinite}
+.book-spine{position:absolute;left:-18px;top:6px;width:28px;height:318px;border-radius:10px 0 0 10px;background:linear-gradient(90deg,#1a0d07,#3c1d0e 55%,#6a3519);transform:rotateY(90deg);transform-origin:right center}
+.book-pages{position:absolute;right:-10px;top:10px;width:22px;height:310px;border-radius:0 8px 8px 0;background:repeating-linear-gradient(to bottom,#f4ead8 0 3px,#d8c7ad 3px 4px);transform:translateZ(6px) rotateY(2deg)}
+.book-title{position:absolute;inset:58px 26px auto;text-align:center;color:#e2b261;text-shadow:0 2px 8px rgba(0,0,0,.6);font-family:Georgia,"Times New Roman",serif;letter-spacing:.12em;text-transform:uppercase;line-height:1.18;z-index:2}
+.book-title small{display:block;margin-bottom:14px;font-family:Arial,sans-serif;font-size:.56rem;font-weight:900;letter-spacing:.24em;color:#be8740}
+.book-title strong{display:block;font-size:1.42rem;font-weight:600}
+.book-title span{display:block;margin-top:16px;font-family:Arial,sans-serif;font-size:.52rem;font-weight:900;letter-spacing:.18em;color:#b67f38}
+.book-emblem{position:absolute;left:50%;bottom:58px;width:58px;height:58px;transform:translateX(-50%) rotate(45deg);border:1px solid rgba(224,173,83,.7);box-shadow:inset 0 0 0 5px rgba(72,35,14,.64)}
+.book-emblem::before{content:"";position:absolute;inset:13px;border:1px solid rgba(224,173,83,.6)}
+.hand-arm{position:absolute;left:50%;top:306px;width:116px;height:250px;transform:translateX(-50%) rotate(2deg);border-radius:54px 54px 28px 28px;background:linear-gradient(90deg,#9f5d3a 0%,#d9976d 26%,#f0b58e 52%,#c57d55 78%,#8d4f31 100%);box-shadow:inset 16px 0 18px rgba(92,44,24,.18),inset -14px 0 18px rgba(255,221,193,.18);z-index:2}
+.hand-palm{position:absolute;left:50%;top:286px;width:145px;height:112px;transform:translateX(-50%);border-radius:46% 46% 36% 36%;background:radial-gradient(circle at 50% 28%,#f4bea0 0 28%,#d8946f 58%,#a45f3e 100%);box-shadow:inset 0 -14px 20px rgba(101,49,27,.18);z-index:5}
+.finger{position:absolute;top:248px;width:34px;height:118px;border-radius:22px;background:linear-gradient(90deg,#a96140,#e7a984 48%,#b56c49);box-shadow:inset -5px 0 7px rgba(96,45,25,.16);z-index:7}
+.finger::after{content:"";position:absolute;top:5px;left:8px;width:18px;height:25px;border-radius:10px;background:linear-gradient(#f6cfbd,#d9a18a);box-shadow:inset 0 -3px 4px rgba(135,77,52,.2)}
+.finger-1{left:112px;transform:rotate(6deg)}
+.finger-2{left:151px;top:242px;height:124px;transform:rotate(2deg)}
+.finger-3{right:151px;top:242px;height:124px;transform:rotate(-2deg)}
+.finger-4{right:112px;transform:rotate(-6deg)}
+.thumb{position:absolute;left:65px;top:292px;width:44px;height:104px;border-radius:24px;background:linear-gradient(90deg,#9d5c3d,#e3a17c 55%,#ae6544);transform:rotate(-35deg);z-index:8}
+.thumb.right{left:auto;right:65px;transform:rotate(35deg)}
+@keyframes sceneFloat{0%,100%{transform:translateY(0) rotateX(0) rotateY(-1deg)}50%{transform:translateY(-14px) rotateX(-1deg) rotateY(1deg)}}
+@keyframes shadowBreath{0%,100%{transform:translateX(-50%) scale(1);opacity:.62}50%{transform:translateX(-50%) scale(.84);opacity:.4}}
+@keyframes bookShine{0%,18%{transform:translateX(-120%)}56%,100%{transform:translateX(135%)}}
+@media(max-width:620px){.code-book-stage{min-height:470px}.code-book-scene{width:320px;height:455px;transform:scale(.82);transform-origin:center top}.code-book-shadow{bottom:8px}}
+@media(prefers-reduced-motion:reduce){.code-book-scene,.code-book-shadow,.book-front::after{animation:none}}
 </style>
 
 <main class="landing-page">
@@ -94,12 +108,25 @@ foreach ($statQueries as $key => $query) {
                 </div>
             </div>
 
-            <div class="knowledge-4d-stage" id="knowledge4dStage" aria-label="Interactive Book of Knowledge held by a real hand">
-                <div class="knowledge-4d-shadow" aria-hidden="true"></div>
-                <div class="knowledge-4d-object" id="knowledge4dObject">
-                    <img src="data:image/webp;base64,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" alt="A real hand holding the Book of Knowledge">
-                    <div class="knowledge-4d-cover"><small>COURSEHUB EDITION</small>THE BOOK OF<br>KNOWLEDGE<span>LEARN · BUILD · GROW</span></div>
-                    <div class="knowledge-4d-light" aria-hidden="true"></div>
+            <div class="code-book-stage" id="codeBookStage" aria-label="A code-built hand holding the Book of Knowledge">
+                <div class="code-book-shadow" aria-hidden="true"></div>
+                <div class="code-book-scene" id="codeBookScene">
+                    <div class="code-book" aria-hidden="true">
+                        <div class="book-spine"></div>
+                        <div class="book-pages"></div>
+                        <div class="book-front">
+                            <div class="book-title"><small>COURSEHUB EDITION</small><strong>THE BOOK OF<br>KNOWLEDGE</strong><span>LEARN · BUILD · GROW</span></div>
+                            <div class="book-emblem"></div>
+                        </div>
+                    </div>
+                    <div class="finger finger-1"></div>
+                    <div class="finger finger-2"></div>
+                    <div class="finger finger-3"></div>
+                    <div class="finger finger-4"></div>
+                    <div class="thumb"></div>
+                    <div class="thumb right"></div>
+                    <div class="hand-palm"></div>
+                    <div class="hand-arm"></div>
                 </div>
             </div>
         </div>
@@ -159,21 +186,21 @@ foreach ($statQueries as $key => $query) {
 
 <script>
 (function () {
-    const stage = document.getElementById('knowledge4dStage');
-    const object = document.getElementById('knowledge4dObject');
-    if (!stage || !object || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const stage = document.getElementById('codeBookStage');
+    const scene = document.getElementById('codeBookScene');
+    if (!stage || !scene || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     stage.addEventListener('pointermove', function (event) {
         const rect = stage.getBoundingClientRect();
         const x = (event.clientX - rect.left) / rect.width - 0.5;
         const y = (event.clientY - rect.top) / rect.height - 0.5;
-        object.style.animation = 'none';
-        object.style.transform = 'translateY(-8px) rotateX(' + (-y * 10).toFixed(2) + 'deg) rotateY(' + (x * 14).toFixed(2) + 'deg)';
+        scene.style.animation = 'none';
+        scene.style.transform = 'translateY(-8px) rotateX(' + (-y * 10).toFixed(2) + 'deg) rotateY(' + (x * 14).toFixed(2) + 'deg)';
     });
 
     stage.addEventListener('pointerleave', function () {
-        object.style.transform = '';
-        object.style.animation = '';
+        scene.style.transform = '';
+        scene.style.animation = '';
     });
 })();
 </script>
