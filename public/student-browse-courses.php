@@ -1,4 +1,3 @@
 <?php
 
-header("Location: courses.php");
-exit;
+require_once '../app/views/student/browse_courses.php';
