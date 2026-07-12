@@ -8,6 +8,9 @@ require_once __DIR__ . '/../../helpers/course_workflow_helper.php';
 
 InstructorMiddleware::handle();
 
+/** @var mysqli $conn */
+$conn = database_connection();
+
 $authUser = Auth::user();
 $instructorId = (int) ($authUser['id'] ?? 0);
 $message = '';
