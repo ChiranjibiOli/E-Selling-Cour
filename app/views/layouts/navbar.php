@@ -8,7 +8,8 @@ $isLoggedIn = $currentUser !== null;
 $role = $currentUser['role'] ?? '';
 ?>
 
-<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=14">
+<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=15">
+<link rel="stylesheet" href="assets/css/pages/public/public-courses.css?v=15">
 
 <?php if ($isLoggedIn): ?>
 <div class="logout-modal-overlay" id="logoutModal" role="dialog" aria-modal="true" aria-labelledby="logoutTitle">
@@ -29,9 +30,9 @@ $role = $currentUser['role'] ?? '';
 
 <header class="site-header">
     <nav class="navbar container" aria-label="Primary navigation">
-        <a class="logo" href="index.php" aria-label="<?php echo htmlspecialchars(APP_NAME, ENT_QUOTES, 'UTF-8'); ?> home">
+        <a class="logo" href="index.php" aria-label="<?php echo htmlspecialchars(APP_NAME); ?> home">
             <span class="logo-mark" aria-hidden="true">C</span>
-            <span><?php echo htmlspecialchars(APP_NAME, ENT_QUOTES, 'UTF-8'); ?></span>
+            <span><?php echo htmlspecialchars(APP_NAME); ?></span>
         </a>
 
         <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="publicNav">
