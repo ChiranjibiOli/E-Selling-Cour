@@ -59,40 +59,18 @@ foreach ($statQueries as $key => $query) {
 }
 ?>
 <link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=14">
-<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=23">
+<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=24">
 <link rel="stylesheet" href="assets/css/components/footer.css?v=10">
 
 <style>
-.code-book-stage{position:relative;min-height:560px;display:grid;place-items:center;perspective:1400px;overflow:visible;isolation:isolate}
-.code-book-scene{position:relative;width:min(420px,92%);height:540px;transform-style:preserve-3d;animation:sceneFloat 5s ease-in-out infinite;transition:transform .2s ease-out}
-.code-book-shadow{position:absolute;left:50%;bottom:34px;width:260px;height:48px;transform:translateX(-50%);border-radius:50%;background:rgba(55,32,16,.22);filter:blur(18px);animation:shadowBreath 5s ease-in-out infinite}
-.code-book{position:absolute;top:52px;left:50%;width:250px;height:330px;transform:translateX(-50%) rotateY(-8deg) rotateX(2deg);transform-style:preserve-3d;z-index:4}
-.book-front{position:absolute;inset:0;border-radius:8px 16px 16px 8px;background:linear-gradient(135deg,#2b160b 0%,#5b2c13 46%,#2a1409 100%);box-shadow:inset 0 0 0 2px rgba(223,172,84,.38),inset 0 0 34px rgba(255,191,95,.08),0 28px 44px rgba(44,25,12,.26);transform:translateZ(18px);overflow:hidden}
-.book-front::before{content:"";position:absolute;inset:16px;border:1px solid rgba(227,177,89,.48);box-shadow:inset 0 0 0 3px rgba(63,31,12,.72)}
-.book-front::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 28%,rgba(255,231,176,.18) 46%,transparent 62%);transform:translateX(-120%);animation:bookShine 5.4s ease-in-out infinite}
-.book-spine{position:absolute;left:-18px;top:6px;width:28px;height:318px;border-radius:10px 0 0 10px;background:linear-gradient(90deg,#1a0d07,#3c1d0e 55%,#6a3519);transform:rotateY(90deg);transform-origin:right center}
-.book-pages{position:absolute;right:-10px;top:10px;width:22px;height:310px;border-radius:0 8px 8px 0;background:repeating-linear-gradient(to bottom,#f4ead8 0 3px,#d8c7ad 3px 4px);transform:translateZ(6px) rotateY(2deg)}
-.book-title{position:absolute;inset:58px 26px auto;text-align:center;color:#e2b261;text-shadow:0 2px 8px rgba(0,0,0,.6);font-family:Georgia,"Times New Roman",serif;letter-spacing:.12em;text-transform:uppercase;line-height:1.18;z-index:2}
-.book-title small{display:block;margin-bottom:14px;font-family:Arial,sans-serif;font-size:.56rem;font-weight:900;letter-spacing:.24em;color:#be8740}
-.book-title strong{display:block;font-size:1.42rem;font-weight:600}
-.book-title span{display:block;margin-top:16px;font-family:Arial,sans-serif;font-size:.52rem;font-weight:900;letter-spacing:.18em;color:#b67f38}
-.book-emblem{position:absolute;left:50%;bottom:58px;width:58px;height:58px;transform:translateX(-50%) rotate(45deg);border:1px solid rgba(224,173,83,.7);box-shadow:inset 0 0 0 5px rgba(72,35,14,.64)}
-.book-emblem::before{content:"";position:absolute;inset:13px;border:1px solid rgba(224,173,83,.6)}
-.hand-arm{position:absolute;left:50%;top:306px;width:116px;height:250px;transform:translateX(-50%) rotate(2deg);border-radius:54px 54px 28px 28px;background:linear-gradient(90deg,#9f5d3a 0%,#d9976d 26%,#f0b58e 52%,#c57d55 78%,#8d4f31 100%);box-shadow:inset 16px 0 18px rgba(92,44,24,.18),inset -14px 0 18px rgba(255,221,193,.18);z-index:2}
-.hand-palm{position:absolute;left:50%;top:286px;width:145px;height:112px;transform:translateX(-50%);border-radius:46% 46% 36% 36%;background:radial-gradient(circle at 50% 28%,#f4bea0 0 28%,#d8946f 58%,#a45f3e 100%);box-shadow:inset 0 -14px 20px rgba(101,49,27,.18);z-index:5}
-.finger{position:absolute;top:248px;width:34px;height:118px;border-radius:22px;background:linear-gradient(90deg,#a96140,#e7a984 48%,#b56c49);box-shadow:inset -5px 0 7px rgba(96,45,25,.16);z-index:7}
-.finger::after{content:"";position:absolute;top:5px;left:8px;width:18px;height:25px;border-radius:10px;background:linear-gradient(#f6cfbd,#d9a18a);box-shadow:inset 0 -3px 4px rgba(135,77,52,.2)}
-.finger-1{left:112px;transform:rotate(6deg)}
-.finger-2{left:151px;top:242px;height:124px;transform:rotate(2deg)}
-.finger-3{right:151px;top:242px;height:124px;transform:rotate(-2deg)}
-.finger-4{right:112px;transform:rotate(-6deg)}
-.thumb{position:absolute;left:65px;top:292px;width:44px;height:104px;border-radius:24px;background:linear-gradient(90deg,#9d5c3d,#e3a17c 55%,#ae6544);transform:rotate(-35deg);z-index:8}
-.thumb.right{left:auto;right:65px;transform:rotate(35deg)}
-@keyframes sceneFloat{0%,100%{transform:translateY(0) rotateX(0) rotateY(-1deg)}50%{transform:translateY(-14px) rotateX(-1deg) rotateY(1deg)}}
-@keyframes shadowBreath{0%,100%{transform:translateX(-50%) scale(1);opacity:.62}50%{transform:translateX(-50%) scale(.84);opacity:.4}}
-@keyframes bookShine{0%,18%{transform:translateX(-120%)}56%,100%{transform:translateX(135%)}}
-@media(max-width:620px){.code-book-stage{min-height:470px}.code-book-scene{width:320px;height:455px;transform:scale(.82);transform-origin:center top}.code-book-shadow{bottom:8px}}
-@media(prefers-reduced-motion:reduce){.code-book-scene,.code-book-shadow,.book-front::after{animation:none}}
+.real-book-stage{position:relative;min-height:610px;display:grid;place-items:center;overflow:visible}
+.real-book-stage::before{content:"";position:absolute;width:78%;height:78%;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.72),rgba(238,230,217,.2) 56%,transparent 76%);filter:blur(18px)}
+.real-book-object{position:relative;z-index:2;width:min(480px,94%);animation:realBookFloat 4.8s ease-in-out infinite}
+.real-book-object img{display:block;width:100%;height:auto;max-height:610px;object-fit:contain;object-position:center;filter:drop-shadow(0 24px 30px rgba(34,22,13,.22))}
+@keyframes realBookFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+@media(max-width:980px){.real-book-stage{min-height:560px}.real-book-object{width:min(440px,92%)}}
+@media(max-width:620px){.real-book-stage{min-height:460px}.real-book-object{width:min(350px,94%)}.real-book-object img{max-height:450px}}
+@media(prefers-reduced-motion:reduce){.real-book-object{animation:none}}
 </style>
 
 <main class="landing-page">
@@ -108,25 +86,9 @@ foreach ($statQueries as $key => $query) {
                 </div>
             </div>
 
-            <div class="code-book-stage" id="codeBookStage" aria-label="A code-built hand holding the Book of Knowledge">
-                <div class="code-book-shadow" aria-hidden="true"></div>
-                <div class="code-book-scene" id="codeBookScene">
-                    <div class="code-book" aria-hidden="true">
-                        <div class="book-spine"></div>
-                        <div class="book-pages"></div>
-                        <div class="book-front">
-                            <div class="book-title"><small>COURSEHUB EDITION</small><strong>THE BOOK OF<br>KNOWLEDGE</strong><span>LEARN · BUILD · GROW</span></div>
-                            <div class="book-emblem"></div>
-                        </div>
-                    </div>
-                    <div class="finger finger-1"></div>
-                    <div class="finger finger-2"></div>
-                    <div class="finger finger-3"></div>
-                    <div class="finger finger-4"></div>
-                    <div class="thumb"></div>
-                    <div class="thumb right"></div>
-                    <div class="hand-palm"></div>
-                    <div class="hand-arm"></div>
+            <div class="real-book-stage" aria-label="A real hand turning the page of an open book">
+                <div class="real-book-object">
+                    <img src="data:image/webp;base64,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...TRUNCATED..." alt="A real hand turning the page of an open book">
                 </div>
             </div>
         </div>
@@ -183,24 +145,3 @@ foreach ($statQueries as $key => $query) {
         </div>
     </section>
 </main>
-
-<script>
-(function () {
-    const stage = document.getElementById('codeBookStage');
-    const scene = document.getElementById('codeBookScene');
-    if (!stage || !scene || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-    stage.addEventListener('pointermove', function (event) {
-        const rect = stage.getBoundingClientRect();
-        const x = (event.clientX - rect.left) / rect.width - 0.5;
-        const y = (event.clientY - rect.top) / rect.height - 0.5;
-        scene.style.animation = 'none';
-        scene.style.transform = 'translateY(-8px) rotateX(' + (-y * 10).toFixed(2) + 'deg) rotateY(' + (x * 14).toFixed(2) + 'deg)';
-    });
-
-    stage.addEventListener('pointerleave', function () {
-        scene.style.transform = '';
-        scene.style.animation = '';
-    });
-})();
-</script>
