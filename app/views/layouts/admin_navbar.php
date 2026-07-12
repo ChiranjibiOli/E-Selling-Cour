@@ -21,6 +21,7 @@ $currentPage = basename((string) ($_SERVER['PHP_SELF'] ?? ''));
             <li><a data-icon="◇" href="admin-withdrawals.php" class="<?php echo $currentPage === 'admin-withdrawals.php' ? 'active' : ''; ?>">Withdrawals</a></li>
             <li><a data-icon="↗" href="admin-reports.php" class="<?php echo $currentPage === 'admin-reports.php' ? 'active' : ''; ?>">Reports</a></li>
             <li><a data-icon="●" href="admin-notifications.php" class="<?php echo $currentPage === 'admin-notifications.php' ? 'active' : ''; ?>">Notifications</a></li>
+            <li><a data-icon="♙" href="admin-profile.php" class="<?php echo $currentPage === 'admin-profile.php' ? 'active' : ''; ?>">Profile</a></li>
             <li><a data-icon="⚙" href="admin-settings.php" class="<?php echo $currentPage === 'admin-settings.php' ? 'active' : ''; ?>">Settings</a></li>
             <li><form action="logout.php" method="POST"><?php echo csrf_field(); ?><button type="submit" class="admin-logout-btn role-logout-btn" data-icon="↗">Log out</button></form></li>
         </ul>
