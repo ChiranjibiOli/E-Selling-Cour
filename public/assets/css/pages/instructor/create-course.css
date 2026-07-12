@@ -6,7 +6,7 @@ html:has(.course-studio-page),
 body:has(.course-studio-page) {
   height: auto !important;
   min-height: 100% !important;
-  overflow-x: hidden !important;
+  overflow-x: clip !important;
   overflow-y: auto !important;
   overscroll-behavior-y: auto !important;
   scroll-behavior: smooth;
@@ -26,13 +26,14 @@ body:has(.course-studio-page) {
   overflow-y: visible !important;
 }
 
-.course-studio-page {
-  contain: none !important;
-  background-attachment: scroll !important;
-}
-
+/* overflow: hidden on an ancestor breaks sticky positioning. */
+.course-studio-page,
+.course-studio-page .course-studio-shell,
 .course-studio-page .studio-workspace {
-  overflow: visible !important;
+  contain: none !important;
+  overflow-x: clip !important;
+  overflow-y: visible !important;
+  background-attachment: scroll !important;
 }
 
 /* Default flow. Wide-screen rules below activate with the real three-column layout. */
@@ -61,9 +62,9 @@ body:has(.course-studio-page) {
 
 /*
  * Three-column workspace:
- * - the page can still scroll normally;
- * - left and right columns become sticky below the fixed navbar;
- * - only the center form has an independent internal scrollbar.
+ * - the document still scrolls normally;
+ * - left and right columns stick below the fixed navbar;
+ * - only the center form has a 500px internal scrolling viewport.
  */
 @media (min-width: 900px) {
   .course-studio-page .studio-workspace {
@@ -74,10 +75,10 @@ body:has(.course-studio-page) {
   .course-studio-page .studio-rail,
   .course-studio-page .preview-column {
     position: sticky !important;
-    top: 104px !important;
+    top: 118px !important;
     align-self: start !important;
     height: fit-content !important;
-    max-height: calc(100vh - 124px) !important;
+    max-height: calc(100vh - 138px) !important;
     overflow: visible !important;
     overscroll-behavior-y: auto !important;
     z-index: 4;
@@ -93,10 +94,10 @@ body:has(.course-studio-page) {
 
   .course-studio-page .studio-form-column {
     position: sticky !important;
-    top: 104px !important;
+    top: 118px !important;
     align-self: start !important;
-    height: calc(100vh - 124px) !important;
-    max-height: calc(100vh - 124px) !important;
+    height: 500px !important;
+    max-height: min(500px, calc(100vh - 138px)) !important;
     min-height: 0 !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
