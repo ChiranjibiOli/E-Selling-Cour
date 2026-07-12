@@ -58,23 +58,18 @@ foreach ($statQueries as $key => $query) {
     $stats[$key] = $result ? (int) ($result->fetch_assoc()['total'] ?? 0) : 0;
 }
 
-$demoCourse = $featuredCourses[0] ?? [
-    'title' => 'Complete Web Development',
-    'short_description' => 'Build modern websites through structured, practical lessons.',
-    'price' => 2499,
-    'level' => 'beginner',
-    'duration' => '24 hours',
-    'language' => 'English',
-    'instructor_name' => 'Verified instructor',
-    'slug' => '',
+$demoCourses = $featuredCourses ?: [
+    ['title' => 'Complete Web Development'],
+    ['title' => 'UI/UX Design Masterclass'],
+    ['title' => 'Digital Marketing Essentials'],
 ];
 ?>
 <link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=14">
-<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=15">
+<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=16">
 <link rel="stylesheet" href="assets/css/components/footer.css?v=10">
 
 <style>
-.hero-product-demo{position:relative;min-height:520px;overflow:hidden;border:1px solid rgba(69,52,26,.12);border-radius:34px;background:linear-gradient(145deg,#171917,#22251f 58%,#2c2f28);box-shadow:0 34px 86px rgba(27,22,15,.24);isolation:isolate}.hero-product-demo::before{content:"";position:absolute;inset:-35%;background:radial-gradient(circle at 72% 30%,rgba(208,157,67,.2),transparent 24%),radial-gradient(circle at 24% 86%,rgba(82,119,107,.2),transparent 28%);animation:heroDemoGlow 8s ease-in-out infinite alternate}.demo-browser{position:absolute;inset:24px;overflow:hidden;border:1px solid rgba(255,255,255,.12);border-radius:24px;background:#f6f2e9;box-shadow:0 18px 46px rgba(0,0,0,.24)}.demo-topbar{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 18px;border-bottom:1px solid #e1d9ca;background:rgba(255,255,255,.82)}.demo-dots{display:flex;gap:6px}.demo-dots i{width:8px;height:8px;border-radius:50%;background:#d5c9b7}.demo-brand{font-size:.68rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase}.demo-cart-button{position:relative;width:42px;height:42px;display:grid;place-items:center;border:0;border-radius:14px;background:#171511;color:#f5c469;box-shadow:0 8px 18px rgba(23,21,17,.18);cursor:pointer}.demo-cart-button svg{width:20px;height:20px}.demo-cart-count{position:absolute;top:-5px;right:-5px;width:18px;height:18px;display:grid;place-items:center;border-radius:50%;background:#d79b33;color:#171511;font-size:.58rem;font-weight:900}.demo-stage{position:relative;height:calc(100% - 54px)}.demo-screen{position:absolute;inset:0;padding:24px;opacity:0;transform:translateX(36px) scale(.985);transition:opacity .52s ease,transform .52s ease;pointer-events:none}.demo-screen.is-active{opacity:1;transform:none;pointer-events:auto}.demo-home-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:18px;height:100%}.demo-copy{display:flex;flex-direction:column;justify-content:center;padding:12px}.demo-eyebrow{color:#9a6e23;font-size:.62rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase}.demo-copy h3{max-width:340px;margin:12px 0 10px;font-family:Georgia,"Times New Roman",serif;font-size:clamp(2.2rem,4vw,3.5rem);font-weight:500;line-height:.92;letter-spacing:-.05em}.demo-copy p{max-width:320px;color:#6d655b;font-size:.78rem;line-height:1.65}.demo-mini-card{display:flex;align-items:center;gap:10px;margin-top:18px;padding:12px;border:1px solid #e2d7c7;border-radius:16px;background:#fff}.demo-mini-cover{width:52px;height:52px;display:grid;place-items:center;border-radius:13px;background:linear-gradient(145deg,#ce9b43,#8b6021);color:#fff;font-size:1.25rem}.demo-mini-card strong{display:block;font-size:.76rem}.demo-mini-card span{display:block;margin-top:3px;color:#847b70;font-size:.64rem}.demo-book-stack{position:relative;display:grid;place-items:center}.demo-book{position:absolute;width:74%;height:42px;border-radius:7px 12px 12px 7px;box-shadow:0 12px 24px rgba(56,37,15,.17);transform-origin:left center}.demo-book:nth-child(1){bottom:28%;background:#b57f2c;transform:rotate(-7deg)}.demo-book:nth-child(2){bottom:38%;background:#f0e2c8;transform:rotate(4deg)}.demo-book:nth-child(3){bottom:48%;background:#263b35;transform:rotate(-2deg)}.demo-book::after{content:"";position:absolute;inset:6px 10px 6px 16px;border-radius:3px;background:rgba(255,255,255,.22)}.demo-open-book{position:absolute;top:46%;left:50%;width:148px;height:92px;opacity:0;transform:translate(-50%,-50%) scale(.35) rotate(-12deg);transition:opacity .35s ease,transform .6s cubic-bezier(.2,.9,.25,1.2)}.demo-open-book::before,.demo-open-book::after{content:"";position:absolute;top:0;width:50%;height:100%;background:#fff9eb;box-shadow:0 16px 28px rgba(20,15,8,.2)}.demo-open-book::before{left:0;border-radius:18px 3px 3px 18px;transform:skewY(-7deg)}.demo-open-book::after{right:0;border-radius:3px 18px 18px 3px;transform:skewY(7deg)}.demo-open-book i{position:absolute;z-index:2;top:13px;width:42%;height:2px;background:#c6b79f;box-shadow:0 11px #d8cbb6,0 22px #d8cbb6,0 33px #d8cbb6}.demo-open-book i:first-child{left:5%}.demo-open-book i:last-child{right:5%}.hero-product-demo.is-book-open .demo-open-book{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}.hero-product-demo.is-book-open .demo-book{animation:demoBooksDrop .5s ease forwards}.demo-course-screen{display:grid;grid-template-columns:.9fr 1.1fr;gap:18px}.demo-course-cover{position:relative;overflow:hidden;border-radius:20px;background:linear-gradient(145deg,#1e2723,#405a50);color:#fff}.demo-course-cover::before{content:"";position:absolute;width:180px;height:180px;right:-35px;top:-35px;border-radius:50%;background:rgba(223,170,77,.24)}.demo-course-cover-content{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:24px}.demo-course-cover span{font-size:.62rem;font-weight:900;letter-spacing:.15em;text-transform:uppercase;color:#f0c36b}.demo-course-cover strong{display:block;margin-top:10px;font-family:Georgia,"Times New Roman",serif;font-size:2rem;font-weight:500;line-height:1}.demo-course-content{display:flex;flex-direction:column;justify-content:center;padding:10px}.demo-course-content h3{margin:8px 0 10px;font-family:Georgia,"Times New Roman",serif;font-size:2rem;font-weight:500;line-height:1}.demo-course-content p{color:#746c62;font-size:.76rem;line-height:1.62}.demo-progress{height:8px;margin:18px 0 8px;overflow:hidden;border-radius:999px;background:#ddd5c8}.demo-progress span{display:block;width:68%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#bf8730,#e6b65c)}.demo-lesson-list{display:grid;gap:8px;margin-top:13px}.demo-lesson{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #e3dacd;border-radius:12px;background:#fff;font-size:.67rem;font-weight:800}.demo-lesson b{width:24px;height:24px;display:grid;place-items:center;border-radius:50%;background:#f3e6cd;color:#95661d}.demo-cursor{position:absolute;z-index:20;width:28px;height:34px;left:35%;top:58%;filter:drop-shadow(0 5px 5px rgba(0,0,0,.28));transform:rotate(-18deg);transition:left .8s cubic-bezier(.2,.8,.2,1),top .8s cubic-bezier(.2,.8,.2,1),transform .2s ease}.demo-cursor svg{width:100%;height:100%}.hero-product-demo.is-targeting .demo-cursor{left:86%;top:8%;transform:rotate(-8deg)}.hero-product-demo.is-clicking .demo-cursor{transform:rotate(-8deg) scale(.8)}.hero-product-demo.is-clicking .demo-cart-button{animation:demoCartPulse .35s ease}.demo-replay{position:absolute;right:18px;bottom:16px;z-index:30;padding:8px 11px;border:1px solid rgba(255,255,255,.18);border-radius:999px;background:rgba(16,17,15,.72);color:#fff;font-size:.62rem;font-weight:900;cursor:pointer;backdrop-filter:blur(12px)}@keyframes heroDemoGlow{to{transform:translate3d(4%,2%,0) scale(1.05)}}@keyframes demoCartPulse{50%{transform:scale(.88);box-shadow:0 0 0 12px rgba(215,155,51,.2)}}@keyframes demoBooksDrop{to{opacity:.15;transform:translateY(38px) scale(.9)}}@media(max-width:980px){.hero-product-demo{min-height:470px}.demo-browser{inset:18px}}@media(max-width:620px){.hero-product-demo{min-height:390px;border-radius:24px}.demo-browser{inset:10px;border-radius:18px}.demo-topbar{height:48px;padding:0 12px}.demo-stage{height:calc(100% - 48px)}.demo-screen{padding:14px}.demo-home-grid,.demo-course-screen{grid-template-columns:1fr}.demo-book-stack{display:none}.demo-copy{padding:8px}.demo-copy h3{font-size:2.2rem}.demo-course-cover{min-height:130px}.demo-course-cover-content{padding:16px}.demo-course-cover strong{font-size:1.35rem}.demo-course-content h3{font-size:1.45rem}.demo-lesson-list{gap:5px}.demo-lesson{padding:7px}.demo-cursor{width:24px;height:30px}.hero-product-demo.is-targeting .demo-cursor{left:82%;top:7%}}@media(prefers-reduced-motion:reduce){.hero-product-demo::before,.demo-cart-button,.demo-book{animation:none!important}.demo-cursor,.demo-screen,.demo-open-book{transition:none!important}}
+.magic-learning-demo{position:relative;min-height:520px;display:grid;place-items:center;overflow:visible}.magic-cart{position:absolute;top:70px;left:50%;width:92px;height:92px;display:grid;place-items:center;transform:translateX(-50%);border:0;background:transparent;color:#171511;z-index:5}.magic-cart svg{width:70px;height:70px;filter:drop-shadow(0 12px 20px rgba(23,21,17,.14))}.magic-finger{position:absolute;top:28px;left:calc(50% - 122px);font-size:3.1rem;transform:rotate(18deg);animation:fingerFloat 2.2s ease-in-out infinite;z-index:6}.magic-cursor{position:absolute;top:270px;left:18%;width:34px;height:42px;z-index:20;filter:drop-shadow(0 5px 5px rgba(0,0,0,.25));transition:top 1.1s cubic-bezier(.2,.85,.2,1),left 1.1s cubic-bezier(.2,.85,.2,1),transform .18s ease}.magic-cursor svg{width:100%;height:100%}.magic-learning-demo.is-targeting .magic-cursor{top:105px;left:58%}.magic-learning-demo.is-clicking .magic-cursor{transform:scale(.78)}.magic-learning-demo.is-clicking .magic-cart{animation:cartClick .38s ease}.magic-burst{position:absolute;top:116px;left:50%;width:14px;height:14px;opacity:0;transform:translate(-50%,-50%);border-radius:50%;box-shadow:0 -70px 0 #d39b3a,58px -38px 0 #6b5bd2,70px 20px 0 #d86a69,34px 68px 0 #55a678,-35px 68px 0 #e0b84c,-70px 14px 0 #5a83c6,-56px -42px 0 #b66bd0}.magic-learning-demo.is-magic .magic-burst{animation:magicBurst .8s ease-out forwards}.magic-book{position:absolute;top:175px;left:50%;width:280px;height:190px;opacity:0;transform:translateX(-50%) scale(.18) rotate(-12deg);transform-origin:center bottom;transition:opacity .25s ease,transform .8s cubic-bezier(.18,.9,.2,1.2);perspective:1000px;z-index:8}.magic-learning-demo.is-book .magic-book{opacity:1;transform:translateX(-50%) scale(1) rotate(0)}.book-half{position:absolute;top:0;width:50%;height:100%;background:#fff9eb;box-shadow:0 22px 50px rgba(34,25,12,.18);overflow:hidden}.book-left{left:0;border-radius:22px 4px 4px 22px;transform:rotateY(8deg)}.book-right{right:0;border-radius:4px 22px 22px 4px;transform:rotateY(-8deg)}.book-half::before{content:"";position:absolute;inset:18px 16px;background:repeating-linear-gradient(to bottom,#d7ccb9 0 2px,transparent 2px 19px);opacity:.72}.book-spine{position:absolute;left:50%;top:3px;width:4px;height:184px;transform:translateX(-50%);border-radius:999px;background:#b79d73;z-index:3}.book-page{position:absolute;top:0;left:50%;width:50%;height:100%;transform-origin:left center;background:#fffdf6;border-radius:3px 20px 20px 3px;box-shadow:0 14px 30px rgba(34,25,12,.16);z-index:4}.magic-learning-demo.is-flipping .book-page{animation:pageFlip 1.25s cubic-bezier(.4,0,.2,1) forwards}.course-sheet{position:absolute;top:240px;left:50%;width:min(330px,84%);padding:18px 20px;opacity:0;transform:translate(-50%,36px) scale(.86);border-radius:20px;background:rgba(255,255,255,.97);box-shadow:0 24px 60px rgba(30,23,14,.18);z-index:12;transition:opacity .45s ease,transform .65s cubic-bezier(.2,.9,.2,1)}.magic-learning-demo.is-sheet .course-sheet{opacity:1;transform:translate(-50%,0) scale(1)}.course-sheet small{display:block;margin-bottom:10px;color:#9a6e23;font-size:.65rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase}.course-sheet ul{display:grid;gap:10px;margin:0;padding:0;list-style:none}.course-sheet li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#f6f0e6;color:#2c2822;font-size:.76rem;font-weight:850}.course-sheet li::before{content:'✦';color:#b9832f}.magic-caption{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);color:#72685d;font-size:.72rem;font-weight:800;white-space:nowrap}.magic-replay{position:absolute;right:18px;bottom:18px;border:0;background:transparent;color:#9a6e23;font-size:.68rem;font-weight:900;cursor:pointer}@keyframes fingerFloat{50%{transform:translateY(-8px) rotate(18deg)}}@keyframes cartClick{50%{transform:translateX(-50%) scale(.82)}}@keyframes magicBurst{0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}35%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.45)}}@keyframes pageFlip{0%{transform:rotateY(0)}48%{transform:rotateY(-95deg)}100%{transform:rotateY(-178deg)}}@media(max-width:620px){.magic-learning-demo{min-height:430px}.magic-cart{top:48px}.magic-finger{top:16px;left:calc(50% - 100px);font-size:2.6rem}.magic-book{top:150px;width:240px;height:165px}.book-spine{height:160px}.course-sheet{top:214px}.magic-caption{bottom:12px}.magic-learning-demo.is-targeting .magic-cursor{top:84px;left:62%}}@media(prefers-reduced-motion:reduce){.magic-finger{animation:none}.magic-cursor,.magic-book,.course-sheet{transition:none}.magic-learning-demo .magic-book,.magic-learning-demo .course-sheet{opacity:1;transform:translateX(-50%) scale(1)}}
 </style>
 
 <main class="landing-page">
@@ -82,78 +77,37 @@ $demoCourse = $featuredCourses[0] ?? [
         <div class="container editorial-hero-grid">
             <div class="editorial-hero-copy">
                 <span class="editorial-kicker">Learn from the best</span>
-                <h1>
-                    Education<br>
-                    that <em>transforms</em><br>
-                    your life.
-                </h1>
-                <p>
-                    Handpicked courses from approved instructors, designed for real progress.
-                    Purchase once, complete payment verification, and keep lifetime access.
-                </p>
+                <h1>Education<br>that <em>transforms</em><br>your life.</h1>
+                <p>Handpicked courses from approved instructors, designed for real progress. Purchase once, complete payment verification, and keep lifetime access.</p>
                 <div class="editorial-actions">
                     <a class="editorial-button editorial-button-gold" href="courses.php">Discover courses</a>
                     <a class="editorial-button editorial-button-light" href="how-it-works.php">How it works</a>
                 </div>
             </div>
 
-            <div class="hero-product-demo" id="heroProductDemo" aria-label="Animated demonstration of adding a course and opening its lessons">
-                <div class="demo-browser">
-                    <div class="demo-topbar">
-                        <div class="demo-dots" aria-hidden="true"><i></i><i></i><i></i></div>
-                        <span class="demo-brand">CourseHub learning</span>
-                        <button class="demo-cart-button" id="demoCartButton" type="button" aria-label="Open animated course preview">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 4h2l2.4 10.2a2 2 0 0 0 2 1.5h7.7a2 2 0 0 0 2-1.6L21 7H7"/><circle cx="10" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>
-                            <span class="demo-cart-count">1</span>
-                        </button>
-                    </div>
-
-                    <div class="demo-stage">
-                        <section class="demo-screen demo-home-screen is-active" data-demo-screen="home">
-                            <div class="demo-home-grid">
-                                <div class="demo-copy">
-                                    <span class="demo-eyebrow">Choose. Learn. Progress.</span>
-                                    <h3>One click starts a new skill.</h3>
-                                    <p>Watch the cart open, the learning book appear, and the course lesson page load automatically.</p>
-                                    <div class="demo-mini-card">
-                                        <div class="demo-mini-cover">⌘</div>
-                                        <div><strong><?php echo landing_h($demoCourse['title']); ?></strong><span><?php echo landing_price($demoCourse['price']); ?> · Lifetime access</span></div>
-                                    </div>
-                                </div>
-                                <div class="demo-book-stack" aria-hidden="true">
-                                    <div class="demo-book"></div><div class="demo-book"></div><div class="demo-book"></div>
-                                    <div class="demo-open-book"><i></i><i></i></div>
-                                </div>
-                            </div>
-                        </section>
-
-                        <section class="demo-screen demo-course-screen" data-demo-screen="course">
-                            <div class="demo-course-cover">
-                                <div class="demo-course-cover-content">
-                                    <span><?php echo landing_h(strtoupper((string) $demoCourse['level'])); ?> COURSE</span>
-                                    <strong><?php echo landing_h($demoCourse['title']); ?></strong>
-                                </div>
-                            </div>
-                            <div class="demo-course-content">
-                                <span class="demo-eyebrow">Your course is ready</span>
-                                <h3>Continue learning</h3>
-                                <p><?php echo landing_h($demoCourse['short_description']); ?></p>
-                                <div class="demo-progress" aria-label="Course progress 68 percent"><span></span></div>
-                                <small>68% complete · <?php echo landing_h($demoCourse['duration'] ?: 'Self paced'); ?></small>
-                                <div class="demo-lesson-list">
-                                    <div class="demo-lesson"><b>✓</b> Introduction and setup</div>
-                                    <div class="demo-lesson"><b>✓</b> Build the first project</div>
-                                    <div class="demo-lesson"><b>▶</b> Continue your next lesson</div>
-                                </div>
-                            </div>
-                        </section>
-                    </div>
-
-                    <div class="demo-cursor" aria-hidden="true">
-                        <svg viewBox="0 0 32 40"><path d="M3 2l24 20-11 2 7 12-6 3-7-12-7 8z" fill="#fff" stroke="#171511" stroke-width="2"/></svg>
-                    </div>
+            <div class="magic-learning-demo" id="magicLearningDemo" aria-label="Animated cart transforming into a book with course names">
+                <div class="magic-finger" aria-hidden="true">👉</div>
+                <button class="magic-cart" type="button" aria-label="Animated course cart">
+                    <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11h7l7 29h25l7-22H18"/><circle cx="27" cy="49" r="3"/><circle cx="47" cy="49" r="3"/></svg>
+                </button>
+                <div class="magic-burst" aria-hidden="true"></div>
+                <div class="magic-cursor" aria-hidden="true"><svg viewBox="0 0 32 40"><path d="M3 2l24 20-11 2 7 12-6 3-7-12-7 8z" fill="#fff" stroke="#171511" stroke-width="2"/></svg></div>
+                <div class="magic-book" aria-hidden="true">
+                    <div class="book-half book-left"></div>
+                    <div class="book-half book-right"></div>
+                    <div class="book-page"></div>
+                    <div class="book-spine"></div>
                 </div>
-                <button class="demo-replay" id="demoReplay" type="button">Replay animation</button>
+                <div class="course-sheet">
+                    <small>Courses inside</small>
+                    <ul>
+                        <?php foreach (array_slice($demoCourses, 0, 3) as $course): ?>
+                            <li><?php echo landing_h($course['title']); ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+                <div class="magic-caption">Cart → book → courses</div>
+                <button class="magic-replay" id="magicReplay" type="button">Replay</button>
             </div>
         </div>
     </section>
@@ -164,25 +118,17 @@ $demoCourse = $featuredCourses[0] ?? [
                 <h2>Featured learning,<br>presented like a collection.</h2>
                 <p>Courses unfold as layered editorial sheets while you scroll, preserving the clean visual direction from the reference.</p>
             </div>
-
             <div class="editorial-course-list">
                 <?php if ($featuredCourses): ?>
                     <?php foreach ($featuredCourses as $index => $course): ?>
                         <article class="editorial-course-card editorial-tone-<?php echo ($index % 3) + 1; ?>" style="--stack-index: <?php echo $index; ?>;">
                             <div class="editorial-course-copy">
-                                <span class="editorial-course-number">
-                                    <?php echo str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT); ?> ·
-                                    <?php echo landing_h(strtoupper((string) $course['level'])); ?>
-                                </span>
+                                <span class="editorial-course-number"><?php echo str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT); ?> · <?php echo landing_h(strtoupper((string) $course['level'])); ?></span>
                                 <h3><?php echo landing_h($course['title']); ?></h3>
                                 <p><?php echo landing_h($course['short_description']); ?></p>
-                                <div class="editorial-course-meta">
-                                    <span><?php echo landing_h($course['instructor_name']); ?></span>
-                                    <span><?php echo landing_price($course['price']); ?></span>
-                                </div>
+                                <div class="editorial-course-meta"><span><?php echo landing_h($course['instructor_name']); ?></span><span><?php echo landing_price($course['price']); ?></span></div>
                                 <a class="editorial-button editorial-button-dark" href="course-details.php?slug=<?php echo urlencode((string) $course['slug']); ?>">View course</a>
                             </div>
-
                             <a class="editorial-course-art" href="course-details.php?slug=<?php echo urlencode((string) $course['slug']); ?>" aria-label="View <?php echo landing_h($course['title']); ?>">
                                 <img src="<?php echo landing_h(landing_thumbnail($course)); ?>" alt="<?php echo landing_h($course['title']); ?>">
                                 <span><?php echo landing_h(strtoupper(substr((string) $course['title'], 0, 1))); ?></span>
@@ -190,12 +136,7 @@ $demoCourse = $featuredCourses[0] ?? [
                         </article>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <article class="editorial-empty-state">
-                        <span>Courses are being prepared</span>
-                        <h3>Published courses will appear here.</h3>
-                        <p>Explore the full catalogue or return after instructors publish approved courses.</p>
-                        <a class="editorial-button editorial-button-dark" href="courses.php">Open courses</a>
-                    </article>
+                    <article class="editorial-empty-state"><span>Courses are being prepared</span><h3>Published courses will appear here.</h3><p>Explore the full catalogue or return after instructors publish approved courses.</p><a class="editorial-button editorial-button-dark" href="courses.php">Open courses</a></article>
                 <?php endif; ?>
             </div>
         </div>
@@ -203,11 +144,7 @@ $demoCourse = $featuredCourses[0] ?? [
 
     <section class="editorial-directory">
         <div class="container">
-            <div class="editorial-directory-intro">
-                <h2>Everything important has its own page.</h2>
-                <p>Students can move from discovery to course browsing, instructor profiles, payment guidance, and account creation without dead navigation.</p>
-            </div>
-
+            <div class="editorial-directory-intro"><h2>Everything important has its own page.</h2><p>Students can move from discovery to course browsing, instructor profiles, payment guidance, and account creation without dead navigation.</p></div>
             <div class="editorial-directory-grid">
                 <article><span>Courses</span><h3>Browse and filter</h3><p>Search, sort, change view, and filter by category and level.</p><a href="courses.php">Open courses</a></article>
                 <article><span>Process</span><h3>Understand access</h3><p>See how payment verification and lifetime access work.</p><a href="how-it-works.php">See process</a></article>
@@ -229,51 +166,31 @@ $demoCourse = $featuredCourses[0] ?? [
 
 <script>
 (function () {
-    const demo = document.getElementById('heroProductDemo');
-    const cartButton = document.getElementById('demoCartButton');
-    const replayButton = document.getElementById('demoReplay');
-    if (!demo || !cartButton || !replayButton) return;
-
-    const home = demo.querySelector('[data-demo-screen="home"]');
-    const course = demo.querySelector('[data-demo-screen="course"]');
+    const demo = document.getElementById('magicLearningDemo');
+    const replay = document.getElementById('magicReplay');
+    if (!demo || !replay) return;
     let timers = [];
-
-    function later(callback, delay) {
-        const timer = window.setTimeout(callback, delay);
-        timers.push(timer);
-    }
-
-    function resetDemo() {
+    const later = (fn, delay) => timers.push(window.setTimeout(fn, delay));
+    function reset() {
         timers.forEach(window.clearTimeout);
         timers = [];
-        demo.classList.remove('is-targeting', 'is-clicking', 'is-book-open');
-        home.classList.add('is-active');
-        course.classList.remove('is-active');
+        demo.classList.remove('is-targeting','is-clicking','is-magic','is-book','is-flipping','is-sheet');
     }
-
-    function playDemo() {
-        resetDemo();
-        later(() => demo.classList.add('is-targeting'), 650);
+    function play() {
+        reset();
+        later(() => demo.classList.add('is-targeting'), 400);
         later(() => demo.classList.add('is-clicking'), 1500);
-        later(() => {
-            demo.classList.remove('is-clicking');
-            demo.classList.add('is-book-open');
-        }, 1820);
-        later(() => {
-            home.classList.remove('is-active');
-            course.classList.add('is-active');
-        }, 2750);
-        later(() => playDemo(), 7200);
+        later(() => { demo.classList.remove('is-clicking'); demo.classList.add('is-magic'); }, 1780);
+        later(() => demo.classList.add('is-book'), 2050);
+        later(() => demo.classList.add('is-flipping'), 2950);
+        later(() => demo.classList.add('is-sheet'), 3900);
+        later(play, 7600);
     }
-
-    cartButton.addEventListener('click', playDemo);
-    replayButton.addEventListener('click', playDemo);
-
+    replay.addEventListener('click', play);
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        home.classList.remove('is-active');
-        course.classList.add('is-active');
+        demo.classList.add('is-book','is-sheet');
     } else {
-        playDemo();
+        play();
     }
 })();
 </script>
