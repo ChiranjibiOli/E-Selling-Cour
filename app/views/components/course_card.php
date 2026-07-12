@@ -5,14 +5,14 @@ declare(strict_types=1);
 /**
  * Canonical course-card pipeline.
  *
- * The instructor Create Course preview is the visual and structural source.
- * Every saved course card keeps that exact marketplace-card shell and adds
- * only workflow-specific metrics, actions, and controls.
+ * Public catalog, student browse/cart/library, instructor course library and
+ * admin course review all render this component. Context-specific controls may
+ * be added, but the shared card structure remains the same.
  */
 
 $card = is_array($courseCard ?? null) ? $courseCard : [];
 $context = (string) ($card['context'] ?? 'marketplace');
-$allowedContexts = ['marketplace', 'student', 'instructor', 'admin'];
+$allowedContexts = ['marketplace', 'student', 'cart', 'instructor', 'admin'];
 
 if (!in_array($context, $allowedContexts, true)) {
     $context = 'marketplace';
@@ -51,25 +51,26 @@ if (!$canonicalLayoutRendered):
 .marketplace-card.course-unit-card .marketplace-content{display:flex!important;min-height:0;flex:1 1 auto;flex-direction:column!important}
 .marketplace-card.course-unit-card .course-unit-main{display:flex;min-width:0;flex:1 1 auto;flex-direction:column}
 .marketplace-card.course-unit-card .course-unit-workflow{display:flex;flex:0 0 auto;flex-direction:column;margin-top:auto}
-.marketplace-card.course-unit-card .preview-price-row{width:100%;margin-top:0!important}
+.marketplace-card.course-unit-card .preview-price-row{width:100%}
 .course-unit-price-spacer{display:block;min-width:1px;min-height:1px}
 .course-unit-feature{width:100%;min-width:0}
-.course-unit-card--admin .course-unit-feature{margin-top:14px;padding-top:14px;border-top:1px solid #e9edf5}
-.course-admin-note{margin:0 0 12px;padding:11px 12px;border:1px solid #e5e7eb;border-radius:11px;background:#f8fafc;color:#475467;font-size:.78rem;line-height:1.5}
-.course-admin-review-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.course-unit-card--admin .course-unit-feature{margin-top:12px;padding-top:12px;border-top:1px solid #e9edf5}
+.course-unit-actions form{display:inline-flex;margin:0}
+.course-unit-action--danger{color:#b42318;background:#fee4e2}
+.course-unit-action--danger:hover{background:#fecdca}
+.course-admin-note{margin:0 0 10px;padding:10px 11px;border:1px solid #e5e7eb;border-radius:10px;background:#f8fafc;color:#475467;font-size:.74rem;line-height:1.45}
+.course-admin-review-actions{display:flex;flex-wrap:wrap;gap:7px;align-items:center}
 .course-admin-review-actions form{margin:0}
-.course-admin-approve,.course-admin-reject-toggle,.course-admin-reject-form button{min-height:39px;padding:0 13px;border:0;border-radius:10px;font:inherit;font-size:.74rem;font-weight:900;cursor:pointer}
+.course-admin-approve,.course-admin-reject-toggle,.course-admin-reject-form button{min-height:36px;padding:0 11px;border:0;border-radius:9px;font:inherit;font-size:.7rem;font-weight:900;cursor:pointer}
 .course-admin-approve{color:#fff;background:#059669}
 .course-admin-reject-toggle{color:#b91c1c;background:#fee2e2}
-.course-admin-reject-form{display:none;gap:10px;margin-top:12px;padding:12px;border:1px solid #fecaca;border-radius:12px;background:#fef2f2}
+.course-admin-reject-form{display:none;gap:9px;margin-top:10px;padding:10px;border:1px solid #fecaca;border-radius:11px;background:#fef2f2}
 .course-admin-reject-form.open{display:grid}
-.course-admin-reject-form label{display:grid;gap:6px}
-.course-admin-reject-form label span{color:#991b1b;font-size:.72rem;font-weight:900}
-.course-admin-reject-form textarea{width:100%;min-height:90px;padding:10px;border:1px solid #fca5a5;border-radius:10px;background:#fff;resize:vertical;font:inherit}
+.course-admin-reject-form label{display:grid;gap:5px}
+.course-admin-reject-form label span{color:#991b1b;font-size:.7rem;font-weight:900}
+.course-admin-reject-form textarea{width:100%;min-height:82px;padding:9px;border:1px solid #fca5a5;border-radius:9px;background:#fff;resize:vertical;font:inherit}
 .course-admin-reject-form button{color:#fff;background:#dc2626}
-.editorial-course-list,.student-course-grid,.my-courses-grid,.course-library-grid,.review-grid{align-items:stretch}
-.editorial-course-list>.marketplace-card,.student-course-grid>.marketplace-card,.my-courses-grid>.marketplace-card,.course-library-grid>.marketplace-card,.review-grid>.marketplace-card{height:100%}
-@media(max-width:700px){.course-admin-review-actions,.course-admin-review-actions form,.course-admin-approve,.course-admin-reject-toggle,.course-admin-reject-form button{width:100%}.course-unit-workflow{width:100%}}
+@media(max-width:700px){.course-admin-review-actions,.course-admin-review-actions form,.course-admin-approve,.course-admin-reject-toggle,.course-admin-reject-form button,.course-unit-actions form{width:100%}}
 </style>
 <?php endif; ?>
 <article
@@ -166,16 +167,31 @@ if (!$canonicalLayoutRendered):
                             $actionHref = trim((string) ($action['href'] ?? ''));
                             $style = preg_replace('/[^a-z0-9_-]/i', '', (string) ($action['style'] ?? 'secondary'));
                             $disabled = !empty($action['disabled']);
+                            $method = strtolower(trim((string) ($action['method'] ?? 'get')));
+                            $hidden = is_array($action['hidden'] ?? null) ? $action['hidden'] : [];
+                            $confirm = trim((string) ($action['confirm'] ?? ''));
 
                             if ($label === '') {
                                 continue;
                             }
                             ?>
-                            <?php if ($disabled || $actionHref === ''): ?>
+                            <?php if ($disabled): ?>
                                 <span class="course-unit-action course-unit-action--<?php echo $escape($style); ?> is-disabled" aria-disabled="true">
                                     <?php echo $escape($label); ?>
                                 </span>
-                            <?php else: ?>
+                            <?php elseif ($method === 'post' && $actionHref !== ''): ?>
+                                <form method="post" action="<?php echo $escape($actionHref); ?>">
+                                    <?php echo csrf_field(); ?>
+                                    <?php foreach ($hidden as $hiddenName => $hiddenValue): ?>
+                                        <input type="hidden" name="<?php echo $escape($hiddenName); ?>" value="<?php echo $escape($hiddenValue); ?>">
+                                    <?php endforeach; ?>
+                                    <button
+                                        type="submit"
+                                        class="course-unit-action course-unit-action--<?php echo $escape($style); ?>"
+                                        <?php echo $confirm !== '' ? 'data-confirm="' . $escape($confirm) . '"' : ''; ?>
+                                    ><?php echo $escape($label); ?></button>
+                                </form>
+                            <?php elseif ($actionHref !== ''): ?>
                                 <a class="course-unit-action course-unit-action--<?php echo $escape($style); ?>" href="<?php echo $escape($actionHref); ?>">
                                     <?php echo $escape($label); ?>
                                 </a>
