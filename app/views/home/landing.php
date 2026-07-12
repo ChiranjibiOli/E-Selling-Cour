@@ -58,9 +58,9 @@ foreach ($statQueries as $key => $query) {
     $stats[$key] = $result ? (int) ($result->fetch_assoc()['total'] ?? 0) : 0;
 }
 ?>
-<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=7">
-<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=7">
-<link rel="stylesheet" href="assets/css/components/footer.css?v=7">
+<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=10">
+<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=10">
+<link rel="stylesheet" href="assets/css/components/footer.css?v=10">
 
 <main class="landing-page">
     <section class="editorial-hero">
@@ -139,30 +139,10 @@ foreach ($statQueries as $key => $query) {
             </div>
 
             <div class="editorial-directory-grid">
-                <article>
-                    <span>Courses</span>
-                    <h3>Browse and filter</h3>
-                    <p>Search, sort, change view, and filter by category and level.</p>
-                    <a href="courses.php">Open courses</a>
-                </article>
-                <article>
-                    <span>Process</span>
-                    <h3>Understand access</h3>
-                    <p>See how payment verification and lifetime access work.</p>
-                    <a href="how-it-works.php">See process</a>
-                </article>
-                <article>
-                    <span>Instructors</span>
-                    <h3>Teach with structure</h3>
-                    <p>Create course content, submit it for review, and manage enrolled students.</p>
-                    <a href="register.php?role=instructor">Become instructor</a>
-                </article>
-                <article>
-                    <span>Account</span>
-                    <h3>Continue learning</h3>
-                    <p>Sign in to access purchases, learning progress, and notifications.</p>
-                    <a href="login.php">Log in</a>
-                </article>
+                <article><span>Courses</span><h3>Browse and filter</h3><p>Search, sort, change view, and filter by category and level.</p><a href="courses.php">Open courses</a></article>
+                <article><span>Process</span><h3>Understand access</h3><p>See how payment verification and lifetime access work.</p><a href="how-it-works.php">See process</a></article>
+                <article><span>Instructors</span><h3>Teach with structure</h3><p>Create course content, submit it for review, and manage enrolled students.</p><a href="register.php?role=instructor">Become instructor</a></article>
+                <article><span>Account</span><h3>Continue learning</h3><p>Sign in to access purchases, learning progress, and notifications.</p><a href="login.php">Log in</a></article>
             </div>
         </div>
     </section>
