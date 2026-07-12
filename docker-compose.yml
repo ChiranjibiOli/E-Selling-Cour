@@ -11,10 +11,11 @@ services:
       APP_TIMEZONE: Asia/Kathmandu
 
       DB_HOST: db
-      DB_PORT: 3306
+      DB_PORT: 3307
       DB_DATABASE: coursehub
       DB_USERNAME: coursehub_user
       DB_PASSWORD: local_coursehub_password
+      DB_ALLOW_LOCAL_FALLBACK: "false"
 
     volumes:
       - ./:/var/www/html
@@ -24,19 +25,20 @@ services:
 
   db:
     image: mysql:8.4
+    command: ["--port=3307"]
     environment:
       MYSQL_DATABASE: coursehub
       MYSQL_USER: coursehub_user
       MYSQL_PASSWORD: local_coursehub_password
       MYSQL_ROOT_PASSWORD: local_root_password
     ports:
-      - "3307:3306"
+      - "3307:3307"
     volumes:
       - coursehub_db:/var/lib/mysql
       - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
       - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-plocal_root_password"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-P", "3307", "-plocal_root_password"]
       interval: 5s
       timeout: 5s
       retries: 20
