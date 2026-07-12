@@ -1,10 +1,10 @@
 "use strict";
 
 document.addEventListener("DOMContentLoaded", () => {
-    loadStylesheet("assets/css/panel-editorial.css?v=3", "panel-editorial");
-    loadStylesheet("assets/css/panel-navigation.css?v=2", "panel-navigation");
-    loadStylesheet("assets/css/panel-sections.css?v=2", "panel-sections");
-    loadStylesheet("assets/css/panel-final.css?v=1", "panel-final");
+    loadStylesheet("assets/css/panel-editorial.css?v=4", "panel-editorial");
+    loadStylesheet("assets/css/panel-navigation.css?v=3", "panel-navigation");
+    loadStylesheet("assets/css/panel-sections.css?v=3", "panel-sections");
+    loadStylesheet("assets/css/panel-final.css?v=2", "panel-final");
 
     initializeNavigation();
     initializeConfirmations();
@@ -131,13 +131,44 @@ document.addEventListener("DOMContentLoaded", () => {
             ".order-card",
             ".withdrawal-request-card",
             ".notification-card",
-            ".pending-card",
             ".report-list-item",
             ".withdrawal-item"
         ];
 
+        const entries = [];
+
+        const closeEntry = (entry) => {
+            entry.button.setAttribute("aria-expanded", "false");
+            entry.button.textContent = "Details";
+            entry.card.classList.remove("is-open");
+            entry.content.forEach((section) => { section.hidden = true; });
+        };
+
+        const openEntry = (entry) => {
+            entries.forEach((candidate) => {
+                if (candidate !== entry && candidate.card.parentElement === entry.card.parentElement) {
+                    closeEntry(candidate);
+                }
+            });
+
+            entry.button.setAttribute("aria-expanded", "true");
+            entry.button.textContent = "Hide";
+            entry.card.classList.add("is-open");
+            entry.content.forEach((section) => { section.hidden = false; });
+        };
+
+        const toggleEntry = (entry) => {
+            const shouldOpen = entry.button.getAttribute("aria-expanded") !== "true";
+            if (shouldOpen) {
+                openEntry(entry);
+            } else {
+                closeEntry(entry);
+            }
+        };
+
         document.querySelectorAll(cardSelectors.join(",")).forEach((card, cardIndex) => {
-            if (card.dataset.panelDisclosureReady === "true") return;
+            if (card.dataset.panelDisclosureReady === "true" || card.matches(".open-instructor-modal")) return;
+
             const directChildren = Array.from(card.children).filter((child) => child instanceof HTMLElement);
             if (directChildren.length < 2) return;
 
@@ -162,12 +193,25 @@ document.addEventListener("DOMContentLoaded", () => {
                 section.hidden = true;
             });
 
-            button.addEventListener("click", () => {
-                const open = button.getAttribute("aria-expanded") !== "true";
-                button.setAttribute("aria-expanded", open ? "true" : "false");
-                button.textContent = open ? "Hide" : "Details";
-                content.forEach((section) => { section.hidden = !open; });
+            const entry = { card, summary, button, content };
+            entries.push(entry);
+
+            button.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                toggleEntry(entry);
             });
+
+            summary.addEventListener("click", (event) => {
+                const target = event.target;
+                if (target instanceof Element && target.closest("a, button, input, select, textarea, label, form")) return;
+                toggleEntry(entry);
+            });
+        });
+
+        document.addEventListener("keydown", (event) => {
+            if (event.key !== "Escape") return;
+            entries.forEach(closeEntry);
         });
     }
 
@@ -188,25 +232,38 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         });
 
-        if (fileInput instanceof HTMLInputElement && previewImage instanceof HTMLImageElement) {
-            const originalSource = previewImage.src;
+        let activeObjectUrl = null;
+        const originalPreviewSource = previewImage instanceof HTMLImageElement ? previewImage.src : "";
+        const originalPhotoSource = photo instanceof HTMLImageElement ? photo.src : "";
+
+        const applyPreviewSource = (source) => {
+            if (previewImage instanceof HTMLImageElement) previewImage.src = source;
+            if (photo instanceof HTMLImageElement) photo.src = source;
+        };
+
+        const restoreOriginalSource = () => {
+            if (previewImage instanceof HTMLImageElement && originalPreviewSource) previewImage.src = originalPreviewSource;
+            if (photo instanceof HTMLImageElement && originalPhotoSource) photo.src = originalPhotoSource;
+        };
+
+        if (fileInput instanceof HTMLInputElement) {
             fileInput.addEventListener("change", () => {
                 const file = fileInput.files?.[0];
                 if (!file) {
-                    previewImage.src = originalSource;
+                    restoreOriginalSource();
                     return;
                 }
 
                 if (!/^image\/(jpeg|png|webp)$/i.test(file.type) || file.size > 2 * 1024 * 1024) {
                     fileInput.value = "";
                     window.alert("Choose a JPG, PNG, or WebP image no larger than 2 MB.");
-                    previewImage.src = originalSource;
+                    restoreOriginalSource();
                     return;
                 }
 
-                const objectUrl = URL.createObjectURL(file);
-                previewImage.onload = () => URL.revokeObjectURL(objectUrl);
-                previewImage.src = objectUrl;
+                if (activeObjectUrl) URL.revokeObjectURL(activeObjectUrl);
+                activeObjectUrl = URL.createObjectURL(file);
+                applyPreviewSource(activeObjectUrl);
             });
         }
 
@@ -228,22 +285,26 @@ document.addEventListener("DOMContentLoaded", () => {
         close.textContent = "×";
 
         const dialogImage = document.createElement("img");
-        dialogImage.src = photo.src;
         dialogImage.alt = photo.alt || "Profile photo";
 
         header.append(title, close);
         dialog.append(header, dialogImage);
         document.body.appendChild(dialog);
 
-        viewButtons.forEach((button) => button.addEventListener("click", () => dialog.showModal()));
-        photo.addEventListener("click", () => dialog.showModal());
+        const showPhoto = () => {
+            dialogImage.src = photo.src;
+            dialog.showModal();
+        };
+
+        viewButtons.forEach((button) => button.addEventListener("click", showPhoto));
+        photo.addEventListener("click", showPhoto);
         photo.tabIndex = 0;
         photo.setAttribute("role", "button");
         photo.setAttribute("aria-label", "View profile photo");
         photo.addEventListener("keydown", (event) => {
             if (event.key === "Enter" || event.key === " ") {
                 event.preventDefault();
-                dialog.showModal();
+                showPhoto();
             }
         });
         close.addEventListener("click", () => dialog.close());
