@@ -57,7 +57,8 @@ body:has(.course-studio-page) {
   will-change: auto !important;
 }
 
-/* Desktop: center form scrolls; left workflow and right preview stop below navbar. */
+/* Desktop: wheel scroll follows the cursor. Center form scrolls under the cursor;
+   left and right columns scroll the document. At form limits, wheel passes to page. */
 @media (min-width: 1100px) {
   .course-studio-page .studio-workspace {
     align-items: start !important;
@@ -70,10 +71,11 @@ body:has(.course-studio-page) {
     max-height: calc(100vh - 124px) !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
-    overscroll-behavior-y: contain !important;
+    overscroll-behavior-y: auto !important;
     scrollbar-gutter: stable;
     scroll-behavior: smooth;
     padding-right: 8px;
+    touch-action: pan-y;
   }
 
   .course-studio-page .studio-rail,
@@ -84,6 +86,7 @@ body:has(.course-studio-page) {
     height: fit-content !important;
     max-height: calc(100vh - 124px) !important;
     overflow: visible !important;
+    overscroll-behavior-y: auto !important;
     z-index: 4;
   }
 
