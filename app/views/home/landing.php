@@ -65,21 +65,40 @@ $demoCourses = $featuredCourses ?: [
 ];
 ?>
 <link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=14">
-<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=17">
+<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=18">
 <link rel="stylesheet" href="assets/css/components/footer.css?v=10">
 
 <style>
-.magic-learning-demo{position:relative;min-height:520px;overflow:hidden}.magic-cart{position:absolute;top:74px;left:50%;width:86px;height:86px;display:grid;place-items:center;transform:translateX(-50%);border:0;background:transparent;color:#171511;z-index:6}.magic-cart svg{width:68px;height:68px;filter:drop-shadow(0 12px 20px rgba(23,21,17,.14))}.magic-finger{position:absolute;top:24px;left:calc(50% - 118px);font-size:3rem;z-index:7;animation:fingerFloat 2s ease-in-out infinite}.magic-cursor{position:absolute;top:300px;left:16%;width:34px;height:42px;z-index:20;filter:drop-shadow(0 5px 5px rgba(0,0,0,.25));opacity:0}.magic-cursor svg{width:100%;height:100%}.magic-burst{position:absolute;top:116px;left:50%;width:14px;height:14px;transform:translate(-50%,-50%);border-radius:50%;opacity:0;box-shadow:0 -70px 0 #d39b3a,58px -38px 0 #6b5bd2,70px 20px 0 #d86a69,34px 68px 0 #55a678,-35px 68px 0 #e0b84c,-70px 14px 0 #5a83c6,-56px -42px 0 #b66bd0}.magic-book{position:absolute;top:176px;left:50%;width:280px;height:190px;transform:translateX(-50%) scale(.2) rotate(-10deg);opacity:0;perspective:1000px;z-index:8}.book-half{position:absolute;top:0;width:50%;height:100%;background:#fff9eb;box-shadow:0 22px 50px rgba(34,25,12,.18);overflow:hidden}.book-left{left:0;border-radius:22px 4px 4px 22px;transform:rotateY(8deg)}.book-right{right:0;border-radius:4px 22px 22px 4px;transform:rotateY(-8deg)}.book-half::before{content:"";position:absolute;inset:18px 16px;background:repeating-linear-gradient(to bottom,#d7ccb9 0 2px,transparent 2px 19px);opacity:.72}.book-spine{position:absolute;left:50%;top:3px;width:4px;height:184px;transform:translateX(-50%);border-radius:999px;background:#b79d73;z-index:3}.book-page{position:absolute;top:0;left:50%;width:50%;height:100%;transform-origin:left center;background:#fffdf6;border-radius:3px 20px 20px 3px;box-shadow:0 14px 30px rgba(34,25,12,.16);z-index:4}.course-sheet{position:absolute;top:242px;left:50%;width:min(330px,84%);padding:18px 20px;transform:translate(-50%,44px) scale(.84);opacity:0;border-radius:20px;background:rgba(255,255,255,.98);box-shadow:0 24px 60px rgba(30,23,14,.18);z-index:12}.course-sheet small{display:block;margin-bottom:10px;color:#9a6e23;font-size:.65rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase}.course-sheet ul{display:grid;gap:10px;margin:0;padding:0;list-style:none}.course-sheet li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#f6f0e6;color:#2c2822;font-size:.76rem;font-weight:850}.course-sheet li::before{content:'✦';color:#b9832f}.magic-caption{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:#72685d;font-size:.72rem;font-weight:800;white-space:nowrap}.magic-replay{position:absolute;right:18px;bottom:16px;border:0;background:transparent;color:#9a6e23;font-size:.68rem;font-weight:900;cursor:pointer;z-index:30}
-.magic-learning-demo.is-running .magic-cursor{animation:cursorSequence 8s cubic-bezier(.2,.8,.2,1) both}.magic-learning-demo.is-running .magic-cart{animation:cartSequence 8s ease both}.magic-learning-demo.is-running .magic-burst{animation:burstSequence 8s ease-out both}.magic-learning-demo.is-running .magic-book{animation:bookSequence 8s cubic-bezier(.2,.85,.2,1) both}.magic-learning-demo.is-running .book-page{animation:pageSequence 8s cubic-bezier(.4,0,.2,1) both}.magic-learning-demo.is-running .course-sheet{animation:sheetSequence 8s cubic-bezier(.2,.9,.2,1) both}
-@keyframes fingerFloat{50%{transform:translateY(-8px) rotate(8deg)}}
-@keyframes cursorSequence{0%{top:300px;left:16%;opacity:0;transform:rotate(-15deg) scale(1)}6%{opacity:1}24%{top:106px;left:58%;opacity:1;transform:rotate(-7deg) scale(1)}29%{top:106px;left:58%;transform:rotate(-7deg) scale(.76)}34%{top:106px;left:58%;transform:rotate(-7deg) scale(1)}55%{opacity:1}68%,100%{opacity:0}}
-@keyframes cartSequence{0%,24%{transform:translateX(-50%) scale(1)}29%{transform:translateX(-50%) scale(.82)}34%{transform:translateX(-50%) scale(1)}46%{opacity:1}58%,100%{opacity:0}}
-@keyframes burstSequence{0%,28%{opacity:0;transform:translate(-50%,-50%) scale(.2)}34%{opacity:1}45%{opacity:0;transform:translate(-50%,-50%) scale(1.5)}100%{opacity:0}}
-@keyframes bookSequence{0%,34%{opacity:0;transform:translateX(-50%) scale(.2) rotate(-10deg)}45%{opacity:1;transform:translateX(-50%) scale(1.04) rotate(1deg)}51%,88%{opacity:1;transform:translateX(-50%) scale(1) rotate(0)}100%{opacity:0;transform:translateX(-50%) scale(.94)}}
-@keyframes pageSequence{0%,49%{transform:rotateY(0)}61%{transform:rotateY(-178deg)}88%,100%{transform:rotateY(-178deg)}}
-@keyframes sheetSequence{0%,58%{opacity:0;transform:translate(-50%,44px) scale(.84)}69%,88%{opacity:1;transform:translate(-50%,-8px) scale(1)}100%{opacity:0;transform:translate(-50%,-22px) scale(.97)}}
-@media(max-width:620px){.magic-learning-demo{min-height:430px}.magic-cart{top:48px}.magic-finger{top:10px;left:calc(50% - 96px);font-size:2.5rem}.magic-book{top:142px;width:238px;height:164px}.book-spine{height:158px}.course-sheet{top:205px}.magic-caption{bottom:10px}@keyframes cursorSequence{0%{top:285px;left:10%;opacity:0;transform:rotate(-15deg)}6%{opacity:1}24%{top:82px;left:62%;opacity:1;transform:rotate(-7deg) scale(1)}29%{top:82px;left:62%;transform:rotate(-7deg) scale(.76)}34%{top:82px;left:62%;transform:rotate(-7deg) scale(1)}55%{opacity:1}68%,100%{opacity:0}}}
-@media(prefers-reduced-motion:reduce){.magic-learning-demo.is-running .magic-cursor,.magic-learning-demo.is-running .magic-cart,.magic-learning-demo.is-running .magic-burst,.magic-learning-demo.is-running .magic-book,.magic-learning-demo.is-running .book-page,.magic-learning-demo.is-running .course-sheet{animation:none}.magic-book{opacity:1;transform:translateX(-50%) scale(1)}.course-sheet{opacity:1;transform:translate(-50%,-8px) scale(1)}}
+.magic-learning-demo{position:relative;min-height:520px;overflow:hidden}
+.magic-cart{position:absolute;top:82px;left:50%;width:96px;height:96px;display:grid;place-items:center;transform:translateX(-50%);border:0;background:transparent;color:#171511;z-index:8}
+.magic-cart svg{width:72px;height:72px;filter:drop-shadow(0 12px 20px rgba(23,21,17,.14))}
+.magic-cursor{position:absolute;top:330px;left:10%;width:36px;height:44px;z-index:20;opacity:0;filter:drop-shadow(0 5px 5px rgba(0,0,0,.25))}
+.magic-cursor svg{width:100%;height:100%}
+.magic-book{position:absolute;top:168px;left:50%;width:290px;height:196px;opacity:0;transform:translateX(-50%) scale(.2);perspective:1200px;z-index:10}
+.book-cover{position:absolute;inset:0;border-radius:18px;background:linear-gradient(145deg,#1d2b27,#3e5b51);box-shadow:0 26px 60px rgba(30,23,14,.22);transform-origin:left center}
+.book-pages{position:absolute;inset:12px 16px;background:#fff9eb;border-radius:14px;box-shadow:inset 0 0 0 1px rgba(120,92,46,.12)}
+.book-pages::before{content:"";position:absolute;inset:18px;background:repeating-linear-gradient(to bottom,#d8ccb8 0 2px,transparent 2px 18px);opacity:.7}
+.book-page-turn{position:absolute;top:12px;left:50%;width:45%;height:172px;transform-origin:left center;background:#fffdf6;border-radius:3px 14px 14px 3px;box-shadow:0 12px 24px rgba(35,25,12,.16);z-index:3}
+.course-sheet{position:absolute;top:176px;left:50%;width:min(340px,84%);padding:20px 22px;opacity:0;transform:translate(-50%,48px) scale(.88);border-radius:20px;background:#fff;box-shadow:0 28px 66px rgba(30,23,14,.2);z-index:14}
+.course-sheet small{display:block;margin-bottom:11px;color:#9a6e23;font-size:.65rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase}
+.course-sheet ul{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.course-sheet li{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:12px;background:#f6f0e6;color:#2c2822;font-size:.76rem;font-weight:850}
+.course-sheet li::before{content:'✦';color:#b9832f}
+.magic-replay{position:absolute;right:18px;bottom:16px;border:0;background:transparent;color:#9a6e23;font-size:.68rem;font-weight:900;cursor:pointer;z-index:30}
+.magic-learning-demo.is-running .magic-cursor{animation:cursorFlow 8s cubic-bezier(.2,.8,.2,1) both}
+.magic-learning-demo.is-running .magic-cart{animation:cartFlow 8s ease both}
+.magic-learning-demo.is-running .magic-book{animation:bookFlow 8s cubic-bezier(.2,.85,.2,1) both}
+.magic-learning-demo.is-running .book-cover{animation:coverFlow 8s cubic-bezier(.4,0,.2,1) both}
+.magic-learning-demo.is-running .book-page-turn{animation:pageFlow 8s cubic-bezier(.4,0,.2,1) both}
+.magic-learning-demo.is-running .course-sheet{animation:sheetFlow 8s cubic-bezier(.2,.9,.2,1) both}
+@keyframes cursorFlow{0%{top:330px;left:10%;opacity:0;transform:rotate(-16deg) scale(1)}6%{opacity:1}24%{top:116px;left:58%;opacity:1;transform:rotate(-7deg) scale(1)}29%{top:116px;left:58%;transform:rotate(-7deg) scale(.75)}34%{top:116px;left:58%;transform:rotate(-7deg) scale(1)}40%,100%{opacity:0}}
+@keyframes cartFlow{0%,24%{opacity:1;transform:translateX(-50%) scale(1)}29%{transform:translateX(-50%) scale(.82)}34%{transform:translateX(-50%) scale(1)}40%,100%{opacity:0}}
+@keyframes bookFlow{0%,37%{opacity:0;transform:translateX(-50%) scale(.2)}47%{opacity:1;transform:translateX(-50%) scale(1.05)}53%,70%{opacity:1;transform:translateX(-50%) scale(1)}76%,100%{opacity:0;transform:translateX(-50%) scale(.92)}}
+@keyframes coverFlow{0%,49%{transform:rotateY(0)}58%,70%{transform:rotateY(-165deg)}76%,100%{transform:rotateY(-165deg)}}
+@keyframes pageFlow{0%,55%{transform:rotateY(0)}66%,70%{transform:rotateY(-178deg)}76%,100%{transform:rotateY(-178deg)}}
+@keyframes sheetFlow{0%,73%{opacity:0;transform:translate(-50%,48px) scale(.88)}82%,94%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-18px) scale(.98)}}
+@media(max-width:620px){.magic-learning-demo{min-height:430px}.magic-cart{top:62px}.magic-book{top:142px;width:238px;height:164px}.book-page-turn{height:140px}.course-sheet{top:154px}@keyframes cursorFlow{0%{top:290px;left:8%;opacity:0;transform:rotate(-16deg)}6%{opacity:1}24%{top:96px;left:62%;opacity:1;transform:rotate(-7deg) scale(1)}29%{top:96px;left:62%;transform:rotate(-7deg) scale(.75)}34%{top:96px;left:62%;transform:rotate(-7deg) scale(1)}40%,100%{opacity:0}}}
+@media(prefers-reduced-motion:reduce){.magic-learning-demo.is-running .magic-cursor,.magic-learning-demo.is-running .magic-cart,.magic-learning-demo.is-running .magic-book,.magic-learning-demo.is-running .book-cover,.magic-learning-demo.is-running .book-page-turn,.magic-learning-demo.is-running .course-sheet{animation:none}.course-sheet{opacity:1;transform:translate(-50%,0) scale(1)}}
 </style>
 
 <main class="landing-page">
@@ -95,28 +114,24 @@ $demoCourses = $featuredCourses ?: [
                 </div>
             </div>
 
-            <div class="magic-learning-demo" id="magicLearningDemo" aria-label="Animated cart transforming into a book with course names">
-                <div class="magic-finger" aria-hidden="true">👉</div>
+            <div class="magic-learning-demo" id="magicLearningDemo" aria-label="Animated cart, book, and course page sequence">
                 <button class="magic-cart" type="button" aria-label="Animated course cart">
                     <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 11h7l7 29h25l7-22H18"/><circle cx="27" cy="49" r="3"/><circle cx="47" cy="49" r="3"/></svg>
                 </button>
-                <div class="magic-burst" aria-hidden="true"></div>
                 <div class="magic-cursor" aria-hidden="true"><svg viewBox="0 0 32 40"><path d="M3 2l24 20-11 2 7 12-6 3-7-12-7 8z" fill="#fff" stroke="#171511" stroke-width="2"/></svg></div>
                 <div class="magic-book" aria-hidden="true">
-                    <div class="book-half book-left"></div>
-                    <div class="book-half book-right"></div>
-                    <div class="book-page"></div>
-                    <div class="book-spine"></div>
+                    <div class="book-pages"></div>
+                    <div class="book-cover"></div>
+                    <div class="book-page-turn"></div>
                 </div>
                 <div class="course-sheet">
-                    <small>Courses inside</small>
+                    <small>Featured courses</small>
                     <ul>
                         <?php foreach (array_slice($demoCourses, 0, 3) as $course): ?>
                             <li><?php echo landing_h($course['title']); ?></li>
                         <?php endforeach; ?>
                     </ul>
                 </div>
-                <div class="magic-caption">Cart → book → courses</div>
                 <button class="magic-replay" id="magicReplay" type="button">Replay</button>
             </div>
         </div>
@@ -183,15 +198,11 @@ $demoCourses = $featuredCourses ?: [
     let loopTimer = null;
 
     function runAnimation() {
-        if (loopTimer) {
-            window.clearTimeout(loopTimer);
-        }
-
+        if (loopTimer) window.clearTimeout(loopTimer);
         demo.classList.remove('is-running');
         void demo.offsetWidth;
         demo.classList.add('is-running');
-
-        loopTimer = window.setTimeout(runAnimation, 8200);
+        loopTimer = window.setTimeout(runAnimation, 8300);
     }
 
     replay.addEventListener('click', runAnimation);
