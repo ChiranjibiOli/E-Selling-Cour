@@ -43,7 +43,38 @@ $actions = is_array($card['actions'] ?? null) ? $card['actions'] : [];
 $featureHtml = is_string($card['feature_html'] ?? null) ? $card['feature_html'] : '';
 $statusClass = preg_replace('/[^a-z0-9_-]/i', '', (string) ($card['status_class'] ?? ''));
 $cardId = 'course-card-' . substr(hash('sha256', $context . '|' . $title . '|' . $href), 0, 12);
+
+static $canonicalLayoutRendered = false;
+if (!$canonicalLayoutRendered):
+    $canonicalLayoutRendered = true;
 ?>
+<style>
+.course-unit-card{width:100%;height:100%;min-height:100%;align-self:stretch}
+.course-unit-cover{flex:0 0 auto}
+.course-unit-content{display:flex!important;min-height:0;flex:1 1 auto;flex-direction:column!important}
+.course-unit-main{display:flex;min-width:0;flex:1 1 auto;flex-direction:column}
+.course-unit-workflow{display:flex;flex:0 0 auto;flex-direction:column;margin-top:auto}
+.course-unit-footer{width:100%;margin-top:0!important}
+.course-unit-price-spacer{display:block;min-width:1px;min-height:1px}
+.course-unit-feature{width:100%;min-width:0}
+.course-unit-card--admin .course-unit-feature{margin-top:14px;padding-top:14px;border-top:1px solid #e9edf5}
+.course-admin-note{margin:0 0 12px;padding:11px 12px;border:1px solid #e5e7eb;border-radius:11px;background:#f8fafc;color:#475467;font-size:.78rem;line-height:1.5}
+.course-admin-review-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.course-admin-review-actions form{margin:0}
+.course-admin-approve,.course-admin-reject-toggle,.course-admin-reject-form button{min-height:39px;padding:0 13px;border:0;border-radius:10px;font:inherit;font-size:.74rem;font-weight:900;cursor:pointer}
+.course-admin-approve{color:#fff;background:#059669}
+.course-admin-reject-toggle{color:#b91c1c;background:#fee2e2}
+.course-admin-reject-form{display:none;gap:10px;margin-top:12px;padding:12px;border:1px solid #fecaca;border-radius:12px;background:#fef2f2}
+.course-admin-reject-form.open{display:grid}
+.course-admin-reject-form label{display:grid;gap:6px}
+.course-admin-reject-form label span{color:#991b1b;font-size:.72rem;font-weight:900}
+.course-admin-reject-form textarea{width:100%;min-height:90px;padding:10px;border:1px solid #fca5a5;border-radius:10px;background:#fff;resize:vertical;font:inherit}
+.course-admin-reject-form button{color:#fff;background:#dc2626}
+.editorial-course-list,.student-course-grid,.my-courses-grid,.course-library-grid,.review-grid{align-items:stretch}
+.editorial-course-list>.course-unit-card,.student-course-grid>.course-unit-card,.my-courses-grid>.course-unit-card,.course-library-grid>.course-unit-card,.review-grid>.course-unit-card{height:100%}
+@media(max-width:700px){.course-admin-review-actions,.course-admin-review-actions form,.course-admin-approve,.course-admin-reject-toggle,.course-admin-reject-form button{width:100%}.course-unit-workflow{width:100%}}
+</style>
+<?php endif; ?>
 <article
     class="course-unit-card course-unit-card--<?php echo $escape($context); ?>"
     data-course-context="<?php echo $escape($context); ?>"
