@@ -46,10 +46,11 @@ function upload_image(array $file, string $targetDirectory, array &$errors): ?st
 
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $mimeType = $finfo->file($file['tmp_name']);
+
     $allowedMimeTypes = [
         'image/jpeg' => 'jpg',
-        'image/png' => 'png',
-        'image/jpg' => 'jpg',
+        'image/png'  => 'png',
+        'image/jpg'  => 'jpg'
     ];
 
     if (!array_key_exists($mimeType, $allowedMimeTypes)) {
@@ -61,7 +62,8 @@ function upload_image(array $file, string $targetDirectory, array &$errors): ?st
         mkdir($targetDirectory, 0750, true);
     }
 
-    $safeFileName = bin2hex(random_bytes(16)) . '.' . $allowedMimeTypes[$mimeType];
+    $extension = $allowedMimeTypes[$mimeType];
+    $safeFileName = bin2hex(random_bytes(16)) . '.' . $extension;
     $destination = rtrim($targetDirectory, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $safeFileName;
 
     if (!move_uploaded_file($file['tmp_name'], $destination)) {
@@ -70,13 +72,6 @@ function upload_image(array $file, string $targetDirectory, array &$errors): ?st
     }
 
     return $safeFileName;
-}
-
-function user_column_exists(mysqli $conn, string $column): bool
-{
-    $safeColumn = $conn->real_escape_string($column);
-    $result = $conn->query("SHOW COLUMNS FROM users LIKE '{$safeColumn}'");
-    return $result instanceof mysqli_result && $result->num_rows > 0;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_user'])) {
@@ -133,79 +128,97 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_user'])) {
         if (!isset($_FILES['identity_document']) || $_FILES['identity_document']['error'] === UPLOAD_ERR_NO_FILE) {
             $errors[] = 'Identity document image is required for instructors.';
         }
+
         if (!isset($_FILES['profile_image']) || $_FILES['profile_image']['error'] === UPLOAD_ERR_NO_FILE) {
             $errors[] = 'Personal photo is required for instructors.';
         }
     }
 
-    if (empty($errors)) {
-        $checkStmt = $conn->prepare('SELECT id FROM users WHERE email = ?');
-        if ($checkStmt) {
-            $checkStmt->bind_param('s', $email);
-            $checkStmt->execute();
-            $checkStmt->store_result();
-            if ($checkStmt->num_rows > 0) {
-                $errors[] = 'This email is already registered.';
-            }
-            $checkStmt->close();
-        } else {
-            $errors[] = 'Unable to validate this email right now.';
+    $checkSql = "SELECT id FROM users WHERE email = ?";
+    $checkStmt = $conn->prepare($checkSql);
+
+    if ($checkStmt && empty($errors)) {
+        $checkStmt->bind_param("s", $email);
+        $checkStmt->execute();
+        $checkStmt->store_result();
+
+        if ($checkStmt->num_rows > 0) {
+            $errors[] = 'This email is already registered.';
         }
+
+        $checkStmt->close();
     }
 
     if (empty($errors) && $role === 'instructor') {
         $privateUploadPath = __DIR__ . '/../../../storage/private_uploads/instructor_documents';
         $profileUploadPath = __DIR__ . '/../../../storage/private_uploads/profile_photos';
+
         $identityDocumentName = upload_image($_FILES['identity_document'], $privateUploadPath, $errors);
         $profileImageName = upload_image($_FILES['profile_image'], $profileUploadPath, $errors);
     }
 
     if (empty($errors)) {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $status = $role === 'instructor' ? 'inactive' : 'active';
-        $hasIdentityColumn = user_column_exists($conn, 'identity_document');
 
-        if ($hasIdentityColumn) {
-            $insertSql = 'INSERT INTO users (full_name,email,password,phone,profile_image,identity_document,role,status) VALUES (?,?,?,?,?,?,?,?)';
-            $insertStmt = $conn->prepare($insertSql);
-            if ($insertStmt) {
-                $insertStmt->bind_param('ssssssss', $fullName, $email, $hashedPassword, $phone, $profileImageName, $identityDocumentName, $role, $status);
+        $insertSql = "
+            INSERT INTO users (
+                full_name,
+                email,
+                password,
+                phone,
+                profile_image,
+                identity_document,
+                role,
+                status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ";
+
+        $status = ($role === 'instructor') ? 'inactive' : 'active';
+
+        $insertStmt = $conn->prepare($insertSql);
+
+        if ($insertStmt) {
+            $insertStmt->bind_param(
+                "ssssssss",
+                $fullName,
+                $email,
+                $hashedPassword,
+                $phone,
+                $profileImageName,
+                $identityDocumentName,
+                $role,
+                $status
+            );
+
+            if ($insertStmt->execute()) {
+                $message = ($role === 'instructor')
+                    ? 'Instructor registration submitted successfully. Wait for admin approval.'
+                    : 'Registration successful! You can now login.';
+                $messageType = 'success';
+
+                $fullName = '';
+                $email = '';
+                $phone = '';
+                $role = 'student';
+            } else {
+                $message = 'Something went wrong while registering.';
+                $messageType = 'error';
             }
-        } else {
-            $insertSql = 'INSERT INTO users (full_name,email,password,phone,profile_image,role,status) VALUES (?,?,?,?,?,?,?)';
-            $insertStmt = $conn->prepare($insertSql);
-            if ($insertStmt) {
-                $insertStmt->bind_param('sssssss', $fullName, $email, $hashedPassword, $phone, $profileImageName, $role, $status);
-            }
-        }
 
-        if (!empty($insertStmt) && $insertStmt->execute()) {
-            $message = $role === 'instructor'
-                ? 'Instructor registration submitted successfully. Wait for admin approval.'
-                : 'Registration successful! You can now login.';
-            $messageType = 'success';
-            $fullName = '';
-            $email = '';
-            $phone = '';
-            $role = 'student';
-        } else {
-            $message = 'Something went wrong while registering.';
-            $messageType = 'error';
-        }
-
-        if (!empty($insertStmt)) {
             $insertStmt->close();
+        } else {
+            $message = 'Failed to prepare registration query.';
+            $messageType = 'error';
         }
     } else {
         $message = implode(' ', $errors);
         $messageType = 'error';
     }
 }
-
 require_once __DIR__ . '/../layouts/header.php';
 require_once __DIR__ . '/../layouts/navbar.php';
 ?>
-<link rel="stylesheet" href="assets/css/pages/public/auth.css?v=10">
+<link rel="stylesheet" href="assets/css/pages/public/auth.css?v=1">
 <main class="auth-page">
     <section class="auth-section">
         <div class="container auth-container">
@@ -213,7 +226,10 @@ require_once __DIR__ . '/../layouts/navbar.php';
                 <div class="auth-left">
                     <span class="auth-badge">Join Our Platform</span>
                     <h1>Create Your Account</h1>
-                    <p>Register as a student to start learning or as an instructor to teach and sell courses.</p>
+                    <p>
+                        Register as a student to start learning or as an instructor to teach and sell courses.
+                    </p>
+
                     <ul class="auth-benefits">
                         <li>Buy once and get lifetime access</li>
                         <li>Learn from expert instructors</li>
@@ -232,39 +248,64 @@ require_once __DIR__ . '/../layouts/navbar.php';
 
                     <form method="POST" action="" id="registerForm" enctype="multipart/form-data" novalidate>
                         <?php echo csrf_field(); ?>
-
                         <div class="form-group">
                             <label for="full_name">Full Name</label>
-                            <input type="text" id="full_name" name="full_name" value="<?php echo htmlspecialchars($fullName); ?>" placeholder="Enter your full name" maxlength="100" required>
+                            <input
+                                type="text"
+                                id="full_name"
+                                name="full_name"
+                                value="<?php echo htmlspecialchars($fullName); ?>"
+                                placeholder="Enter your full name"
+                                maxlength="100"
+                                required
+                            >
                             <small class="field-note">Only letters, spaces, apostrophe, dot, and hyphen allowed.</small>
                         </div>
 
                         <div class="form-group">
                             <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" placeholder="Enter your email" maxlength="150" required>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                value="<?php echo htmlspecialchars($email); ?>"
+                                placeholder="Enter your email"
+                                maxlength="150"
+                                required
+                            >
                             <small id="emailFeedback" class="field-note"></small>
                         </div>
 
                         <div class="form-group">
                             <label for="phone">Phone Number</label>
-                            <input type="text" id="phone" name="phone" value="<?php echo htmlspecialchars($phone); ?>" placeholder="Enter your phone number" inputmode="numeric" maxlength="15" required>
+                            <input
+                                type="text"
+                                id="phone"
+                                name="phone"
+                                value="<?php echo htmlspecialchars($phone); ?>"
+                                placeholder="Enter your phone number"
+                                inputmode="numeric"
+                                maxlength="15"
+                                required
+                            >
                             <small class="field-note">Only numbers allowed, 10 to 15 digits.</small>
                         </div>
 
                         <div class="form-group">
                             <label for="role">Register As</label>
                             <select id="role" name="role" required>
-                                <option value="student" <?php echo $role === 'student' ? 'selected' : ''; ?>>Student</option>
-                                <option value="instructor" <?php echo $role === 'instructor' ? 'selected' : ''; ?>>Instructor</option>
+                                <option value="student" <?php echo ($role === 'student') ? 'selected' : ''; ?>>Student</option>
+                                <option value="instructor" <?php echo ($role === 'instructor') ? 'selected' : ''; ?>>Instructor</option>
                             </select>
                         </div>
 
-                        <div id="instructorFields" style="<?php echo $role === 'instructor' ? '' : 'display:none;'; ?>">
+                        <div id="instructorFields" style="<?php echo ($role === 'instructor') ? '' : 'display:none;'; ?>">
                             <div class="form-group">
                                 <label for="identity_document">Identity Document Photo</label>
                                 <input type="file" id="identity_document" name="identity_document" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
                                 <small class="field-note">Upload citizenship, ID, or similar document image.</small>
                             </div>
+
                             <div class="form-group">
                                 <label for="profile_image">Personal Photo</label>
                                 <input type="file" id="profile_image" name="profile_image" accept=".jpg,.jpeg,.png,image/jpeg,image/png">
@@ -275,7 +316,13 @@ require_once __DIR__ . '/../layouts/navbar.php';
                         <div class="form-group password-group">
                             <label for="password">Password</label>
                             <div class="password-field">
-                                <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                                <input
+                                    type="password"
+                                    id="password"
+                                    name="password"
+                                    placeholder="Enter your password"
+                                    required
+                                >
                                 <button type="button" class="toggle-password" data-target="password">Show</button>
                             </div>
                             <small class="field-note">Minimum 8 characters, uppercase, lowercase, number, and special character.</small>
@@ -284,13 +331,25 @@ require_once __DIR__ . '/../layouts/navbar.php';
                         <div class="form-group password-group">
                             <label for="confirm_password">Confirm Password</label>
                             <div class="password-field">
-                                <input type="password" id="confirm_password" name="confirm_password" placeholder="Confirm your password" required>
+                                <input
+                                    type="password"
+                                    id="confirm_password"
+                                    name="confirm_password"
+                                    placeholder="Confirm your password"
+                                    required
+                                >
                                 <button type="button" class="toggle-password" data-target="confirm_password">Show</button>
                             </div>
                         </div>
 
-                        <button type="submit" name="register_user" class="btn btn-primary auth-submit-btn">Create Account</button>
-                        <p class="auth-switch">Already have an account? <a href="login.php">Login here</a></p>
+                        <button type="submit" name="register_user" class="btn btn-primary auth-submit-btn">
+                            Create Account
+                        </button>
+
+                        <p class="auth-switch">
+                            Already have an account?
+                            <a href="login.php">Login here</a>
+                        </p>
                     </form>
                 </div>
             </div>
