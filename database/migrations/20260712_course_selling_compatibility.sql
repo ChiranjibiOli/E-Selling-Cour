@@ -83,7 +83,7 @@ ALTER TABLE unsubscribe_requests
     ADD COLUMN IF NOT EXISTS processed_at DATETIME DEFAULT NULL AFTER processed_by;
 
 ALTER TABLE instructor_bank_details
-    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP BEFORE updated_at;
+    ADD COLUMN IF NOT EXISTS created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER qr_image;
 
 -- -------------------------------------------------------------------------
 -- Missing workflow and finance tables
