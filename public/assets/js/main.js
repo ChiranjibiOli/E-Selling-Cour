@@ -130,6 +130,27 @@ document.addEventListener("DOMContentLoaded", function () {
         image.decoding = "async";
     });
 
+    /*
+     * Admin Orders has an older two-column rule in panel-modules.css.
+     * Load the dedicated, more specific order layout only on that page so the
+     * payment/enrollment pipeline can use the same 4 x 3 paginated catalog.
+     */
+    const adminOrdersPage = document.querySelector(".admin-orders-page");
+    if (adminOrdersPage) {
+        if (!document.querySelector('link[data-admin-orders-layout="true"]')) {
+            const stylesheet = document.createElement("link");
+            stylesheet.rel = "stylesheet";
+            stylesheet.href = "assets/css/pages/admin/orders.css?v=3";
+            stylesheet.dataset.adminOrdersLayout = "true";
+            document.head.appendChild(stylesheet);
+        }
+
+        const ordersGrid = adminOrdersPage.querySelector(".orders-grid");
+        if (ordersGrid && !ordersGrid.dataset.pageSize) {
+            ordersGrid.dataset.pageSize = "12";
+        }
+    }
+
     document.querySelectorAll("table").forEach(function (table) {
         if (table.parentElement && table.parentElement.classList.contains("table-responsive")) {
             return;
