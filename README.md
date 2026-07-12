@@ -17,24 +17,25 @@ review instructors, courses, orders, payments, and withdrawals.
 
 1. Start Apache and MySQL from XAMPP.
 2. Confirm MySQL is configured for port `3307`.
-3. Copy `.env.example` to `.env`.
-4. Keep these database values:
+3. Confirm the existing database is named `coursehub`.
+4. Copy `.env.example` to `.env`.
+5. Keep these database values:
 
 ```env
 DB_HOST=127.0.0.1
 DB_PORT=3307
-DB_DATABASE=course_selling
+DB_DATABASE=coursehub
 DB_USERNAME=root
 DB_PASSWORD=
 DB_ALLOW_LOCAL_FALLBACK=true
 ```
 
-5. Import the original `course_selling` database dump if it is not already present.
-6. Back up the database.
-7. Import this compatibility migration into `course_selling`:
+6. Back up `coursehub`.
+7. Import this compatibility migration into `coursehub` when the health check
+   reports missing workflow or finance structures:
 
 ```text
-database/migrations/20260712_course_selling_compatibility.sql
+database/migrations/20260712_coursehub_compatibility.sql
 ```
 
 8. Verify the real connection and schema from the project root:
@@ -47,20 +48,19 @@ A healthy result must show:
 
 ```text
 Port: 3307 [OK]
-Database: course_selling
-RESULT: PASS
+Database: coursehub [OK]
+RESULT: PASS - coursehub on port 3307 is ready.
 ```
 
-The application never falls back to port 3306. In local development it may try
-the `course_selling` and `coursehub` database names on port 3307, depending on
-your `.env` configuration.
+The application never falls back to port 3306 and never changes the database
+name away from `coursehub`.
 
 ## New database setup
 
-For a completely new installation rather than upgrading the original database:
+For a completely new installation:
 
-1. Copy `.env.example` to `.env` and set `DB_DATABASE=coursehub`.
-2. Create the database with `database/schema.sql`.
+1. Copy `.env.example` to `.env`.
+2. Create `coursehub` with `database/schema.sql`.
 3. Load initial categories and settings with `database/seed.sql`.
 4. Apply the migrations documented in `SECURITY_AUDIT.md`.
 5. Create an admin account:
@@ -109,9 +109,7 @@ Use `npm run css:dev` while changing the course-builder interface.
 
 ## Docker setup
 
-The default Docker configuration uses a separate database service. This project
-is currently configured for the user's XAMPP port 3307 workflow, so verify the
-Docker environment variables before starting containers.
+Docker also uses MySQL on port `3307` for this project.
 
 ```bash
 docker compose up --build
