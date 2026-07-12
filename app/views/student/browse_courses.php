@@ -11,11 +11,11 @@ $user = Auth::user();
 $studentId = (int) ($user['id'] ?? 0);
 $courses = [];
 
-$sql = "
+$stmt = $conn->prepare("
     SELECT
         c.id, c.title, c.slug, c.short_description, c.thumbnail, c.price,
         c.level, c.duration, c.language, cat.name AS category_name,
-        u.full_name AS instructor_name,
+        instructor.full_name AS instructor_name,
         EXISTS(
             SELECT 1 FROM enrollments e
             WHERE e.student_id = ? AND e.course_id = c.id AND e.status = 'active'
@@ -32,24 +32,21 @@ $sql = "
          FROM enrollments active_enrollment
          WHERE active_enrollment.course_id = c.id AND active_enrollment.status = 'active') AS student_count
     FROM courses c
-    INNER JOIN users u ON u.id = c.instructor_id
-    LEFT JOIN categories cat ON cat.id = c.category_id
+    INNER JOIN users instructor ON instructor.id = c.instructor_id
+    INNER JOIN categories cat ON cat.id = c.category_id
     WHERE c.status = 'published'
+      AND instructor.role = 'instructor'
+      AND instructor.status = 'active'
+      AND cat.is_active = 1
     ORDER BY c.created_at DESC, c.id DESC
-";
-
-$stmt = $conn->prepare($sql);
-if ($stmt) {
-    $stmt->bind_param('ii', $studentId, $studentId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    while ($result && $row = $result->fetch_assoc()) {
-        $courses[] = $row;
-    }
-
-    $stmt->close();
+");
+$stmt->bind_param('ii', $studentId, $studentId);
+$stmt->execute();
+$result = $stmt->get_result();
+while ($result && $row = $result->fetch_assoc()) {
+    $courses[] = $row;
 }
+$stmt->close();
 
 function student_browse_h(mixed $value): string
 {
@@ -69,19 +66,23 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
                 <div>
                     <p class="dashboard-subtitle">Student marketplace</p>
                     <h1>Browse published courses</h1>
-                    <p>Choose an admin-approved course, add it to your cart, complete checkout, and receive lifetime access after payment verification.</p>
+                    <p>Choose an approved course from an active instructor, add it to your cart, complete checkout, and receive lifetime access after payment verification.</p>
                 </div>
                 <a class="btn btn-secondary" href="cart.php">Open cart</a>
             </header>
 
             <?php if (isset($_GET['added'])): ?>
                 <div class="alert alert-success">Course added to your cart.</div>
+            <?php elseif (isset($_GET['cart_error'])): ?>
+                <div class="alert alert-error">The course could not be added to your cart. Refresh and try again.</div>
+            <?php elseif (isset($_GET['notfound']) || isset($_GET['invalid'])): ?>
+                <div class="alert alert-warning">That course is no longer available for purchase.</div>
             <?php endif; ?>
 
-            <?php if (!$courses): ?>
+            <?php if ($courses === []): ?>
                 <div class="empty-state">
                     <h3>No published courses yet</h3>
-                    <p>Courses appear here only after an instructor submits them and admin approves publication.</p>
+                    <p>Courses appear here only after admin approval while the instructor and category remain active.</p>
                 </div>
             <?php else: ?>
                 <div class="student-course-grid" data-page-size="12">
