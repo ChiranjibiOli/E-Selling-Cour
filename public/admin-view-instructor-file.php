@@ -1,99 +1,73 @@
 <?php
 
+declare(strict_types=1);
+
 require_once '../app/middleware/AdminMiddleware.php';
 require_once '../app/config/database.php';
 
 AdminMiddleware::handle();
 
-$instructorId = isset($_GET['id']) ? (int) $_GET['id'] : 0;
-$type = $_GET['type'] ?? '';
+$instructorId = (int) ($_GET['id'] ?? 0);
+$type = (string) ($_GET['type'] ?? '');
 
-if ($instructorId <= 0) {
+if ($instructorId <= 0 || !in_array($type, ['document', 'profile'], true)) {
     http_response_code(400);
-    exit('Invalid request: instructor id is missing.');
+    exit('Invalid file request.');
 }
 
-if ($type !== 'document' && $type !== 'profile') {
-    http_response_code(400);
-    exit('Invalid request: file type is missing.');
-}
-
-$sql = "
+$stmt = $conn->prepare("
     SELECT profile_image, identity_document
     FROM users
     WHERE id = ? AND role = 'instructor'
     LIMIT 1
-";
-
-$stmt = $conn->prepare($sql);
-
-if (!$stmt) {
-    http_response_code(500);
-    exit('Database query error.');
-}
-
-$stmt->bind_param("i", $instructorId);
+");
+$stmt->bind_param('i', $instructorId);
 $stmt->execute();
-
-$result = $stmt->get_result();
-
-if (!$result || $result->num_rows !== 1) {
-    http_response_code(404);
-    exit('Instructor not found.');
-}
-
-$instructor = $result->fetch_assoc();
+$instructor = $stmt->get_result()->fetch_assoc() ?: null;
 $stmt->close();
 
+if (!$instructor) {
+    http_response_code(404);
+    exit('Instructor file not found.');
+}
+
 if ($type === 'document') {
-    $fileName = $instructor['identity_document'] ?? '';
-
+    $fileName = (string) ($instructor['identity_document'] ?? '');
     $possibleFolders = [
-        __DIR__ . '/../storage/private_uploads/instructor_documents/',
-        __DIR__ . '/assets/uploads/instructor_documents/',
-        __DIR__ . '/assets/uploads/identity_documents/'
+        __DIR__ . '/../storage/private_uploads/instructor_documents',
+        __DIR__ . '/assets/uploads/instructor_documents',
+        __DIR__ . '/assets/uploads/identity_documents',
     ];
+    $allowedMimeTypes = ['image/jpeg', 'image/png', 'application/pdf'];
+    $fallbackName = 'instructor-document';
 } else {
-    $fileName = $instructor['profile_image'] ?? '';
-
+    $fileName = (string) ($instructor['profile_image'] ?? '');
     $possibleFolders = [
-        __DIR__ . '/../storage/private_uploads/profile_photos/',
-        __DIR__ . '/assets/uploads/profile_photos/',
-        __DIR__ . '/assets/uploads/profiles/'
+        __DIR__ . '/../storage/private_uploads/profile_photos',
+        __DIR__ . '/assets/uploads/profile_photos',
+        __DIR__ . '/assets/uploads/profiles',
     ];
+    $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    $fallbackName = 'instructor-profile-photo';
 }
 
-if ($fileName === '') {
-    http_response_code(404);
-    exit('File name is empty in database.');
-}
-
-$fileName = basename($fileName);
 $filePath = Security::resolveStoredFile($fileName, $possibleFolders);
-
-if (!$filePath || !file_exists($filePath)) {
+if ($filePath === null) {
     http_response_code(404);
-    exit('File not found: ' . htmlspecialchars($fileName));
+    exit('Instructor file not found.');
 }
 
-$mimeType = mime_content_type($filePath);
-
-$allowedMimeTypes = [
-    'image/jpeg',
-    'image/png',
-    'image/jpg',
-    'application/pdf'
-];
-
+$mimeType = Security::detectMimeType($filePath);
 if (!in_array($mimeType, $allowedMimeTypes, true)) {
     http_response_code(403);
-    exit('Unsupported file type: ' . htmlspecialchars($mimeType));
+    exit('Unsupported instructor file type.');
 }
 
+$downloadName = Security::safeDownloadName($fileName, $fallbackName);
 header('Content-Type: ' . $mimeType);
-header('Content-Length: ' . filesize($filePath));
-header('Content-Disposition: inline; filename="' . basename($fileName) . '"');
+header('Content-Length: ' . (string) filesize($filePath));
+header('Content-Disposition: inline; filename="' . $downloadName . '"');
 header('Cache-Control: private, no-store, max-age=0');
-
+header('X-Content-Type-Options: nosniff');
 readfile($filePath);
 exit;
