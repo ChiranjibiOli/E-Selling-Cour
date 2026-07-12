@@ -54,11 +54,73 @@
         });
     };
 
+    const initializePreviewScrollSync = () => {
+        const preview = document.querySelector(".course-studio-page .preview-sticky");
+
+        if (!preview || preview.dataset.pageScrollSync === "1") {
+            return;
+        }
+
+        preview.dataset.pageScrollSync = "1";
+
+        const desktopQuery = window.matchMedia("(min-width: 1281px)");
+        let lastPageScroll = window.scrollY;
+        let framePending = false;
+
+        const clampPreviewScroll = (value) => {
+            const maximum = Math.max(0, preview.scrollHeight - preview.clientHeight);
+            return Math.min(maximum, Math.max(0, value));
+        };
+
+        const syncPreviewWithPage = () => {
+            const currentPageScroll = window.scrollY;
+            const pageDelta = currentPageScroll - lastPageScroll;
+            lastPageScroll = currentPageScroll;
+            framePending = false;
+
+            if (!desktopQuery.matches) {
+                preview.scrollTop = 0;
+                return;
+            }
+
+            if (Math.abs(pageDelta) < 0.5) {
+                return;
+            }
+
+            preview.scrollTop = clampPreviewScroll(preview.scrollTop + pageDelta);
+        };
+
+        const requestPreviewSync = () => {
+            if (framePending) {
+                return;
+            }
+
+            framePending = true;
+            window.requestAnimationFrame(syncPreviewWithPage);
+        };
+
+        window.addEventListener("scroll", requestPreviewSync, { passive: true });
+        window.addEventListener("resize", () => {
+            lastPageScroll = window.scrollY;
+
+            if (!desktopQuery.matches) {
+                preview.scrollTop = 0;
+            } else {
+                preview.scrollTop = clampPreviewScroll(preview.scrollTop);
+            }
+        }, { passive: true });
+    };
+
+    const initializeEnhancements = () => {
+        initializeHeroControls();
+        initializePreviewScrollSync();
+    };
+
     const originalScript = document.createElement("script");
     originalScript.src = "assets/js/instructor_create_course_original.js?v=1";
     originalScript.async = false;
     originalScript.addEventListener("load", () => {
-        initializeHeroControls();
+        initializeEnhancements();
 
         if (document.readyState !== "loading") {
             document.dispatchEvent(new Event("DOMContentLoaded"));
@@ -67,8 +129,8 @@
     document.head.appendChild(originalScript);
 
     if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", initializeHeroControls, { once: true });
+        document.addEventListener("DOMContentLoaded", initializeEnhancements, { once: true });
     } else {
-        initializeHeroControls();
+        initializeEnhancements();
     }
 })();
