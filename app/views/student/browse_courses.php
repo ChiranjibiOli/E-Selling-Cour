@@ -60,7 +60,7 @@ $pageTitle = 'Browse courses';
 require_once __DIR__ . '/../layouts/header.php';
 require_once __DIR__ . '/../layouts/student_navbar.php';
 ?>
-<link rel="stylesheet" href="assets/css/pages/student/browse-courses.css?v=2">
+<link rel="stylesheet" href="assets/css/pages/student/browse-courses.css?v=3">
 
 <main class="student-page student-browse-page">
     <section class="student-section">
