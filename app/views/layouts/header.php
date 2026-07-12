@@ -45,10 +45,10 @@ $documentTitle = isset($pageTitle) && trim((string) $pageTitle) !== ''
             <link rel="stylesheet" href="assets/css/navbars/admin-navbar.css?v=12">
         <?php endif; ?>
 
-        <link rel="stylesheet" href="assets/css/panel-editorial.css?v=3" data-panel-style="panel-editorial">
-        <link rel="stylesheet" href="assets/css/panel-navigation.css?v=2" data-panel-style="panel-navigation">
-        <link rel="stylesheet" href="assets/css/panel-sections.css?v=2" data-panel-style="panel-sections">
-        <link rel="stylesheet" href="assets/css/panel-final.css?v=1" data-panel-style="panel-final">
+        <link rel="stylesheet" href="assets/css/panel-editorial.css?v=4" data-panel-style="panel-editorial">
+        <link rel="stylesheet" href="assets/css/panel-navigation.css?v=3" data-panel-style="panel-navigation">
+        <link rel="stylesheet" href="assets/css/panel-sections.css?v=3" data-panel-style="panel-sections">
+        <link rel="stylesheet" href="assets/css/panel-final.css?v=2" data-panel-style="panel-final">
     <?php endif; ?>
 
     <style>
@@ -88,7 +88,7 @@ $documentTitle = isset($pageTitle) && trim((string) $pageTitle) !== ''
     <script src="assets/js/main.js?v=12" defer></script>
     <script src="assets/js/auth.js?v=12" defer></script>
     <?php if ($usesPanelLayout): ?>
-        <script src="assets/js/panel.js?v=14" defer></script>
+        <script src="assets/js/panel.js?v=15" defer></script>
     <?php endif; ?>
 </head>
 <body id="main-content" class="<?php echo $usesPanelLayout ? 'authenticated-panel' : 'public-site'; ?>">
