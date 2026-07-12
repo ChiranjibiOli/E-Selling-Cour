@@ -5,7 +5,7 @@
  * Create Course desktop scrolling
  * --------------------------------
  * Navbar: top 14px + height 68px = bottom edge at 82px.
- * The left panel stops 8px below it; the right preview stops 10px below it.
+ * The left panel stops 8px below it; the right preview is fixed 10px below it.
  * The middle form remains fully expanded so every section is visible.
  */
 
@@ -18,7 +18,7 @@ body:has(.course-studio-page) {
   scrollbar-gutter: stable;
 }
 
-/* Sticky positioning must not be trapped by a clipped vertical ancestor. */
+/* Prevent transformed or contained ancestors from trapping the fixed preview. */
 .course-studio-page,
 .course-studio-page .course-studio-shell,
 .course-studio-page .studio-workspace {
@@ -29,7 +29,7 @@ body:has(.course-studio-page) {
   transform: none !important;
 }
 
-/* Reset older rules before applying the wide desktop layout. */
+/* Reset older scroll and positioning overrides before the desktop model. */
 .course-studio-page .studio-workspace,
 .course-studio-page .studio-rail,
 .course-studio-page .preview-column,
@@ -37,7 +37,9 @@ body:has(.course-studio-page) {
 .course-studio-page .studio-form,
 .course-studio-page .studio-submit-bar {
   top: auto;
+  right: auto;
   bottom: auto;
+  left: auto;
   overscroll-behavior: auto;
   will-change: auto;
 }
@@ -50,7 +52,7 @@ body:has(.course-studio-page) {
     overflow: visible !important;
   }
 
-  /* Left workflow stops 8px below the fixed navbar. */
+  /* Left workflow remains sticky below the fixed navbar. */
   .course-studio-page .studio-rail {
     position: sticky !important;
     top: 90px !important;
@@ -62,30 +64,35 @@ body:has(.course-studio-page) {
   }
 
   /*
-   * Keep the right preview locked 10px below the navbar.
-   * Because the preview is taller than some browser windows, constrain it to the
-   * available viewport and let only its own contents scroll instead of allowing
-   * the whole block to be pushed underneath the navbar.
+   * The preview is truly viewport-fixed, not sticky inside the workspace.
+   * The third grid column remains reserved, so the form never expands under it.
+   * Its right edge follows the centered 1440px studio shell.
    */
   .course-studio-page .preview-column {
-    position: sticky !important;
+    position: fixed !important;
     top: 92px !important;
-    align-self: start !important;
+    right: 18px !important;
+    right: max(18px, calc((100vw - 1440px) / 2)) !important;
+    bottom: 14px !important;
+    left: auto !important;
+    width: 360px !important;
     height: auto !important;
-    max-height: calc(100vh - 102px) !important;
-    max-height: calc(100dvh - 102px) !important;
     min-height: 0 !important;
+    max-height: none !important;
     overflow: hidden !important;
-    z-index: 10;
+    z-index: 40;
   }
 
   .course-studio-page .preview-sticky {
     position: static !important;
     top: auto !important;
-    height: auto !important;
-    max-height: calc(100vh - 102px) !important;
-    max-height: calc(100dvh - 102px) !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: 100% !important;
+    height: 100% !important;
     min-height: 0 !important;
+    max-height: none !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
     overscroll-behavior-y: contain !important;
@@ -130,6 +137,10 @@ body:has(.course-studio-page) {
   .course-studio-page .studio-form {
     position: static !important;
     top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: auto !important;
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
