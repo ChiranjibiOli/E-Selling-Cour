@@ -70,6 +70,7 @@ foreach ($hostCandidates as $host) {
         $candidate->query('SELECT 1');
 
         $conn = $candidate;
+        $GLOBALS['conn'] = $candidate;
         defined('DB_HOST_NAME') || define('DB_HOST_NAME', $host);
         defined('DB_PORT_NUMBER') || define('DB_PORT_NUMBER', 3307);
         defined('DB_DATABASE_NAME') || define('DB_DATABASE_NAME', 'coursehub');
@@ -116,3 +117,18 @@ if (!$conn instanceof mysqli) {
 
     exit('The service is temporarily unavailable. Please try again later.');
 }
+
+if (!function_exists('database_connection')) {
+    function database_connection(): mysqli
+    {
+        $connection = $GLOBALS['conn'] ?? null;
+
+        if (!$connection instanceof mysqli) {
+            throw new RuntimeException('The coursehub database connection is not available.');
+        }
+
+        return $connection;
+    }
+}
+
+return $conn;
