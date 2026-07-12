@@ -104,6 +104,29 @@ if (!function_exists('profile_delete_photo_file')) {
     }
 }
 
+if (!function_exists('profile_detect_image_mime')) {
+    function profile_detect_image_mime(string $tmpName, array $imageInfo): string
+    {
+        $mime = isset($imageInfo['mime']) && is_string($imageInfo['mime'])
+            ? strtolower($imageInfo['mime'])
+            : '';
+
+        if (class_exists('finfo')) {
+            try {
+                $detector = new finfo(FILEINFO_MIME_TYPE);
+                $detected = $detector->file($tmpName);
+                if (is_string($detected) && $detected !== '') {
+                    $mime = strtolower($detected);
+                }
+            } catch (Throwable $exception) {
+                error_log('Profile MIME detection fallback used: ' . $exception->getMessage());
+            }
+        }
+
+        return $mime;
+    }
+}
+
 if (!function_exists('profile_upload_photo')) {
     function profile_upload_photo(array $file, array &$errors): ?string
     {
@@ -150,14 +173,14 @@ if (!function_exists('profile_upload_photo')) {
             return null;
         }
 
-        $mime = (new finfo(FILEINFO_MIME_TYPE))->file($tmpName);
+        $mime = profile_detect_image_mime($tmpName, $imageInfo);
         $allowed = [
             'image/jpeg' => 'jpg',
             'image/png' => 'png',
             'image/webp' => 'webp',
         ];
 
-        if (!is_string($mime) || !isset($allowed[$mime])) {
+        if (!isset($allowed[$mime])) {
             $errors[] = 'The profile photo must contain a genuine JPG, PNG, or WebP image.';
             return null;
         }
@@ -168,7 +191,19 @@ if (!function_exists('profile_upload_photo')) {
             return null;
         }
 
-        $fileName = bin2hex(random_bytes(24)) . '.' . $allowed[$mime];
+        if (!is_writable($directory)) {
+            $errors[] = 'The profile photo directory is not writable.';
+            return null;
+        }
+
+        try {
+            $fileName = bin2hex(random_bytes(24)) . '.' . $allowed[$mime];
+        } catch (Throwable $exception) {
+            error_log('Profile filename generation failed: ' . $exception->getMessage());
+            $errors[] = 'The profile photo could not be prepared for storage.';
+            return null;
+        }
+
         $destination = $directory . DIRECTORY_SEPARATOR . $fileName;
 
         if (!move_uploaded_file($tmpName, $destination)) {
