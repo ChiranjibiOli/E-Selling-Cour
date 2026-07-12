@@ -88,7 +88,7 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
                 <h1>Hello, <?php echo student_dashboard_h($user['full_name'] ?? 'Student'); ?></h1>
                 <p>Continue purchased courses, monitor payment reviews, and discover newly approved courses from one clean dashboard.</p>
             </div>
-            <a class="browse-button" href="courses.php">Browse approved courses</a>
+            <a class="browse-button" href="student-browse-courses.php">Browse approved courses</a>
         </header>
 
         <div class="student-metrics">
@@ -121,7 +121,7 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
         </section>
 
         <section class="learning-section">
-            <div class="learning-section-head"><h2>New approved courses</h2><a href="courses.php">Explore marketplace</a></div>
+            <div class="learning-section-head"><h2>New approved courses</h2><a href="student-browse-courses.php">Explore marketplace</a></div>
             <?php if (!$recommended): ?>
                 <div class="empty-learning">No new recommendations right now.</div>
             <?php else: ?>
