@@ -1,12 +1,17 @@
 -- Read-only preflight for the 2026-07-12 security migrations.
 -- Run this first. Every result set should be empty before applying constraints/triggers.
 
--- Duplicate payment references would block the unique transaction constraint.
+-- Duplicate payment references, including repeated empty strings, would block the unique constraint.
 SELECT transaction_id, COUNT(*) AS duplicate_count
 FROM payments
-WHERE transaction_id IS NOT NULL AND TRIM(transaction_id) <> ''
+WHERE transaction_id IS NOT NULL
 GROUP BY transaction_id
 HAVING COUNT(*) > 1;
+
+-- Empty transaction references should be corrected before the unique constraint is installed.
+SELECT id AS payment_id, order_id, transaction_id
+FROM payments
+WHERE transaction_id IS NULL OR TRIM(transaction_id) = '';
 
 -- More than one payout for the same withdrawal request.
 SELECT withdrawal_request_id, COUNT(*) AS duplicate_count
