@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 require_once __DIR__ . '/../../middleware/StudentMiddleware.php';
 require_once __DIR__ . '/../../config/database.php';
 
@@ -55,37 +57,38 @@ if ($pendingStmt) {
     $pendingStmt->close();
 }
 
-function h($value)
+function student_library_h(mixed $value): string
 {
-    return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
-}
-function level_label($level)
-{
-    return ucfirst((string) $level);
+    return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
+$pageTitle = 'My courses';
 require_once __DIR__ . '/../layouts/header.php';
 require_once __DIR__ . '/../layouts/student_navbar.php';
 ?>
 
 <main class="student-my-courses-page">
     <section class="student-my-courses-wrapper">
-        <div class="my-courses-header">
+        <header class="my-courses-header">
             <div>
-                <p class="page-label">Student Panel</p>
+                <p class="page-label">Student learning library</p>
                 <h1>My Courses</h1>
-                <p>Courses appear here only after admin verifies your payment and activates your enrollment.</p>
+                <p>Only courses with an active enrollment appear here after admin verifies the related order payment.</p>
             </div>
-        </div>
+            <a class="browse-btn" href="student-browse-courses.php">Browse courses</a>
+        </header>
 
         <?php if ($pendingOrders): ?>
             <div class="pending-orders-box">
                 <h2>Pending Payment Verification</h2>
-                <p>These orders are waiting for admin approval.</p>
+                <p>These orders have been created but are still waiting for admin payment review.</p>
                 <div class="pending-order-list">
                     <?php foreach ($pendingOrders as $order): ?>
                         <div class="pending-order-card">
-                            <div><strong>Order #<?php echo (int) $order['order_id']; ?></strong><p><?php echo h($order['course_titles']); ?></p></div>
+                            <div>
+                                <strong>Order #<?php echo (int) $order['order_id']; ?></strong>
+                                <p><?php echo student_library_h($order['course_titles']); ?></p>
+                            </div>
                             <span>Rs. <?php echo number_format((float) $order['final_amount'], 2); ?></span>
                         </div>
                     <?php endforeach; ?>
@@ -97,18 +100,22 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
             <div class="empty-my-courses-box">
                 <div class="empty-icon">No courses</div>
                 <h2>No active courses yet</h2>
-                <p>If you already submitted payment proof, wait for admin verification. After admin verifies payment, your course will appear here.</p>
-                <a href="courses.php" class="browse-btn">Browse Courses</a>
+                <p>Choose a course in Student Browse, complete checkout, and wait for admin payment verification.</p>
+                <a href="student-browse-courses.php" class="browse-btn">Browse Courses</a>
             </div>
         <?php else: ?>
-            <div class="my-courses-grid">
+            <div class="my-courses-grid" data-page-size="12">
                 <?php foreach ($myCourses as $course): ?>
                     <?php
                     $thumbnail = basename((string) ($course['thumbnail'] ?? ''));
-                    $thumbnailPath = $thumbnail !== '' ? 'assets/uploads/course_thumbnails/' . rawurlencode($thumbnail) : 'assets/images/course-placeholder.svg';
+                    $thumbnailPath = $thumbnail !== ''
+                        ? 'assets/uploads/course_thumbnails/' . rawurlencode($thumbnail)
+                        : 'assets/images/course-placeholder.svg';
+
                     if ($thumbnail !== '' && !is_file(PUBLIC_PATH . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $thumbnailPath))) {
                         $thumbnailPath = 'assets/images/course-placeholder.svg';
                     }
+
                     $learningUrl = 'student-course-view.php?course_id=' . (int) $course['course_id'];
                     $courseCard = [
                         'context' => 'student',
@@ -116,14 +123,15 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
                         'summary' => $course['short_description'] ?: 'No description added.',
                         'thumbnail' => $thumbnailPath,
                         'category' => $course['category_name'] ?: 'General',
-                        'badge' => level_label($course['level']),
+                        'badge' => ucfirst((string) $course['level']),
                         'eyebrow' => 'By ' . $course['instructor_name'],
                         'language' => $course['language'] ?: 'Language not set',
                         'duration' => $course['duration'] ?: 'Self-paced',
                         'price' => ucfirst((string) $course['access_type']) . ' access',
                         'href' => $learningUrl,
+                        'rating_label' => 'Enrolled',
                         'metrics' => [
-                            ['label' => 'Lessons', 'value' => (string) ((int) $course['lesson_count'])],
+                            ['label' => 'Lessons', 'value' => (string) (int) $course['lesson_count']],
                             ['label' => 'Enrolled', 'value' => !empty($course['granted_at']) ? date('M d, Y', strtotime((string) $course['granted_at'])) : 'Recently'],
                         ],
                         'actions' => [
