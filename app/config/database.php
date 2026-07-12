@@ -98,10 +98,21 @@ if (!$conn instanceof mysqli) {
 
     http_response_code(503);
 
-    if (APP_DEBUG) {
+    if (APP_DEBUG || PHP_SAPI === 'cli') {
+        $attemptText = implode(', ', $connectionAttempts);
+
+        if (PHP_SAPI === 'cli') {
+            exit(
+                'Database connection failed on port 3307.' . PHP_EOL
+                . 'Checked: ' . $attemptText . PHP_EOL
+                . 'Last error: ' . $technicalMessage . PHP_EOL
+                . 'Confirm MySQL is running on 3307 and verify DB_DATABASE, DB_USERNAME, and DB_PASSWORD.' . PHP_EOL
+            );
+        }
+
         exit(
             'Database connection failed on port 3307. Checked: '
-            . htmlspecialchars(implode(', ', $connectionAttempts), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
+            . htmlspecialchars($attemptText, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8')
             . '. Confirm MySQL is running on 3307 and verify DB_DATABASE, DB_USERNAME, and DB_PASSWORD.'
         );
     }
