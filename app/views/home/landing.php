@@ -65,11 +65,21 @@ $demoCourses = $featuredCourses ?: [
 ];
 ?>
 <link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=14">
-<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=16">
+<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=17">
 <link rel="stylesheet" href="assets/css/components/footer.css?v=10">
 
 <style>
-.magic-learning-demo{position:relative;min-height:520px;display:grid;place-items:center;overflow:visible}.magic-cart{position:absolute;top:70px;left:50%;width:92px;height:92px;display:grid;place-items:center;transform:translateX(-50%);border:0;background:transparent;color:#171511;z-index:5}.magic-cart svg{width:70px;height:70px;filter:drop-shadow(0 12px 20px rgba(23,21,17,.14))}.magic-finger{position:absolute;top:28px;left:calc(50% - 122px);font-size:3.1rem;transform:rotate(18deg);animation:fingerFloat 2.2s ease-in-out infinite;z-index:6}.magic-cursor{position:absolute;top:270px;left:18%;width:34px;height:42px;z-index:20;filter:drop-shadow(0 5px 5px rgba(0,0,0,.25));transition:top 1.1s cubic-bezier(.2,.85,.2,1),left 1.1s cubic-bezier(.2,.85,.2,1),transform .18s ease}.magic-cursor svg{width:100%;height:100%}.magic-learning-demo.is-targeting .magic-cursor{top:105px;left:58%}.magic-learning-demo.is-clicking .magic-cursor{transform:scale(.78)}.magic-learning-demo.is-clicking .magic-cart{animation:cartClick .38s ease}.magic-burst{position:absolute;top:116px;left:50%;width:14px;height:14px;opacity:0;transform:translate(-50%,-50%);border-radius:50%;box-shadow:0 -70px 0 #d39b3a,58px -38px 0 #6b5bd2,70px 20px 0 #d86a69,34px 68px 0 #55a678,-35px 68px 0 #e0b84c,-70px 14px 0 #5a83c6,-56px -42px 0 #b66bd0}.magic-learning-demo.is-magic .magic-burst{animation:magicBurst .8s ease-out forwards}.magic-book{position:absolute;top:175px;left:50%;width:280px;height:190px;opacity:0;transform:translateX(-50%) scale(.18) rotate(-12deg);transform-origin:center bottom;transition:opacity .25s ease,transform .8s cubic-bezier(.18,.9,.2,1.2);perspective:1000px;z-index:8}.magic-learning-demo.is-book .magic-book{opacity:1;transform:translateX(-50%) scale(1) rotate(0)}.book-half{position:absolute;top:0;width:50%;height:100%;background:#fff9eb;box-shadow:0 22px 50px rgba(34,25,12,.18);overflow:hidden}.book-left{left:0;border-radius:22px 4px 4px 22px;transform:rotateY(8deg)}.book-right{right:0;border-radius:4px 22px 22px 4px;transform:rotateY(-8deg)}.book-half::before{content:"";position:absolute;inset:18px 16px;background:repeating-linear-gradient(to bottom,#d7ccb9 0 2px,transparent 2px 19px);opacity:.72}.book-spine{position:absolute;left:50%;top:3px;width:4px;height:184px;transform:translateX(-50%);border-radius:999px;background:#b79d73;z-index:3}.book-page{position:absolute;top:0;left:50%;width:50%;height:100%;transform-origin:left center;background:#fffdf6;border-radius:3px 20px 20px 3px;box-shadow:0 14px 30px rgba(34,25,12,.16);z-index:4}.magic-learning-demo.is-flipping .book-page{animation:pageFlip 1.25s cubic-bezier(.4,0,.2,1) forwards}.course-sheet{position:absolute;top:240px;left:50%;width:min(330px,84%);padding:18px 20px;opacity:0;transform:translate(-50%,36px) scale(.86);border-radius:20px;background:rgba(255,255,255,.97);box-shadow:0 24px 60px rgba(30,23,14,.18);z-index:12;transition:opacity .45s ease,transform .65s cubic-bezier(.2,.9,.2,1)}.magic-learning-demo.is-sheet .course-sheet{opacity:1;transform:translate(-50%,0) scale(1)}.course-sheet small{display:block;margin-bottom:10px;color:#9a6e23;font-size:.65rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase}.course-sheet ul{display:grid;gap:10px;margin:0;padding:0;list-style:none}.course-sheet li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#f6f0e6;color:#2c2822;font-size:.76rem;font-weight:850}.course-sheet li::before{content:'✦';color:#b9832f}.magic-caption{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);color:#72685d;font-size:.72rem;font-weight:800;white-space:nowrap}.magic-replay{position:absolute;right:18px;bottom:18px;border:0;background:transparent;color:#9a6e23;font-size:.68rem;font-weight:900;cursor:pointer}@keyframes fingerFloat{50%{transform:translateY(-8px) rotate(18deg)}}@keyframes cartClick{50%{transform:translateX(-50%) scale(.82)}}@keyframes magicBurst{0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}35%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.45)}}@keyframes pageFlip{0%{transform:rotateY(0)}48%{transform:rotateY(-95deg)}100%{transform:rotateY(-178deg)}}@media(max-width:620px){.magic-learning-demo{min-height:430px}.magic-cart{top:48px}.magic-finger{top:16px;left:calc(50% - 100px);font-size:2.6rem}.magic-book{top:150px;width:240px;height:165px}.book-spine{height:160px}.course-sheet{top:214px}.magic-caption{bottom:12px}.magic-learning-demo.is-targeting .magic-cursor{top:84px;left:62%}}@media(prefers-reduced-motion:reduce){.magic-finger{animation:none}.magic-cursor,.magic-book,.course-sheet{transition:none}.magic-learning-demo .magic-book,.magic-learning-demo .course-sheet{opacity:1;transform:translateX(-50%) scale(1)}}
+.magic-learning-demo{position:relative;min-height:520px;overflow:hidden}.magic-cart{position:absolute;top:74px;left:50%;width:86px;height:86px;display:grid;place-items:center;transform:translateX(-50%);border:0;background:transparent;color:#171511;z-index:6}.magic-cart svg{width:68px;height:68px;filter:drop-shadow(0 12px 20px rgba(23,21,17,.14))}.magic-finger{position:absolute;top:24px;left:calc(50% - 118px);font-size:3rem;z-index:7;animation:fingerFloat 2s ease-in-out infinite}.magic-cursor{position:absolute;top:300px;left:16%;width:34px;height:42px;z-index:20;filter:drop-shadow(0 5px 5px rgba(0,0,0,.25));opacity:0}.magic-cursor svg{width:100%;height:100%}.magic-burst{position:absolute;top:116px;left:50%;width:14px;height:14px;transform:translate(-50%,-50%);border-radius:50%;opacity:0;box-shadow:0 -70px 0 #d39b3a,58px -38px 0 #6b5bd2,70px 20px 0 #d86a69,34px 68px 0 #55a678,-35px 68px 0 #e0b84c,-70px 14px 0 #5a83c6,-56px -42px 0 #b66bd0}.magic-book{position:absolute;top:176px;left:50%;width:280px;height:190px;transform:translateX(-50%) scale(.2) rotate(-10deg);opacity:0;perspective:1000px;z-index:8}.book-half{position:absolute;top:0;width:50%;height:100%;background:#fff9eb;box-shadow:0 22px 50px rgba(34,25,12,.18);overflow:hidden}.book-left{left:0;border-radius:22px 4px 4px 22px;transform:rotateY(8deg)}.book-right{right:0;border-radius:4px 22px 22px 4px;transform:rotateY(-8deg)}.book-half::before{content:"";position:absolute;inset:18px 16px;background:repeating-linear-gradient(to bottom,#d7ccb9 0 2px,transparent 2px 19px);opacity:.72}.book-spine{position:absolute;left:50%;top:3px;width:4px;height:184px;transform:translateX(-50%);border-radius:999px;background:#b79d73;z-index:3}.book-page{position:absolute;top:0;left:50%;width:50%;height:100%;transform-origin:left center;background:#fffdf6;border-radius:3px 20px 20px 3px;box-shadow:0 14px 30px rgba(34,25,12,.16);z-index:4}.course-sheet{position:absolute;top:242px;left:50%;width:min(330px,84%);padding:18px 20px;transform:translate(-50%,44px) scale(.84);opacity:0;border-radius:20px;background:rgba(255,255,255,.98);box-shadow:0 24px 60px rgba(30,23,14,.18);z-index:12}.course-sheet small{display:block;margin-bottom:10px;color:#9a6e23;font-size:.65rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase}.course-sheet ul{display:grid;gap:10px;margin:0;padding:0;list-style:none}.course-sheet li{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:#f6f0e6;color:#2c2822;font-size:.76rem;font-weight:850}.course-sheet li::before{content:'✦';color:#b9832f}.magic-caption{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);color:#72685d;font-size:.72rem;font-weight:800;white-space:nowrap}.magic-replay{position:absolute;right:18px;bottom:16px;border:0;background:transparent;color:#9a6e23;font-size:.68rem;font-weight:900;cursor:pointer;z-index:30}
+.magic-learning-demo.is-running .magic-cursor{animation:cursorSequence 8s cubic-bezier(.2,.8,.2,1) both}.magic-learning-demo.is-running .magic-cart{animation:cartSequence 8s ease both}.magic-learning-demo.is-running .magic-burst{animation:burstSequence 8s ease-out both}.magic-learning-demo.is-running .magic-book{animation:bookSequence 8s cubic-bezier(.2,.85,.2,1) both}.magic-learning-demo.is-running .book-page{animation:pageSequence 8s cubic-bezier(.4,0,.2,1) both}.magic-learning-demo.is-running .course-sheet{animation:sheetSequence 8s cubic-bezier(.2,.9,.2,1) both}
+@keyframes fingerFloat{50%{transform:translateY(-8px) rotate(8deg)}}
+@keyframes cursorSequence{0%{top:300px;left:16%;opacity:0;transform:rotate(-15deg) scale(1)}6%{opacity:1}24%{top:106px;left:58%;opacity:1;transform:rotate(-7deg) scale(1)}29%{top:106px;left:58%;transform:rotate(-7deg) scale(.76)}34%{top:106px;left:58%;transform:rotate(-7deg) scale(1)}55%{opacity:1}68%,100%{opacity:0}}
+@keyframes cartSequence{0%,24%{transform:translateX(-50%) scale(1)}29%{transform:translateX(-50%) scale(.82)}34%{transform:translateX(-50%) scale(1)}46%{opacity:1}58%,100%{opacity:0}}
+@keyframes burstSequence{0%,28%{opacity:0;transform:translate(-50%,-50%) scale(.2)}34%{opacity:1}45%{opacity:0;transform:translate(-50%,-50%) scale(1.5)}100%{opacity:0}}
+@keyframes bookSequence{0%,34%{opacity:0;transform:translateX(-50%) scale(.2) rotate(-10deg)}45%{opacity:1;transform:translateX(-50%) scale(1.04) rotate(1deg)}51%,88%{opacity:1;transform:translateX(-50%) scale(1) rotate(0)}100%{opacity:0;transform:translateX(-50%) scale(.94)}}
+@keyframes pageSequence{0%,49%{transform:rotateY(0)}61%{transform:rotateY(-178deg)}88%,100%{transform:rotateY(-178deg)}}
+@keyframes sheetSequence{0%,58%{opacity:0;transform:translate(-50%,44px) scale(.84)}69%,88%{opacity:1;transform:translate(-50%,-8px) scale(1)}100%{opacity:0;transform:translate(-50%,-22px) scale(.97)}}
+@media(max-width:620px){.magic-learning-demo{min-height:430px}.magic-cart{top:48px}.magic-finger{top:10px;left:calc(50% - 96px);font-size:2.5rem}.magic-book{top:142px;width:238px;height:164px}.book-spine{height:158px}.course-sheet{top:205px}.magic-caption{bottom:10px}@keyframes cursorSequence{0%{top:285px;left:10%;opacity:0;transform:rotate(-15deg)}6%{opacity:1}24%{top:82px;left:62%;opacity:1;transform:rotate(-7deg) scale(1)}29%{top:82px;left:62%;transform:rotate(-7deg) scale(.76)}34%{top:82px;left:62%;transform:rotate(-7deg) scale(1)}55%{opacity:1}68%,100%{opacity:0}}}
+@media(prefers-reduced-motion:reduce){.magic-learning-demo.is-running .magic-cursor,.magic-learning-demo.is-running .magic-cart,.magic-learning-demo.is-running .magic-burst,.magic-learning-demo.is-running .magic-book,.magic-learning-demo.is-running .book-page,.magic-learning-demo.is-running .course-sheet{animation:none}.magic-book{opacity:1;transform:translateX(-50%) scale(1)}.course-sheet{opacity:1;transform:translate(-50%,-8px) scale(1)}}
 </style>
 
 <main class="landing-page">
@@ -169,28 +179,27 @@ $demoCourses = $featuredCourses ?: [
     const demo = document.getElementById('magicLearningDemo');
     const replay = document.getElementById('magicReplay');
     if (!demo || !replay) return;
-    let timers = [];
-    const later = (fn, delay) => timers.push(window.setTimeout(fn, delay));
-    function reset() {
-        timers.forEach(window.clearTimeout);
-        timers = [];
-        demo.classList.remove('is-targeting','is-clicking','is-magic','is-book','is-flipping','is-sheet');
+
+    let loopTimer = null;
+
+    function runAnimation() {
+        if (loopTimer) {
+            window.clearTimeout(loopTimer);
+        }
+
+        demo.classList.remove('is-running');
+        void demo.offsetWidth;
+        demo.classList.add('is-running');
+
+        loopTimer = window.setTimeout(runAnimation, 8200);
     }
-    function play() {
-        reset();
-        later(() => demo.classList.add('is-targeting'), 400);
-        later(() => demo.classList.add('is-clicking'), 1500);
-        later(() => { demo.classList.remove('is-clicking'); demo.classList.add('is-magic'); }, 1780);
-        later(() => demo.classList.add('is-book'), 2050);
-        later(() => demo.classList.add('is-flipping'), 2950);
-        later(() => demo.classList.add('is-sheet'), 3900);
-        later(play, 7600);
-    }
-    replay.addEventListener('click', play);
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        demo.classList.add('is-book','is-sheet');
+
+    replay.addEventListener('click', runAnimation);
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', runAnimation, { once: true });
     } else {
-        play();
+        runAnimation();
     }
 })();
 </script>
