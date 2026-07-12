@@ -8,6 +8,8 @@ $isLoggedIn = $currentUser !== null;
 $role = $currentUser['role'] ?? '';
 ?>
 
+<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=13">
+
 <?php if ($isLoggedIn): ?>
 <div class="logout-modal-overlay" id="logoutModal" role="dialog" aria-modal="true" aria-labelledby="logoutTitle">
     <div class="logout-modal-card">
@@ -17,7 +19,7 @@ $role = $currentUser['role'] ?? '';
         <div class="logout-modal-actions">
             <button type="button" class="cancel-logout-btn" id="cancelLogout">Cancel</button>
             <form action="logout.php" method="POST">
-                  <?php echo csrf_field(); ?>
+                <?php echo csrf_field(); ?>
                 <button type="submit" class="confirm-logout-btn">Log out</button>
             </form>
         </div>
