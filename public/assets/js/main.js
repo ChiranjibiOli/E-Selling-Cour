@@ -143,6 +143,138 @@ document.addEventListener("DOMContentLoaded", function () {
         wrapper.appendChild(table);
     });
 
+    function initializeCatalogPagination() {
+        const grids = document.querySelectorAll([
+            ".student-course-grid",
+            ".my-courses-grid",
+            ".course-library-grid",
+            ".review-page .review-grid",
+            ".cart-page .cart-items-list",
+            ".admin-orders-page .orders-grid"
+        ].join(","));
+
+        grids.forEach(function (grid, gridIndex) {
+            if (grid.dataset.paginationReady === "true") {
+                return;
+            }
+
+            const items = Array.from(grid.children).filter(function (item) {
+                return item.matches([
+                    ".course-unit-card",
+                    ".marketplace-card",
+                    ".student-course-card",
+                    ".cart-item-card",
+                    ".order-card"
+                ].join(","));
+            });
+
+            const pageSize = Math.max(1, Number.parseInt(grid.dataset.pageSize || "12", 10) || 12);
+            const totalPages = Math.ceil(items.length / pageSize);
+
+            grid.dataset.paginationReady = "true";
+
+            if (totalPages <= 1) {
+                return;
+            }
+
+            const nav = document.createElement("nav");
+            nav.className = "catalog-pagination";
+            nav.setAttribute("aria-label", "Catalog pages");
+            nav.dataset.paginationGrid = String(gridIndex);
+            grid.insertAdjacentElement("afterend", nav);
+
+            const url = new URL(window.location.href);
+            let currentPage = Math.min(
+                totalPages,
+                Math.max(1, Number.parseInt(url.searchParams.get("page") || "1", 10) || 1)
+            );
+
+            function visiblePageNumbers() {
+                if (totalPages <= 7) {
+                    return Array.from({ length: totalPages }, function (_, index) {
+                        return index + 1;
+                    });
+                }
+
+                const values = new Set([1, totalPages, currentPage - 1, currentPage, currentPage + 1]);
+                return Array.from(values)
+                    .filter(function (page) { return page >= 1 && page <= totalPages; })
+                    .sort(function (a, b) { return a - b; });
+            }
+
+            function updateUrl() {
+                const nextUrl = new URL(window.location.href);
+                if (currentPage === 1) {
+                    nextUrl.searchParams.delete("page");
+                } else {
+                    nextUrl.searchParams.set("page", String(currentPage));
+                }
+                window.history.replaceState({}, "", nextUrl);
+            }
+
+            function makeButton(label, page, disabled, current, ariaLabel) {
+                const button = document.createElement("button");
+                button.type = "button";
+                button.textContent = label;
+                button.disabled = disabled;
+                button.setAttribute("aria-label", ariaLabel || `Page ${page}`);
+
+                if (current) {
+                    button.setAttribute("aria-current", "page");
+                }
+
+                button.addEventListener("click", function () {
+                    if (disabled || page === currentPage) {
+                        return;
+                    }
+
+                    currentPage = page;
+                    render(true);
+                });
+
+                return button;
+            }
+
+            function render(shouldScroll) {
+                const start = (currentPage - 1) * pageSize;
+                const end = start + pageSize;
+
+                items.forEach(function (item, index) {
+                    const visible = index >= start && index < end;
+                    item.hidden = !visible;
+                    item.setAttribute("aria-hidden", visible ? "false" : "true");
+                });
+
+                nav.replaceChildren();
+                nav.appendChild(makeButton("‹", currentPage - 1, currentPage === 1, false, "Previous page"));
+
+                const pages = visiblePageNumbers();
+                pages.forEach(function (page, index) {
+                    if (index > 0 && page - pages[index - 1] > 1) {
+                        const ellipsis = document.createElement("span");
+                        ellipsis.textContent = "…";
+                        ellipsis.setAttribute("aria-hidden", "true");
+                        nav.appendChild(ellipsis);
+                    }
+
+                    nav.appendChild(makeButton(String(page), page, false, page === currentPage));
+                });
+
+                nav.appendChild(makeButton("›", currentPage + 1, currentPage === totalPages, false, "Next page"));
+                updateUrl();
+
+                if (shouldScroll) {
+                    const top = grid.getBoundingClientRect().top + window.scrollY - 112;
+                    window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+                }
+            }
+
+            render(false);
+        });
+    }
+
+    initializeCatalogPagination();
+
     document.querySelectorAll("form").forEach(function (form) {
         form.addEventListener("submit", function () {
             if (!form.checkValidity()) {
