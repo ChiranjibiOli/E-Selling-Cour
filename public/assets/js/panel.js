@@ -1,9 +1,10 @@
 "use strict";
 
 document.addEventListener("DOMContentLoaded", () => {
-    loadStylesheet("assets/css/panel-editorial.css?v=2", "panel-editorial");
-    loadStylesheet("assets/css/panel-navigation.css?v=1", "panel-navigation");
-    loadStylesheet("assets/css/panel-sections.css?v=1", "panel-sections");
+    loadStylesheet("assets/css/panel-editorial.css?v=3", "panel-editorial");
+    loadStylesheet("assets/css/panel-navigation.css?v=2", "panel-navigation");
+    loadStylesheet("assets/css/panel-sections.css?v=2", "panel-sections");
+    loadStylesheet("assets/css/panel-final.css?v=1", "panel-final");
 
     initializeNavigation();
     initializeConfirmations();
@@ -176,6 +177,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const fileInput = document.querySelector("[data-profile-photo-input]");
         const previewImage = document.querySelector("[data-profile-photo-preview]");
         const changeButtons = document.querySelectorAll("[data-photo-change]");
+
+        if (previewImage instanceof HTMLImageElement && previewImage.src.includes("course-placeholder.svg")) {
+            previewImage.src = "assets/images/profile-placeholder.svg";
+        }
 
         changeButtons.forEach((button) => {
             button.addEventListener("click", () => {
