@@ -56,3 +56,55 @@ body:has(.course-studio-page) {
 .course-studio-page .lesson-card {
   will-change: auto !important;
 }
+
+/* Desktop: scroll only the middle course form while the surrounding page stays stable. */
+@media (min-width: 1100px) {
+  .course-studio-page .studio-workspace {
+    align-items: start !important;
+  }
+
+  .course-studio-page .studio-form-column {
+    position: sticky !important;
+    top: 104px !important;
+    height: calc(100vh - 124px) !important;
+    max-height: calc(100vh - 124px) !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain !important;
+    scrollbar-gutter: stable;
+    scroll-behavior: smooth;
+    padding-right: 8px;
+  }
+
+  .course-studio-page .studio-form-column::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .course-studio-page .studio-form-column::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .course-studio-page .studio-form-column::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: rgba(15, 118, 110, .32);
+    background-clip: padding-box;
+  }
+
+  .course-studio-page .studio-form-column::-webkit-scrollbar-thumb:hover {
+    background: rgba(15, 118, 110, .5);
+    background-clip: padding-box;
+  }
+}
+
+/* Tablet and mobile keep one normal page scroll. */
+@media (max-width: 1099px) {
+  .course-studio-page .studio-form-column {
+    position: static !important;
+    top: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding-right: 0;
+  }
+}
