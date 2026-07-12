@@ -85,8 +85,17 @@
     margin-bottom: 8px;
 }
 
-/* Loaded after panel-modules.css, so this is the final grid authority. */
-.student-browse-page .student-course-grid,
+/*
+ * Student Browse is intentionally three columns on desktop.
+ * The public catalogue keeps its existing four-column desktop layout.
+ */
+.student-browse-page .student-course-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 18px !important;
+    align-items: stretch !important;
+}
+
 .public-course-catalog-page .student-course-grid {
     display: grid !important;
     grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
@@ -95,7 +104,6 @@
 }
 
 @media (max-width: 1180px) {
-    .student-browse-page .student-course-grid,
     .public-course-catalog-page .student-course-grid {
         grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     }
