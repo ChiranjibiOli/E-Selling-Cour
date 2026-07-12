@@ -6,7 +6,8 @@ SET setting_value = '20'
 WHERE setting_key = 'admin_commission_rate'
   AND (
       setting_value IS NULL
-      OR setting_value = ''
+      OR TRIM(setting_value) = ''
+      OR TRIM(setting_value) NOT REGEXP '^[0-9]+([.][0-9]+)?$'
       OR CAST(setting_value AS DECIMAL(10,2)) < 0
       OR CAST(setting_value AS DECIMAL(10,2)) > 100
   );
