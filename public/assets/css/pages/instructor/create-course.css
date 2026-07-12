@@ -33,7 +33,7 @@ body:has(.course-studio-page) {
   background-attachment: scroll !important;
 }
 
-/* Keep the same layout, but stop sticky panels from catching wheel scrolling. */
+/* Default flow. Desktop rules below deliberately make only selected columns sticky. */
 .course-studio-page .preview-column,
 .course-studio-page .preview-sticky,
 .course-studio-page .studio-rail,
@@ -57,7 +57,7 @@ body:has(.course-studio-page) {
   will-change: auto !important;
 }
 
-/* Desktop: scroll only the middle course form while the surrounding page stays stable. */
+/* Desktop: center form scrolls; left workflow and right preview stop below navbar. */
 @media (min-width: 1100px) {
   .course-studio-page .studio-workspace {
     align-items: start !important;
@@ -74,6 +74,25 @@ body:has(.course-studio-page) {
     scrollbar-gutter: stable;
     scroll-behavior: smooth;
     padding-right: 8px;
+  }
+
+  .course-studio-page .studio-rail,
+  .course-studio-page .preview-column {
+    position: sticky !important;
+    top: 104px !important;
+    align-self: start !important;
+    height: fit-content !important;
+    max-height: calc(100vh - 124px) !important;
+    overflow: visible !important;
+    z-index: 4;
+  }
+
+  .course-studio-page .preview-sticky {
+    position: static !important;
+    top: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 
   .course-studio-page .studio-form-column::-webkit-scrollbar {
@@ -99,7 +118,9 @@ body:has(.course-studio-page) {
 
 /* Tablet and mobile keep one normal page scroll. */
 @media (max-width: 1099px) {
-  .course-studio-page .studio-form-column {
+  .course-studio-page .studio-form-column,
+  .course-studio-page .studio-rail,
+  .course-studio-page .preview-column {
     position: static !important;
     top: auto !important;
     height: auto !important;
