@@ -5,9 +5,9 @@
  * Create Course desktop scrolling
  * --------------------------------
  * Navbar: top 14px + height 68px = bottom edge at 82px.
- * The preview keeps its original grid position, then becomes sticky at 92px.
- * This leaves a 10px safety gap below the fixed navbar.
- * The middle form remains fully expanded so every section is visible.
+ * The complete right preview box stays in normal grid flow first.
+ * When its top reaches 92px, the entire box stops 10px below the navbar.
+ * Nothing inside the preview has separate sticky or scrolling behavior.
  */
 
 html:has(.course-studio-page),
@@ -19,7 +19,7 @@ body:has(.course-studio-page) {
   scrollbar-gutter: stable;
 }
 
-/* Sticky elements must not be trapped by a transformed or clipped ancestor. */
+/* Sticky columns must not be trapped by transformed or clipped ancestors. */
 .course-studio-page,
 .course-studio-page .course-studio-shell,
 .course-studio-page .studio-workspace {
@@ -30,7 +30,7 @@ body:has(.course-studio-page) {
   transform: none !important;
 }
 
-/* Reset previous fixed-position and scroll-sync layout rules. */
+/* Remove older fixed-position and inner-scroll behavior. */
 .course-studio-page .studio-workspace,
 .course-studio-page .studio-rail,
 .course-studio-page .preview-column,
@@ -64,28 +64,24 @@ body:has(.course-studio-page) {
   }
 
   /*
-   * Keep the preview in its original third grid column.
-   * It moves normally with the page until its top reaches 92px.
-   * It then stays 10px below the fixed navbar and cannot pass under it.
+   * This is the only sticky layer for the right side.
+   * The complete preview box moves as one unit and stops below the navbar.
    */
   .course-studio-page .preview-column {
-    position: sticky !important;
     position: -webkit-sticky !important;
+    position: sticky !important;
     top: 92px !important;
     inset-block-start: 92px !important;
-    right: auto !important;
-    bottom: auto !important;
-    left: auto !important;
-    width: auto !important;
     align-self: start !important;
-    height: auto !important;
-    max-height: calc(100vh - 108px) !important;
-    max-height: calc(100dvh - 108px) !important;
+    width: auto !important;
+    height: fit-content !important;
     min-height: 0 !important;
-    overflow: hidden !important;
+    max-height: none !important;
+    overflow: visible !important;
     z-index: 20;
   }
 
+  /* The entire visual preview remains one normal, unbroken box. */
   .course-studio-page .preview-sticky {
     position: static !important;
     top: auto !important;
@@ -94,38 +90,20 @@ body:has(.course-studio-page) {
     left: auto !important;
     width: 100% !important;
     height: auto !important;
-    max-height: calc(100vh - 108px) !important;
-    max-height: calc(100dvh - 108px) !important;
     min-height: 0 !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    overscroll-behavior-y: contain !important;
-    scrollbar-gutter: stable;
+    max-height: none !important;
+    overflow: visible !important;
+    overscroll-behavior: auto !important;
+    scrollbar-gutter: auto;
     scroll-behavior: auto !important;
   }
 
-  /* Keep the preview title visible while its own lower content is inspected. */
+  /* No child inside the preview sticks independently. */
   .course-studio-page .preview-heading {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 6;
-    background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.98) 82%, rgba(255, 255, 255, 0.92) 100%);
-    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.06);
-  }
-
-  .course-studio-page .preview-sticky::-webkit-scrollbar {
-    width: 7px;
-  }
-
-  .course-studio-page .preview-sticky::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .course-studio-page .preview-sticky::-webkit-scrollbar-thumb {
-    border: 2px solid transparent;
-    border-radius: 999px;
-    background: rgba(15, 118, 110, 0.34);
-    background-clip: padding-box;
+    position: static !important;
+    top: auto !important;
+    z-index: auto;
+    box-shadow: none;
   }
 
   /* Show every middle form section in normal document flow. */
@@ -164,6 +142,7 @@ body:has(.course-studio-page) {
 
   .course-studio-page .preview-heading {
     position: static !important;
+    top: auto !important;
     box-shadow: none;
   }
 }
