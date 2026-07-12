@@ -2,6 +2,7 @@
 
 require_once __DIR__ . '/../../config/database.php';
 
+$conn = database_connection();
 $landingCategories = [];
 $stats = ['students' => 0, 'courses' => 0, 'instructors' => 0, 'enrollments' => 0];
 
@@ -24,28 +25,31 @@ function landing_category_mark(string $name): string
     return strtoupper($mark !== '' ? $mark : 'C');
 }
 
-$categorySql = "
-    SELECT
-        cat.id,
-        cat.name,
-        cat.slug,
-        cat.description,
-        cat.created_at,
-        COUNT(DISTINCT c.id) AS published_course_count,
-        COUNT(DISTINCT c.instructor_id) AS instructor_count
-    FROM categories cat
-    LEFT JOIN courses c
-        ON c.category_id = cat.id
-       AND c.status = 'published'
-    WHERE cat.status = 'active'
-    GROUP BY cat.id, cat.name, cat.slug, cat.description, cat.created_at
-    ORDER BY cat.created_at DESC, published_course_count DESC, cat.name ASC
-    LIMIT 6
-";
+try {
+    $categoryResult = $conn->query("
+        SELECT
+            cat.id,
+            cat.name,
+            cat.slug,
+            cat.description,
+            cat.created_at,
+            COUNT(DISTINCT c.id) AS published_course_count,
+            COUNT(DISTINCT c.instructor_id) AS instructor_count
+        FROM categories cat
+        LEFT JOIN courses c
+            ON c.category_id = cat.id
+           AND c.status = 'published'
+        WHERE cat.status = 'active'
+        GROUP BY cat.id, cat.name, cat.slug, cat.description, cat.created_at
+        ORDER BY cat.created_at DESC, published_course_count DESC, cat.name ASC
+        LIMIT 6
+    ");
 
-$categoryResult = $conn->query($categorySql);
-while ($categoryResult && $row = $categoryResult->fetch_assoc()) {
-    $landingCategories[] = $row;
+    while ($categoryResult && $row = $categoryResult->fetch_assoc()) {
+        $landingCategories[] = $row;
+    }
+} catch (Throwable $exception) {
+    error_log('Landing category query failed: ' . $exception->getMessage());
 }
 
 $statQueries = [
@@ -56,8 +60,13 @@ $statQueries = [
 ];
 
 foreach ($statQueries as $key => $query) {
-    $result = $conn->query($query);
-    $stats[$key] = $result ? (int) ($result->fetch_assoc()['total'] ?? 0) : 0;
+    try {
+        $result = $conn->query($query);
+        $stats[$key] = $result ? (int) ($result->fetch_assoc()['total'] ?? 0) : 0;
+    } catch (Throwable $exception) {
+        error_log('Landing statistic query failed for ' . $key . ': ' . $exception->getMessage());
+        $stats[$key] = 0;
+    }
 }
 ?>
 <link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=14">
