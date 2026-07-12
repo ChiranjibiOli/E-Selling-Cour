@@ -1,0 +1,255 @@
+/* Last-mile authenticated panel fixes for page-specific markup. */
+
+body.authenticated-panel:not(:has(.course-studio-page)):not(:has(.student-courses-page)):not(:has(.browse-courses-page)):not(:has(.student-my-courses-page)):not(:has(.instructor-my-courses-page)):not(:has(.admin-courses-page)):not(:has(.course-details-page)):not(:has(.cart-page)) :is(
+    .checkout-header, .order-details-header
+) {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
+    align-items: end !important;
+    gap: 24px !important;
+    margin: 0 0 26px !important;
+    padding: 30px 0 24px !important;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(72, 58, 39, .28) !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+body.authenticated-panel :is(.checkout-header, .order-details-header) h1 {
+    margin: 5px 0 8px !important;
+    color: #171511 !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+    font-size: clamp(2.35rem, 4.6vw, 4.8rem) !important;
+    font-weight: 500 !important;
+    letter-spacing: -.055em !important;
+    line-height: .92 !important;
+}
+
+body.authenticated-panel :is(.checkout-header, .order-details-header) p:not(.page-label) {
+    max-width: 760px !important;
+    margin: 0 !important;
+    color: #746b61 !important;
+    line-height: 1.72 !important;
+}
+
+body.authenticated-panel :is(.back-btn, .back-sales-btn, .withdraw-btn, .continue-btn) {
+    min-height: 40px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 14px !important;
+    border: 1px solid rgba(72, 58, 39, .24) !important;
+    border-radius: 999px !important;
+    color: #4f473e !important;
+    background: #f7f0e5 !important;
+    box-shadow: none !important;
+    text-decoration: none !important;
+    font-size: .7rem !important;
+    font-weight: 900 !important;
+}
+
+body.authenticated-panel :is(.back-btn, .back-sales-btn, .withdraw-btn, .continue-btn):hover {
+    transform: translateY(-1px) !important;
+    border-color: #7d5c23 !important;
+    color: #fffaf0 !important;
+    background: #7d5c23 !important;
+}
+
+body.authenticated-panel .details-layout {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1.5fr) minmax(300px, .72fr) !important;
+    gap: 20px !important;
+    align-items: start !important;
+}
+
+body.authenticated-panel .details-main {
+    display: grid !important;
+    gap: 16px !important;
+}
+
+body.authenticated-panel :is(.details-card, .order-summary-card, .proof-card, .admin-action-card) {
+    overflow: hidden !important;
+    padding: 20px !important;
+    border: 1px solid rgba(72, 58, 39, .16) !important;
+    border-radius: 20px !important;
+    background: rgba(255, 253, 248, .94) !important;
+    box-shadow: 0 9px 26px rgba(39, 31, 21, .065) !important;
+}
+
+body.authenticated-panel :is(.details-card, .order-summary-card, .proof-card, .admin-action-card) > h2 {
+    margin: -20px -20px 18px !important;
+    padding: 17px 20px !important;
+    border-bottom: 1px solid rgba(72, 58, 39, .12) !important;
+    color: #171511 !important;
+    background: #f3e7d5 !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+    font-size: 1.25rem !important;
+    font-weight: 500 !important;
+}
+
+body.authenticated-panel .status-banner {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-bottom: 18px !important;
+    padding: 13px 16px !important;
+    border: 1px solid rgba(72, 58, 39, .16) !important;
+    border-radius: 14px !important;
+    color: #4f473e !important;
+    background: #f3e7d5 !important;
+}
+
+body.authenticated-panel .items-list {
+    display: grid !important;
+    gap: 10px !important;
+}
+
+body.authenticated-panel :is(.order-item-card, .item-card, .purchased-item) {
+    display: grid !important;
+    grid-template-columns: 78px minmax(0, 1fr) auto !important;
+    gap: 13px !important;
+    align-items: center !important;
+    padding: 12px !important;
+    border: 1px solid rgba(72, 58, 39, .12) !important;
+    border-radius: 14px !important;
+    background: #f9f3e9 !important;
+}
+
+body.authenticated-panel :is(.order-item-card, .item-card, .purchased-item) img {
+    width: 78px !important;
+    height: 58px !important;
+    object-fit: cover !important;
+    border-radius: 10px !important;
+}
+
+body.authenticated-panel .payment-method-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+}
+
+body.authenticated-panel .payment-option {
+    min-height: 62px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    padding: 13px !important;
+    border: 1px solid rgba(72, 58, 39, .16) !important;
+    border-radius: 14px !important;
+    color: #4f473e !important;
+    background: #f7f0e5 !important;
+    cursor: pointer !important;
+}
+
+body.authenticated-panel .payment-option:has(input:checked) {
+    border-color: rgba(184, 137, 57, .72) !important;
+    background: #efe0c8 !important;
+    box-shadow: inset 0 0 0 1px rgba(184, 137, 57, .22) !important;
+}
+
+body.authenticated-panel .payment-option input {
+    width: 17px !important;
+    height: 17px !important;
+    accent-color: #7d5c23 !important;
+}
+
+body.authenticated-panel .payment-info-box {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    padding: 0 !important;
+    background: transparent !important;
+}
+
+body.authenticated-panel .payment-info-box > div {
+    padding: 12px !important;
+    border: 1px solid rgba(72, 58, 39, .12) !important;
+    border-radius: 13px !important;
+    background: #f7f0e5 !important;
+}
+
+body.authenticated-panel .payment-info-box .full-info {
+    grid-column: 1 / -1 !important;
+}
+
+body.authenticated-panel .payment-info-box span {
+    display: block !important;
+    margin-bottom: 4px !important;
+    color: #8a8074 !important;
+    font-size: .63rem !important;
+    font-weight: 900 !important;
+    letter-spacing: .04em !important;
+    text-transform: uppercase !important;
+}
+
+body.authenticated-panel .form-section > h2,
+body.authenticated-panel .method-box > h2 {
+    margin: 0 0 10px !important;
+    color: #171511 !important;
+    font-family: Georgia, "Times New Roman", serif !important;
+    font-size: 1.35rem !important;
+    font-weight: 500 !important;
+}
+
+body.authenticated-panel :is(.no-balance-box, .admin-note-box, .empty-small-box) {
+    padding: 12px 14px !important;
+    border: 1px solid rgba(72, 58, 39, .14) !important;
+    border-radius: 13px !important;
+    color: #5c5145 !important;
+    background: #f7f0e5 !important;
+}
+
+body.authenticated-panel .current-qr {
+    width: min(260px, 100%) !important;
+    margin-bottom: 14px !important;
+    padding: 12px !important;
+    border: 1px solid rgba(72, 58, 39, .14) !important;
+    border-radius: 16px !important;
+    background: #f7f0e5 !important;
+}
+
+body.authenticated-panel .current-qr img {
+    display: block !important;
+    width: 100% !important;
+    max-height: 240px !important;
+    object-fit: contain !important;
+    border-radius: 10px !important;
+}
+
+body.authenticated-panel .hidden {
+    display: none !important;
+}
+
+@media (max-width: 980px) {
+    body.authenticated-panel .details-layout {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 700px) {
+    body.authenticated-panel :is(.checkout-header, .order-details-header) {
+        grid-template-columns: 1fr !important;
+        align-items: start !important;
+        padding-top: 20px !important;
+    }
+
+    body.authenticated-panel .payment-method-grid,
+    body.authenticated-panel .payment-info-box {
+        grid-template-columns: 1fr !important;
+    }
+
+    body.authenticated-panel .payment-info-box .full-info {
+        grid-column: auto !important;
+    }
+
+    body.authenticated-panel :is(.order-item-card, .item-card, .purchased-item) {
+        grid-template-columns: 64px minmax(0, 1fr) !important;
+    }
+
+    body.authenticated-panel :is(.order-item-card, .item-card, .purchased-item) img {
+        width: 64px !important;
+        height: 52px !important;
+    }
+}
