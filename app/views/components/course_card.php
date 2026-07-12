@@ -3,15 +3,11 @@
 declare(strict_types=1);
 
 /**
- * Canonical course-card layout used across the platform.
+ * Canonical course-card pipeline.
  *
- * Expected input in $courseCard:
- * - context: marketplace|student|instructor|admin
- * - title, summary, thumbnail, category, badge, eyebrow, language, duration, price
- * - href: optional primary course URL
- * - metrics: [['label' => 'Lessons', 'value' => '12'], ...]
- * - actions: [['label' => 'View course', 'href' => '...', 'style' => 'primary'], ...]
- * - feature_html: trusted server-rendered workflow controls placed after the common footer
+ * The instructor Create Course preview is the visual and structural source.
+ * Every saved course card keeps that exact marketplace-card shell and adds
+ * only workflow-specific metrics, actions, and controls.
  */
 
 $card = is_array($courseCard ?? null) ? $courseCard : [];
@@ -38,6 +34,7 @@ $language = trim((string) ($card['language'] ?? ''));
 $duration = trim((string) ($card['duration'] ?? ''));
 $price = trim((string) ($card['price'] ?? ''));
 $href = trim((string) ($card['href'] ?? ''));
+$ratingLabel = trim((string) ($card['rating_label'] ?? 'Course'));
 $metrics = is_array($card['metrics'] ?? null) ? $card['metrics'] : [];
 $actions = is_array($card['actions'] ?? null) ? $card['actions'] : [];
 $featureHtml = is_string($card['feature_html'] ?? null) ? $card['feature_html'] : '';
@@ -49,12 +46,12 @@ if (!$canonicalLayoutRendered):
     $canonicalLayoutRendered = true;
 ?>
 <style>
-.course-unit-card{width:100%;height:100%;min-height:100%;align-self:stretch}
-.course-unit-cover{flex:0 0 auto}
-.course-unit-content{display:flex!important;min-height:0;flex:1 1 auto;flex-direction:column!important}
-.course-unit-main{display:flex;min-width:0;flex:1 1 auto;flex-direction:column}
-.course-unit-workflow{display:flex;flex:0 0 auto;flex-direction:column;margin-top:auto}
-.course-unit-footer{width:100%;margin-top:0!important}
+.marketplace-card.course-unit-card{width:100%;height:100%;min-height:100%;align-self:stretch}
+.marketplace-card.course-unit-card .marketplace-cover{flex:0 0 auto}
+.marketplace-card.course-unit-card .marketplace-content{display:flex!important;min-height:0;flex:1 1 auto;flex-direction:column!important}
+.marketplace-card.course-unit-card .course-unit-main{display:flex;min-width:0;flex:1 1 auto;flex-direction:column}
+.marketplace-card.course-unit-card .course-unit-workflow{display:flex;flex:0 0 auto;flex-direction:column;margin-top:auto}
+.marketplace-card.course-unit-card .preview-price-row{width:100%;margin-top:0!important}
 .course-unit-price-spacer{display:block;min-width:1px;min-height:1px}
 .course-unit-feature{width:100%;min-width:0}
 .course-unit-card--admin .course-unit-feature{margin-top:14px;padding-top:14px;border-top:1px solid #e9edf5}
@@ -71,16 +68,16 @@ if (!$canonicalLayoutRendered):
 .course-admin-reject-form textarea{width:100%;min-height:90px;padding:10px;border:1px solid #fca5a5;border-radius:10px;background:#fff;resize:vertical;font:inherit}
 .course-admin-reject-form button{color:#fff;background:#dc2626}
 .editorial-course-list,.student-course-grid,.my-courses-grid,.course-library-grid,.review-grid{align-items:stretch}
-.editorial-course-list>.course-unit-card,.student-course-grid>.course-unit-card,.my-courses-grid>.course-unit-card,.course-library-grid>.course-unit-card,.review-grid>.course-unit-card{height:100%}
+.editorial-course-list>.marketplace-card,.student-course-grid>.marketplace-card,.my-courses-grid>.marketplace-card,.course-library-grid>.marketplace-card,.review-grid>.marketplace-card{height:100%}
 @media(max-width:700px){.course-admin-review-actions,.course-admin-review-actions form,.course-admin-approve,.course-admin-reject-toggle,.course-admin-reject-form button{width:100%}.course-unit-workflow{width:100%}}
 </style>
 <?php endif; ?>
 <article
-    class="course-unit-card course-unit-card--<?php echo $escape($context); ?>"
+    class="marketplace-card course-unit-card course-unit-card--<?php echo $escape($context); ?>"
     data-course-context="<?php echo $escape($context); ?>"
     aria-labelledby="<?php echo $escape($cardId); ?>"
 >
-    <div class="course-unit-cover">
+    <div class="marketplace-cover course-unit-cover">
         <?php if ($href !== ''): ?>
             <a class="course-unit-cover-link" href="<?php echo $escape($href); ?>" aria-label="View <?php echo $escape($title); ?>">
         <?php endif; ?>
@@ -89,11 +86,11 @@ if (!$canonicalLayoutRendered):
         <span class="course-unit-cover-shade" aria-hidden="true"></span>
 
         <?php if ($category !== ''): ?>
-            <span class="course-unit-chip course-unit-chip--category"><?php echo $escape($category); ?></span>
+            <span class="preview-category course-unit-chip course-unit-chip--category"><?php echo $escape($category); ?></span>
         <?php endif; ?>
 
         <?php if ($badge !== ''): ?>
-            <span class="course-unit-chip course-unit-chip--badge <?php echo $statusClass !== '' ? 'is-' . $escape($statusClass) : ''; ?>">
+            <span class="preview-level course-unit-chip course-unit-chip--badge <?php echo $statusClass !== '' ? 'is-' . $escape($statusClass) : ''; ?>">
                 <?php echo $escape($badge); ?>
             </span>
         <?php endif; ?>
@@ -103,10 +100,18 @@ if (!$canonicalLayoutRendered):
         <?php endif; ?>
     </div>
 
-    <div class="course-unit-content">
+    <div class="marketplace-content course-unit-content">
         <div class="course-unit-main">
             <?php if ($eyebrow !== ''): ?>
                 <p class="course-unit-eyebrow"><?php echo $escape($eyebrow); ?></p>
+            <?php endif; ?>
+
+            <?php if ($language !== '' || $duration !== ''): ?>
+                <div class="preview-meta course-unit-meta" aria-label="Course information">
+                    <?php if ($language !== ''): ?><span><?php echo $escape($language); ?></span><?php endif; ?>
+                    <?php if ($language !== '' && $duration !== ''): ?><span aria-hidden="true">•</span><?php endif; ?>
+                    <?php if ($duration !== ''): ?><span><?php echo $escape($duration); ?></span><?php endif; ?>
+                </div>
             <?php endif; ?>
 
             <h3 class="course-unit-title" id="<?php echo $escape($cardId); ?>">
@@ -121,12 +126,10 @@ if (!$canonicalLayoutRendered):
                 <p class="course-unit-summary"><?php echo $escape($summary); ?></p>
             <?php endif; ?>
 
-            <?php if ($language !== '' || $duration !== ''): ?>
-                <div class="course-unit-meta" aria-label="Course information">
-                    <?php if ($language !== ''): ?><span><?php echo $escape($language); ?></span><?php endif; ?>
-                    <?php if ($duration !== ''): ?><span><?php echo $escape($duration); ?></span><?php endif; ?>
-                </div>
-            <?php endif; ?>
+            <div class="preview-rating course-unit-rating">
+                <span aria-label="Five star course">★ ★ ★ ★ ★</span>
+                <small><?php echo $escape($ratingLabel); ?></small>
+            </div>
 
             <?php if ($metrics): ?>
                 <dl class="course-unit-metrics">
@@ -148,7 +151,7 @@ if (!$canonicalLayoutRendered):
         </div>
 
         <div class="course-unit-workflow">
-            <footer class="course-unit-footer">
+            <footer class="preview-price-row course-unit-footer">
                 <?php if ($price !== ''): ?>
                     <strong class="course-unit-price"><?php echo $escape($price); ?></strong>
                 <?php else: ?>
