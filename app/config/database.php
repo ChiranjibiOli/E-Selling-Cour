@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/config.php';
 
-$host = (string) env_value('DB_HOST', '127.0.0.1');
-$port = (int) env_value('DB_PORT', 3307);
-$dbname = (string) env_value('DB_DATABASE', 'coursehub');
-$username = (string) env_value('DB_USERNAME', 'root');
-$password = (string) env_value('DB_PASSWORD', '');
+$host = '127.0.0.1';
+$port = 3307;
+$dbname = 'coursehub';
+$username = 'root';
+$password = '';
 
 mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
 
@@ -21,7 +21,7 @@ try {
     http_response_code(503);
 
     if (APP_DEBUG) {
-        exit('Database connection failed. Check .env and ensure MySQL is running.');
+        exit('Database connection failed. Make sure XAMPP MySQL is running on port 3307 and the coursehub database exists.');
     }
 
     exit('The service is temporarily unavailable. Please try again later.');
