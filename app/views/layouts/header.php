@@ -18,19 +18,19 @@ $documentTitle = isset($pageTitle) && trim((string) $pageTitle) !== ''
     <title><?php echo htmlspecialchars($documentTitle, ENT_QUOTES, 'UTF-8'); ?></title>
 
     <link rel="icon" href="assets/images/logo.svg" type="image/svg+xml">
-<link rel="stylesheet" href="assets/css/base/reset.css?v=5">
-<link rel="stylesheet" href="assets/css/base/variables.css?v=5">
-<link rel="stylesheet" href="assets/css/base/typography.css?v=5">
-<link rel="stylesheet" href="assets/css/base/layout.css?v=5">
+<link rel="stylesheet" href="assets/css/base/reset.css?v=6">
+<link rel="stylesheet" href="assets/css/base/variables.css?v=6">
+<link rel="stylesheet" href="assets/css/base/typography.css?v=6">
+<link rel="stylesheet" href="assets/css/base/layout.css?v=6">
 
-<link rel="stylesheet" href="assets/css/components/buttons.css?v=5">
-<link rel="stylesheet" href="assets/css/components/forms.css?v=5">
-<link rel="stylesheet" href="assets/css/components/alerts.css?v=5">
-<link rel="stylesheet" href="assets/css/components/cards.css?v=5">
-<link rel="stylesheet" href="assets/css/components/modals.css?v=5">
+<link rel="stylesheet" href="assets/css/components/buttons.css?v=6">
+<link rel="stylesheet" href="assets/css/components/forms.css?v=6">
+<link rel="stylesheet" href="assets/css/components/alerts.css?v=6">
+<link rel="stylesheet" href="assets/css/components/cards.css?v=6">
+<link rel="stylesheet" href="assets/css/components/modals.css?v=6">
 <?php if (Auth::check()): ?>
-<link rel="stylesheet" href="assets/css/panel.css?v=5">
-<link rel="stylesheet" href="assets/css/panel-modules.css?v=5">
+<link rel="stylesheet" href="assets/css/panel.css?v=6">
+<link rel="stylesheet" href="assets/css/panel-modules.css?v=6">
 <?php endif; ?>
 
     <style>
@@ -58,10 +58,10 @@ $documentTitle = isset($pageTitle) && trim((string) $pageTitle) !== ''
         }
     </style>
 
-    <script src="assets/js/main.js?v=5" defer></script>
-    <script src="assets/js/auth.js?v=5" defer></script>
+    <script src="assets/js/main.js?v=6" defer></script>
+    <script src="assets/js/auth.js?v=6" defer></script>
 <?php if (Auth::check()): ?>
-    <script src="assets/js/panel.js?v=5" defer></script>
+    <script src="assets/js/panel.js?v=6" defer></script>
 <?php endif; ?>
 </head>
 <body id="main-content" class="<?php echo Auth::check() ? 'authenticated-panel' : 'public-site'; ?>">
