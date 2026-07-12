@@ -5,8 +5,8 @@
  * Create Course desktop scrolling
  * --------------------------------
  * Navbar: top 14px + height 68px = bottom edge at 82px.
- * The preview keeps its original grid position, then becomes sticky at 102px.
- * This leaves a 20px safety gap below the fixed navbar.
+ * The preview keeps its original grid position, then becomes sticky at 92px.
+ * This leaves a 10px safety gap below the fixed navbar.
  * The middle form remains fully expanded so every section is visible.
  */
 
@@ -65,24 +65,25 @@ body:has(.course-studio-page) {
 
   /*
    * Keep the preview in its original third grid column.
-   * It moves with the page until it reaches 102px, then stays there.
-   * The viewport height limit prevents a tall preview from being pushed
-   * underneath the fixed navbar.
+   * It moves normally with the page until its top reaches 92px.
+   * It then stays 10px below the fixed navbar and cannot pass under it.
    */
   .course-studio-page .preview-column {
     position: sticky !important;
-    top: 102px !important;
+    position: -webkit-sticky !important;
+    top: 92px !important;
+    inset-block-start: 92px !important;
     right: auto !important;
     bottom: auto !important;
     left: auto !important;
     width: auto !important;
     align-self: start !important;
     height: auto !important;
-    max-height: calc(100vh - 118px) !important;
-    max-height: calc(100dvh - 118px) !important;
+    max-height: calc(100vh - 108px) !important;
+    max-height: calc(100dvh - 108px) !important;
     min-height: 0 !important;
     overflow: hidden !important;
-    z-index: 10;
+    z-index: 20;
   }
 
   .course-studio-page .preview-sticky {
@@ -93,14 +94,14 @@ body:has(.course-studio-page) {
     left: auto !important;
     width: 100% !important;
     height: auto !important;
-    max-height: calc(100vh - 118px) !important;
-    max-height: calc(100dvh - 118px) !important;
+    max-height: calc(100vh - 108px) !important;
+    max-height: calc(100dvh - 108px) !important;
     min-height: 0 !important;
     overflow-x: hidden !important;
     overflow-y: auto !important;
     overscroll-behavior-y: contain !important;
     scrollbar-gutter: stable;
-    scroll-behavior: smooth;
+    scroll-behavior: auto !important;
   }
 
   /* Keep the preview title visible while its own lower content is inspected. */
