@@ -1,85 +1,60 @@
 <?php
 
+declare(strict_types=1);
+
 require_once '../app/middleware/AdminMiddleware.php';
 require_once '../app/config/database.php';
 
 AdminMiddleware::handle();
 
-$proofId = isset($_GET['proof_id']) ? (int) $_GET['proof_id'] : 0;
-
+$proofId = (int) ($_GET['proof_id'] ?? 0);
 if ($proofId <= 0) {
     http_response_code(400);
-    exit('Invalid request: proof id missing.');
+    exit('Invalid payment-proof request.');
 }
 
-$sql = "
-    SELECT proof_image
-    FROM payment_proofs
-    WHERE id = ?
+$stmt = $conn->prepare("
+    SELECT pp.proof_image
+    FROM payment_proofs pp
+    INNER JOIN payments p ON p.id = pp.payment_id
+    INNER JOIN orders o ON o.id = p.order_id
+    WHERE pp.id = ?
     LIMIT 1
-";
-
-$stmt = $conn->prepare($sql);
-
-if (!$stmt) {
-    http_response_code(500);
-    exit('Database query error.');
-}
-
-$stmt->bind_param("i", $proofId);
+");
+$stmt->bind_param('i', $proofId);
 $stmt->execute();
+$proof = $stmt->get_result()->fetch_assoc() ?: null;
+$stmt->close();
 
-$result = $stmt->get_result();
-
-if (!$result || $result->num_rows !== 1) {
+if (!$proof) {
     http_response_code(404);
     exit('Payment proof not found.');
 }
 
-$proof = $result->fetch_assoc();
-$stmt->close();
+$fileName = (string) ($proof['proof_image'] ?? '');
+$filePath = Security::resolveStoredFile($fileName, [
+    __DIR__ . '/../storage/private_uploads/payment_proofs',
+    __DIR__ . '/assets/uploads/payment_proofs',
+    __DIR__ . '/assets/uploads/payments',
+    __DIR__ . '/assets/uploads/proofs',
+]);
 
-$fileName = $proof['proof_image'] ?? '';
-
-if ($fileName === '') {
+if ($filePath === null) {
     http_response_code(404);
-    exit('Proof file name is empty.');
+    exit('Payment proof not found.');
 }
 
-$fileName = basename($fileName);
-
-$possibleFolders = [
-    __DIR__ . '/../storage/private_uploads/payment_proofs/',
-    __DIR__ . '/assets/uploads/payment_proofs/',
-    __DIR__ . '/assets/uploads/payments/',
-    __DIR__ . '/assets/uploads/proofs/'
-];
-
-$filePath = Security::resolveStoredFile($fileName, $possibleFolders);
-
-if (!$filePath || !file_exists($filePath)) {
-    http_response_code(404);
-    exit('Proof file not found: ' . htmlspecialchars($fileName));
-}
-
-$mimeType = mime_content_type($filePath);
-
-$allowedMimeTypes = [
-    'image/jpeg',
-    'image/png',
-    'image/jpg',
-    'application/pdf'
-];
-
-if (!in_array($mimeType, $allowedMimeTypes, true)) {
+$mimeType = Security::detectMimeType($filePath);
+if (!in_array($mimeType, ['image/jpeg', 'image/png', 'application/pdf'], true)) {
     http_response_code(403);
-    exit('Unsupported proof type: ' . htmlspecialchars($mimeType));
+    exit('Unsupported payment-proof type.');
 }
 
+$downloadName = Security::safeDownloadName($fileName, 'payment-proof');
 header('Content-Type: ' . $mimeType);
-header('Content-Length: ' . filesize($filePath));
-header('Content-Disposition: inline; filename="' . basename($fileName) . '"');
+header('Content-Length: ' . (string) filesize($filePath));
+header('Content-Disposition: inline; filename="' . $downloadName . '"');
 header('Cache-Control: private, no-store, max-age=0');
-
+header('X-Content-Type-Options: nosniff');
 readfile($filePath);
 exit;
