@@ -1,29 +1,32 @@
 <?php
 
+declare(strict_types=1);
+
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../core/Auth.php';
+require_once __DIR__ . '/../../helpers/security_helper.php';
 
 $currentUser = Auth::user();
 
-/*
- * The public catalog remains a public discovery page.
- * Authenticated students use the dedicated Student Browse -> Cart -> Checkout
- * -> My Courses pipeline instead of maintaining a second student catalog here.
- */
 if ($currentUser && ($currentUser['role'] ?? '') === 'student') {
-    header('Location: student-browse-courses.php');
-    exit;
+    Auth::redirect('student-browse-courses.php');
 }
 
-$search = trim($_GET['search'] ?? '');
+$rawSearch = (string) ($_GET['search'] ?? '');
+$search = security_clean_text($rawSearch, 150);
 $categoryFilter = (int) ($_GET['category_id'] ?? 0);
-$levelFilter = trim($_GET['level'] ?? '');
-$whereParts = ["c.status = 'published'"];
+$levelFilter = trim((string) ($_GET['level'] ?? ''));
+$whereParts = [
+    "c.status = 'published'",
+    "u.role = 'instructor'",
+    "u.status = 'active'",
+    'cat.is_active = 1',
+];
 $params = [];
 $types = '';
 
 if ($search !== '') {
-    $whereParts[] = "(c.title LIKE ? OR c.short_description LIKE ? OR c.full_description LIKE ? OR u.full_name LIKE ?)";
+    $whereParts[] = '(c.title LIKE ? OR c.short_description LIKE ? OR c.full_description LIKE ? OR u.full_name LIKE ?)';
     $searchValue = '%' . $search . '%';
     $params = [$searchValue, $searchValue, $searchValue, $searchValue];
     $types .= 'ssss';
@@ -39,11 +42,13 @@ if (in_array($levelFilter, ['beginner', 'intermediate', 'advanced'], true)) {
     $whereParts[] = 'c.level = ?';
     $params[] = $levelFilter;
     $types .= 's';
+} else {
+    $levelFilter = '';
 }
 
 $whereSql = 'WHERE ' . implode(' AND ', $whereParts);
 $courses = [];
-$sql = "
+$stmt = $conn->prepare("
     SELECT c.id, c.title, c.slug, c.short_description, c.thumbnail, c.price,
            c.level, c.language, c.duration, c.created_at,
            cat.name AS category_name, u.full_name AS instructor_name,
@@ -51,30 +56,23 @@ $sql = "
            (SELECT COUNT(*) FROM enrollments e WHERE e.course_id = c.id AND e.status = 'active') AS student_count
     FROM courses c
     INNER JOIN users u ON c.instructor_id = u.id
-    LEFT JOIN categories cat ON c.category_id = cat.id
-    $whereSql
+    INNER JOIN categories cat ON c.category_id = cat.id
+    {$whereSql}
     ORDER BY c.created_at DESC, c.id DESC
-";
-$stmt = $conn->prepare($sql);
+");
 
-if ($stmt) {
-    if ($params) {
-        $stmt->bind_param($types, ...$params);
-    }
-
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    while ($result && $row = $result->fetch_assoc()) {
-        $courses[] = $row;
-    }
-
-    $stmt->close();
+if ($params !== []) {
+    $stmt->bind_param($types, ...$params);
 }
+$stmt->execute();
+$result = $stmt->get_result();
+while ($result && $row = $result->fetch_assoc()) {
+    $courses[] = $row;
+}
+$stmt->close();
 
 $categories = [];
-$categoryResult = $conn->query("SELECT id, name FROM categories WHERE status = 'active' ORDER BY name ASC");
-
+$categoryResult = $conn->query('SELECT id, name FROM categories WHERE is_active = 1 ORDER BY name ASC');
 while ($categoryResult && $row = $categoryResult->fetch_assoc()) {
     $categories[] = $row;
 }
@@ -96,14 +94,14 @@ require_once __DIR__ . '/../layouts/navbar.php';
             <div>
                 <p class="page-label">Public course catalog</p>
                 <h1>Learn from approved courses</h1>
-                <p>Only admin-approved, published courses appear here. Sign in as a student to add courses to your cart and begin the purchase pipeline.</p>
+                <p>Only admin-approved courses from active instructors and active categories appear here.</p>
             </div>
         </header>
 
         <form method="get" class="course-filter-box">
             <div class="form-group">
                 <label for="publicCourseSearch">Search</label>
-                <input id="publicCourseSearch" type="search" name="search" value="<?php echo public_course_h($search); ?>" placeholder="Search course, instructor, topic">
+                <input id="publicCourseSearch" type="search" name="search" maxlength="150" value="<?php echo public_course_h($search); ?>" placeholder="Search course, instructor, topic">
             </div>
 
             <div class="form-group">
@@ -138,7 +136,7 @@ require_once __DIR__ . '/../layouts/navbar.php';
             <div class="course-alert warning">Sign in as a student, then use Student Browse to add this course to your cart.</div>
         <?php endif; ?>
 
-        <?php if (!$courses): ?>
+        <?php if ($courses === []): ?>
             <div class="empty-course-box">
                 <div class="empty-icon">No courses</div>
                 <h2>No published courses found</h2>
@@ -181,7 +179,6 @@ require_once __DIR__ . '/../layouts/navbar.php';
                             ['label' => 'View details', 'href' => $detailsUrl, 'style' => 'primary'],
                         ],
                     ];
-
                     require __DIR__ . '/../components/course_card.php';
                     ?>
                 <?php endforeach; ?>
