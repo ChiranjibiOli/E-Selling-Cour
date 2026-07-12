@@ -7,6 +7,9 @@ require_once __DIR__ . '/../../config/database.php';
 
 InstructorMiddleware::handle();
 
+/** @var mysqli $conn */
+$conn = database_connection();
+
 $user = Auth::user();
 $instructorId = (int) ($user['id'] ?? 0);
 $courseId = (int) ($_GET['id'] ?? 0);
