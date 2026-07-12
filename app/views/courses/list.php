@@ -20,7 +20,7 @@ $whereParts = [
     "c.status = 'published'",
     "u.role = 'instructor'",
     "u.status = 'active'",
-    'cat.is_active = 1',
+    "cat.status = 'active'",
 ];
 $params = [];
 $types = '';
@@ -72,7 +72,7 @@ while ($result && $row = $result->fetch_assoc()) {
 $stmt->close();
 
 $categories = [];
-$categoryResult = $conn->query('SELECT id, name FROM categories WHERE is_active = 1 ORDER BY name ASC');
+$categoryResult = $conn->query("SELECT id, name FROM categories WHERE status = 'active' ORDER BY name ASC");
 while ($categoryResult && $row = $categoryResult->fetch_assoc()) {
     $categories[] = $row;
 }
