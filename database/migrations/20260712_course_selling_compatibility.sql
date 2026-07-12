@@ -240,6 +240,6 @@ INSERT INTO site_settings (setting_key, setting_value) VALUES
     ('payment_instructions', 'Pay with one of the listed methods, enter the transaction reference, and upload a clear proof. Access is activated only after admin verification.'),
     ('terms_url', ''),
     ('privacy_url', '')
-ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value);
+ON DUPLICATE KEY UPDATE setting_key = VALUES(setting_key);
 
 SET FOREIGN_KEY_CHECKS = 1;
