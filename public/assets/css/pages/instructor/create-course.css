@@ -1,7 +1,7 @@
 @import url("./create-course-original.css");
 @import url("./create-course-theme.css");
 
-/* Keep one document scrollbar only on the Create Course page. */
+/* The document itself always remains scrollable. */
 html:has(.course-studio-page),
 body:has(.course-studio-page) {
   height: auto !important;
@@ -16,9 +16,7 @@ body:has(.course-studio-page) {
 .course-studio-page,
 .course-studio-page .course-studio-shell,
 .course-studio-page .studio-workspace,
-.course-studio-page .studio-form-column,
 .course-studio-page .studio-form,
-.course-studio-page .preview-column,
 .course-studio-page .preview-sticky,
 .course-studio-page .studio-panel,
 .course-studio-page .chapter-list,
@@ -33,7 +31,11 @@ body:has(.course-studio-page) {
   background-attachment: scroll !important;
 }
 
-/* Default flow. Desktop rules below deliberately make only selected columns sticky. */
+.course-studio-page .studio-workspace {
+  overflow: visible !important;
+}
+
+/* Default flow. Wide-screen rules below activate with the real three-column layout. */
 .course-studio-page .preview-column,
 .course-studio-page .preview-sticky,
 .course-studio-page .studio-rail,
@@ -46,7 +48,7 @@ body:has(.course-studio-page) {
   transform: none !important;
 }
 
-/* Avoid unnecessary compositing while the page moves. */
+/* Avoid unnecessary compositing while scrolling. */
 .course-studio-page,
 .course-studio-page::before,
 .course-studio-page .studio-hero,
@@ -57,25 +59,16 @@ body:has(.course-studio-page) {
   will-change: auto !important;
 }
 
-/* Desktop: wheel scroll follows the cursor. Center form scrolls under the cursor;
-   left and right columns scroll the document. At form limits, wheel passes to page. */
-@media (min-width: 1100px) {
+/*
+ * Three-column workspace:
+ * - the page can still scroll normally;
+ * - left and right columns become sticky below the fixed navbar;
+ * - only the center form has an independent internal scrollbar.
+ */
+@media (min-width: 900px) {
   .course-studio-page .studio-workspace {
     align-items: start !important;
-  }
-
-  .course-studio-page .studio-form-column {
-    position: sticky !important;
-    top: 104px !important;
-    height: calc(100vh - 124px) !important;
-    max-height: calc(100vh - 124px) !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    overscroll-behavior-y: auto !important;
-    scrollbar-gutter: stable;
-    scroll-behavior: smooth;
-    padding-right: 8px;
-    touch-action: pan-y;
+    overflow: visible !important;
   }
 
   .course-studio-page .studio-rail,
@@ -96,6 +89,22 @@ body:has(.course-studio-page) {
     height: auto !important;
     max-height: none !important;
     overflow: visible !important;
+  }
+
+  .course-studio-page .studio-form-column {
+    position: sticky !important;
+    top: 104px !important;
+    align-self: start !important;
+    height: calc(100vh - 124px) !important;
+    max-height: calc(100vh - 124px) !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: auto !important;
+    scrollbar-gutter: stable;
+    scroll-behavior: smooth;
+    padding-right: 8px;
+    touch-action: pan-y;
   }
 
   .course-studio-page .studio-form-column::-webkit-scrollbar {
@@ -119,8 +128,8 @@ body:has(.course-studio-page) {
   }
 }
 
-/* Tablet and mobile keep one normal page scroll. */
-@media (max-width: 1099px) {
+/* Narrow layouts use one normal document scroll. */
+@media (max-width: 899px) {
   .course-studio-page .studio-form-column,
   .course-studio-page .studio-rail,
   .course-studio-page .preview-column {
