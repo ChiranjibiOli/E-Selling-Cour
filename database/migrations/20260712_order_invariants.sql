@@ -5,6 +5,7 @@ DROP TRIGGER IF EXISTS payments_before_insert;
 DROP TRIGGER IF EXISTS payments_before_update;
 DROP TRIGGER IF EXISTS order_items_before_insert;
 DROP TRIGGER IF EXISTS enrollments_before_insert;
+DROP TRIGGER IF EXISTS enrollments_before_update;
 DROP TRIGGER IF EXISTS payouts_before_insert;
 
 DELIMITER $$
@@ -101,6 +102,33 @@ BEGIN
 
         IF paid_order <> 1 OR matching_items < 1 THEN
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Enrollment requires a paid matching order item';
+        END IF;
+    END IF;
+END$$
+
+CREATE TRIGGER enrollments_before_update
+BEFORE UPDATE ON enrollments
+FOR EACH ROW
+BEGIN
+    DECLARE matching_items INT DEFAULT 0;
+    DECLARE paid_order INT DEFAULT 0;
+
+    IF NEW.status = 'active' AND NEW.order_id IS NOT NULL THEN
+        SELECT COUNT(*)
+          INTO paid_order
+        FROM orders
+        WHERE id = NEW.order_id
+          AND student_id = NEW.student_id
+          AND order_status = 'paid';
+
+        SELECT COUNT(*)
+          INTO matching_items
+        FROM order_items
+        WHERE order_id = NEW.order_id
+          AND course_id = NEW.course_id;
+
+        IF paid_order <> 1 OR matching_items < 1 THEN
+            SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Active enrollment requires a paid matching order item';
         END IF;
     END IF;
 END$$
