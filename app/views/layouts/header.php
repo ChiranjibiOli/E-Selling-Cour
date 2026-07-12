@@ -5,6 +5,9 @@ require_once __DIR__ . '/../../core/Auth.php';
 Auth::start();
 $currentUser = Auth::user();
 $currentRole = $currentUser['role'] ?? '';
+$currentScript = basename((string) ($_SERVER['PHP_SELF'] ?? ''));
+$publicLayoutScripts = ['index.php', 'about.php', 'contact.php', 'how-it-works.php'];
+$usesPanelLayout = Auth::check() && !in_array($currentScript, $publicLayoutScripts, true);
 
 $documentTitle = isset($pageTitle) && trim((string) $pageTitle) !== ''
     ? trim((string) $pageTitle) . ' | ' . APP_NAME
@@ -30,7 +33,7 @@ $documentTitle = isset($pageTitle) && trim((string) $pageTitle) !== ''
     <link rel="stylesheet" href="assets/css/components/cards.css?v=12">
     <link rel="stylesheet" href="assets/css/components/modals.css?v=12">
 
-    <?php if (Auth::check()): ?>
+    <?php if ($usesPanelLayout): ?>
         <link rel="stylesheet" href="assets/css/panel.css?v=12">
         <link rel="stylesheet" href="assets/css/panel-modules.css?v=12">
 
@@ -84,9 +87,9 @@ $documentTitle = isset($pageTitle) && trim((string) $pageTitle) !== ''
 
     <script src="assets/js/main.js?v=12" defer></script>
     <script src="assets/js/auth.js?v=12" defer></script>
-    <?php if (Auth::check()): ?>
+    <?php if ($usesPanelLayout): ?>
         <script src="assets/js/panel.js?v=14" defer></script>
     <?php endif; ?>
 </head>
-<body id="main-content" class="<?php echo Auth::check() ? 'authenticated-panel' : 'public-site'; ?>">
+<body id="main-content" class="<?php echo $usesPanelLayout ? 'authenticated-panel' : 'public-site'; ?>">
 <a class="skip-link" href="#main-content">Skip to main content</a>
