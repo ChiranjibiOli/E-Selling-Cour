@@ -61,24 +61,50 @@ body:has(.course-studio-page) {
     z-index: 10;
   }
 
-  /* Right live preview stops 10px below the fixed navbar and stays there. */
+  /*
+   * Keep the right preview locked 10px below the navbar.
+   * Because the preview is taller than some browser windows, constrain it to the
+   * available viewport and let only its own contents scroll instead of allowing
+   * the whole block to be pushed underneath the navbar.
+   */
   .course-studio-page .preview-column {
     position: sticky !important;
     top: 92px !important;
     align-self: start !important;
-    height: fit-content !important;
-    max-height: none !important;
-    overflow: visible !important;
+    height: auto !important;
+    max-height: calc(100vh - 102px) !important;
+    max-height: calc(100dvh - 102px) !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
     z-index: 10;
   }
 
-  /* The sticky behavior belongs to the column so the whole preview block moves as one unit. */
   .course-studio-page .preview-sticky {
     position: static !important;
     top: auto !important;
     height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
+    max-height: calc(100vh - 102px) !important;
+    max-height: calc(100dvh - 102px) !important;
+    min-height: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain !important;
+    scrollbar-gutter: stable;
+  }
+
+  .course-studio-page .preview-sticky::-webkit-scrollbar {
+    width: 7px;
+  }
+
+  .course-studio-page .preview-sticky::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .course-studio-page .preview-sticky::-webkit-scrollbar-thumb {
+    border: 2px solid transparent;
+    border-radius: 999px;
+    background: rgba(15, 118, 110, 0.34);
+    background-clip: padding-box;
   }
 
   /* Show every middle form section in normal document flow. */
