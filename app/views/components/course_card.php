@@ -11,7 +11,7 @@ declare(strict_types=1);
  * - href: optional primary course URL
  * - metrics: [['label' => 'Lessons', 'value' => '12'], ...]
  * - actions: [['label' => 'View course', 'href' => '...', 'style' => 'primary'], ...]
- * - feature_renderer: optional zero-argument callable rendered after the common footer.
+ * - feature_html: trusted server-rendered workflow controls placed after the common footer
  */
 
 $card = is_array($courseCard ?? null) ? $courseCard : [];
@@ -40,30 +40,9 @@ $price = trim((string) ($card['price'] ?? ''));
 $href = trim((string) ($card['href'] ?? ''));
 $metrics = is_array($card['metrics'] ?? null) ? $card['metrics'] : [];
 $actions = is_array($card['actions'] ?? null) ? $card['actions'] : [];
-$featureRenderer = is_callable($card['feature_renderer'] ?? null) ? $card['feature_renderer'] : null;
+$featureHtml = is_string($card['feature_html'] ?? null) ? $card['feature_html'] : '';
 $statusClass = preg_replace('/[^a-z0-9_-]/i', '', (string) ($card['status_class'] ?? ''));
-
-static $adminStylesRendered = false;
-if ($context === 'admin' && !$adminStylesRendered):
-    $adminStylesRendered = true;
 ?>
-<style>
-.course-unit-feature--admin{margin-top:14px;padding-top:14px;border-top:1px solid #e9edf5}
-.course-admin-note{margin:0 0 12px;padding:11px 12px;border:1px solid #e5e7eb;border-radius:11px;background:#f8fafc;color:#475467;font-size:.78rem;line-height:1.5}
-.course-admin-review-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.course-admin-review-actions form{margin:0}
-.course-admin-approve,.course-admin-reject-toggle,.course-admin-reject-form button{min-height:39px;padding:0 13px;border:0;border-radius:10px;font:inherit;font-size:.74rem;font-weight:900;cursor:pointer}
-.course-admin-approve{color:#fff;background:#059669}
-.course-admin-reject-toggle{color:#b91c1c;background:#fee2e2}
-.course-admin-reject-form{display:none;gap:10px;margin-top:12px;padding:12px;border:1px solid #fecaca;border-radius:12px;background:#fef2f2}
-.course-admin-reject-form.open{display:grid}
-.course-admin-reject-form label{display:grid;gap:6px}
-.course-admin-reject-form label span{color:#991b1b;font-size:.72rem;font-weight:900}
-.course-admin-reject-form textarea{width:100%;min-height:90px;padding:10px;border:1px solid #fca5a5;border-radius:10px;background:#fff;resize:vertical;font:inherit}
-.course-admin-reject-form button{color:#fff;background:#dc2626}
-@media(max-width:700px){.course-admin-review-actions,.course-admin-review-actions form,.course-admin-approve,.course-admin-reject-toggle,.course-admin-reject-form button{width:100%}}
-</style>
-<?php endif; ?>
 <article class="course-unit-card course-unit-card--<?php echo $escape($context); ?>">
     <div class="course-unit-cover">
         <?php if ($href !== ''): ?>
@@ -164,11 +143,11 @@ if ($context === 'admin' && !$adminStylesRendered):
             <?php endif; ?>
         </footer>
 
-        <?php if ($featureRenderer): ?>
+        <?php if ($featureHtml !== ''): ?>
             <div class="course-unit-feature course-unit-feature--<?php echo $escape($context); ?>">
-                <?php $featureRenderer(); ?>
+                <?php echo $featureHtml; ?>
             </div>
         <?php endif; ?>
     </div>
 </article>
-<?php unset($courseCard, $card, $featureRenderer); ?>
+<?php unset($courseCard, $card, $featureHtml); ?>
