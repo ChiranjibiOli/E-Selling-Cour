@@ -37,7 +37,7 @@ $stmt = $conn->prepare("
     WHERE c.status = 'published'
       AND instructor.role = 'instructor'
       AND instructor.status = 'active'
-      AND cat.is_active = 1
+      AND cat.status = 'active'
     ORDER BY c.created_at DESC, c.id DESC
 ");
 $stmt->bind_param('ii', $studentId, $studentId);
