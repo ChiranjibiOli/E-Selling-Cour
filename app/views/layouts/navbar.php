@@ -29,12 +29,14 @@ $brandAccent = $brandHasHubSuffix ? 'Hub' : '';
         flex: 0 0 42px;
         overflow: visible;
         filter: drop-shadow(0 5px 8px rgba(31, 23, 58, .18));
+        transform: scale(var(--nav-logo-scale, 1));
         transform-origin: 50% 68%;
-        transition: transform .22s cubic-bezier(.22, 1, .36, 1), filter .22s ease;
+        transition: filter .22s ease;
+        will-change: transform;
     }
 
     .coursehub-mascot-logo:hover .coursehub-mascot {
-        transform: translateY(-2px) rotate(-5deg) scale(1.03);
+        transform: translateY(-2px) rotate(-5deg) scale(var(--nav-logo-hover-scale, 1.03));
         filter: drop-shadow(0 8px 11px rgba(31, 23, 58, .24));
     }
 
@@ -55,12 +57,13 @@ $brandAccent = $brandHasHubSuffix ? 'Hub' : '';
         align-items: baseline;
         white-space: nowrap;
         font-family: "Arial Rounded MT Bold", "Trebuchet MS", Arial, sans-serif;
-        font-size: 18px;
+        font-size: var(--nav-wordmark-size, 18px);
         font-style: italic;
         font-weight: 900;
         line-height: 1;
         letter-spacing: -.075em;
         transform: skewX(-4deg);
+        will-change: font-size;
     }
 
     .coursehub-wordmark-main {
@@ -91,12 +94,58 @@ $brandAccent = $brandHasHubSuffix ? 'Hub' : '';
         transform: scaleX(1);
     }
 
-    .site-header.is-scrolled .coursehub-mascot {
-        transform: scale(.9);
+    /*
+     * Scroll interpolation values are updated by the spring animation below.
+     * Both compression and release use the same motion curve, avoiding the
+     * abrupt class switch that previously made the navbar snap.
+     */
+    .site-header,
+    .site-header.is-scrolled {
+        top: var(--nav-top, 12px);
+        height: var(--nav-height, 72px);
+        transition: none;
+        will-change: top, height;
     }
 
-    .site-header.is-scrolled .coursehub-wordmark {
-        font-size: 17px;
+    .site-header .navbar,
+    .site-header.is-scrolled .navbar {
+        max-width: var(--nav-max-width, 1360px);
+        height: var(--nav-height, 72px);
+        padding-right: var(--nav-padding-inline, 18px);
+        padding-left: var(--nav-padding-inline, 18px);
+        border-radius: var(--nav-radius, 22px);
+        transform: translateZ(0);
+        transition:
+            border-color .48s cubic-bezier(.22, 1, .36, 1),
+            background .48s cubic-bezier(.22, 1, .36, 1),
+            box-shadow .48s cubic-bezier(.22, 1, .36, 1),
+            backdrop-filter .48s cubic-bezier(.22, 1, .36, 1),
+            -webkit-backdrop-filter .48s cubic-bezier(.22, 1, .36, 1);
+        will-change: max-width, height, padding, border-radius;
+    }
+
+    .site-header .nav-links,
+    .site-header.is-scrolled .nav-links {
+        gap: var(--nav-link-gap, 8px);
+    }
+
+    .site-header .nav-links a,
+    .site-header.is-scrolled .nav-links a {
+        min-height: var(--nav-link-height, 42px);
+        padding: var(--nav-link-pad-top, 8px) var(--nav-link-pad-x, 14px) var(--nav-link-pad-bottom, 9px);
+        font-size: var(--nav-link-font-size, 14.1px);
+    }
+
+    .site-header .nav-actions,
+    .site-header.is-scrolled .nav-actions {
+        gap: var(--nav-action-gap, 10px);
+    }
+
+    .site-header .nav-actions .btn,
+    .site-header.is-scrolled .nav-actions .btn {
+        min-height: var(--nav-button-height, 42px);
+        padding: var(--nav-button-pad-y, 8px) var(--nav-button-pad-x, 18px);
+        font-size: var(--nav-button-font-size, 14.4px);
     }
 
     @keyframes coursehubAntenna {
@@ -112,16 +161,57 @@ $brandAccent = $brandHasHubSuffix ? 'Hub' : '';
     }
 
     @media (max-width: 900px) {
-        .coursehub-mascot,
-        .site-header.is-scrolled .coursehub-mascot {
+        .site-header,
+        .site-header.is-scrolled {
+            top: 8px;
+            height: 62px;
+        }
+
+        .site-header .navbar,
+        .site-header.is-scrolled .navbar {
+            width: calc(100% - 16px);
+            max-width: none;
+            height: 62px;
+            padding: 0 11px 0 13px;
+            border-radius: 18px;
+        }
+
+        .site-header .nav-links,
+        .site-header.is-scrolled .nav-links {
+            gap: 6px;
+        }
+
+        .site-header .nav-links a,
+        .site-header.is-scrolled .nav-links a {
+            min-height: 42px;
+            padding: 0 13px;
+            font-size: 13.8px;
+        }
+
+        .site-header .nav-actions,
+        .site-header.is-scrolled .nav-actions {
+            gap: 8px;
+        }
+
+        .site-header .nav-actions .btn,
+        .site-header.is-scrolled .nav-actions .btn {
+            min-height: 40px;
+            padding-inline: 10px;
+            font-size: 13.1px;
+        }
+
+        .coursehub-mascot {
             width: 36px;
             height: 36px;
             flex-basis: 36px;
             transform: none;
         }
 
-        .coursehub-wordmark,
-        .site-header.is-scrolled .coursehub-wordmark {
+        .coursehub-mascot-logo:hover .coursehub-mascot {
+            transform: translateY(-2px) rotate(-5deg) scale(1.03);
+        }
+
+        .coursehub-wordmark {
             font-size: 16px;
         }
     }
@@ -141,8 +231,12 @@ $brandAccent = $brandHasHubSuffix ? 'Hub' : '';
         }
 
         .coursehub-mascot,
-        .coursehub-wordmark,
         .coursehub-wordmark-hub::after {
+            transition: none;
+        }
+
+        .site-header .navbar,
+        .site-header.is-scrolled .navbar {
             transition: none;
         }
     }
@@ -234,23 +328,148 @@ $brandAccent = $brandHasHubSuffix ? 'Hub' : '';
         return;
     }
 
-    let frameRequested = false;
+    const desktopQuery = window.matchMedia('(min-width: 901px)');
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const compactDistance = 120;
+    const values = {
+        top: [12, 8],
+        height: [72, 64],
+        maxWidth: [1360, 1120],
+        paddingInline: [18, 14],
+        radius: [22, 18],
+        linkGap: [8, 5],
+        linkHeight: [42, 38],
+        linkPadTop: [8, 6],
+        linkPadX: [14, 11],
+        linkPadBottom: [9, 7],
+        linkFont: [14.1, 13],
+        actionGap: [10, 7],
+        buttonHeight: [42, 38],
+        buttonPadY: [8, 6],
+        buttonPadX: [18, 14],
+        buttonFont: [14.4, 13],
+        logoScale: [1, .9],
+        logoHoverScale: [1.03, .93],
+        wordmarkSize: [18, 17]
+    };
 
-    function updateNavbarState() {
-        header.classList.toggle('is-scrolled', window.scrollY > 36);
-        frameRequested = false;
+    let targetProgress = 0;
+    let currentProgress = 0;
+    let velocity = 0;
+    let animationFrame = 0;
+    let previousTime = performance.now();
+
+    function clamp(value, minimum, maximum) {
+        return Math.min(maximum, Math.max(minimum, value));
     }
 
-    function requestNavbarUpdate() {
-        if (frameRequested) {
+    function interpolate(range, progress) {
+        return range[0] + ((range[1] - range[0]) * progress);
+    }
+
+    function setPixelProperty(name, range, progress, precision) {
+        header.style.setProperty(name, `${interpolate(range, progress).toFixed(precision ?? 3)}px`);
+    }
+
+    function applyProgress(progress) {
+        const safeProgress = clamp(progress, 0, 1);
+
+        setPixelProperty('--nav-top', values.top, safeProgress);
+        setPixelProperty('--nav-height', values.height, safeProgress);
+        setPixelProperty('--nav-max-width', values.maxWidth, safeProgress);
+        setPixelProperty('--nav-padding-inline', values.paddingInline, safeProgress);
+        setPixelProperty('--nav-radius', values.radius, safeProgress);
+        setPixelProperty('--nav-link-gap', values.linkGap, safeProgress);
+        setPixelProperty('--nav-link-height', values.linkHeight, safeProgress);
+        setPixelProperty('--nav-link-pad-top', values.linkPadTop, safeProgress);
+        setPixelProperty('--nav-link-pad-x', values.linkPadX, safeProgress);
+        setPixelProperty('--nav-link-pad-bottom', values.linkPadBottom, safeProgress);
+        setPixelProperty('--nav-link-font-size', values.linkFont, safeProgress, 2);
+        setPixelProperty('--nav-action-gap', values.actionGap, safeProgress);
+        setPixelProperty('--nav-button-height', values.buttonHeight, safeProgress);
+        setPixelProperty('--nav-button-pad-y', values.buttonPadY, safeProgress);
+        setPixelProperty('--nav-button-pad-x', values.buttonPadX, safeProgress);
+        setPixelProperty('--nav-button-font-size', values.buttonFont, safeProgress, 2);
+        setPixelProperty('--nav-wordmark-size', values.wordmarkSize, safeProgress, 2);
+        header.style.setProperty('--nav-logo-scale', interpolate(values.logoScale, safeProgress).toFixed(4));
+        header.style.setProperty('--nav-logo-hover-scale', interpolate(values.logoHoverScale, safeProgress).toFixed(4));
+
+        if (safeProgress >= .62) {
+            header.classList.add('is-scrolled');
+        } else if (safeProgress <= .38) {
+            header.classList.remove('is-scrolled');
+        }
+    }
+
+    function readTargetProgress() {
+        if (!desktopQuery.matches) {
+            return 0;
+        }
+
+        return clamp(window.scrollY / compactDistance, 0, 1);
+    }
+
+    function stopAnimation() {
+        if (animationFrame) {
+            window.cancelAnimationFrame(animationFrame);
+            animationFrame = 0;
+        }
+    }
+
+    function animate(now) {
+        const deltaTime = Math.min((now - previousTime) / 1000, .034);
+        previousTime = now;
+
+        const stiffness = 175;
+        const damping = 27;
+        const displacement = targetProgress - currentProgress;
+
+        velocity += displacement * stiffness * deltaTime;
+        velocity *= Math.exp(-damping * deltaTime);
+        currentProgress += velocity * deltaTime;
+        currentProgress = clamp(currentProgress, -.03, 1.03);
+
+        applyProgress(currentProgress);
+
+        const settled = Math.abs(targetProgress - currentProgress) < .0007 && Math.abs(velocity) < .0007;
+        if (settled) {
+            currentProgress = targetProgress;
+            velocity = 0;
+            applyProgress(currentProgress);
+            animationFrame = 0;
             return;
         }
 
-        frameRequested = true;
-        window.requestAnimationFrame(updateNavbarState);
+        animationFrame = window.requestAnimationFrame(animate);
     }
 
-    updateNavbarState();
-    window.addEventListener('scroll', requestNavbarUpdate, { passive: true });
+    function startAnimation() {
+        targetProgress = readTargetProgress();
+
+        if (reducedMotionQuery.matches || !desktopQuery.matches) {
+            stopAnimation();
+            currentProgress = targetProgress;
+            velocity = 0;
+            applyProgress(currentProgress);
+            return;
+        }
+
+        if (!animationFrame) {
+            previousTime = performance.now();
+            animationFrame = window.requestAnimationFrame(animate);
+        }
+    }
+
+    function initialize() {
+        targetProgress = readTargetProgress();
+        currentProgress = targetProgress;
+        applyProgress(currentProgress);
+    }
+
+    initialize();
+    window.addEventListener('scroll', startAnimation, { passive: true });
+    window.addEventListener('resize', startAnimation, { passive: true });
+    desktopQuery.addEventListener('change', startAnimation);
+    reducedMotionQuery.addEventListener('change', startAnimation);
 })();
 </script>
