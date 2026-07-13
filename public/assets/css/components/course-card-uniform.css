@@ -1,12 +1,19 @@
 /*
- * Universal course-card geometry.
- * Every role uses the same 540px card boundary. Context-specific controls may
- * change, but the card size, image stage and content rhythm remain consistent.
+ * Shared course-card geometry.
+ * Learner-facing cards show only the essentials. Full course information stays
+ * on the course details page, while instructor/admin cards keep management data.
  */
 
 .course-unit-card--marketplace,
 .course-unit-card--student,
-.course-unit-card--cart,
+.course-unit-card--cart {
+    width: 100% !important;
+    height: 440px !important;
+    min-height: 440px !important;
+    max-height: 440px !important;
+    overflow: hidden !important;
+}
+
 .course-unit-card--instructor,
 .course-unit-card--admin {
     width: 100% !important;
@@ -19,9 +26,13 @@
 .editorial-course-list,
 .student-course-grid,
 .my-courses-grid,
-.course-library-grid,
-.review-page .review-grid,
 .cart-page .cart-items-list {
+    grid-auto-rows: 440px !important;
+    align-items: stretch !important;
+}
+
+.course-library-grid,
+.review-page .review-grid {
     grid-auto-rows: 540px !important;
     align-items: stretch !important;
 }
@@ -29,9 +40,15 @@
 .editorial-course-list > .course-unit-card,
 .student-course-grid > .course-unit-card,
 .my-courses-grid > .course-unit-card,
-.course-library-grid > .course-unit-card,
-.review-page .review-grid > .course-unit-card,
 .cart-page .cart-items-list > .course-unit-card {
+    width: 100% !important;
+    height: 440px !important;
+    min-height: 440px !important;
+    max-height: 440px !important;
+}
+
+.course-library-grid > .course-unit-card,
+.review-page .review-grid > .course-unit-card {
     width: 100% !important;
     height: 540px !important;
     min-height: 540px !important;
@@ -65,7 +82,90 @@
     overflow: hidden;
 }
 
-.course-unit-card .course-unit-eyebrow {
+/*
+ * Compact learner cards: category, level, title, short summary, price and the
+ * relevant action only. The image and title remain links to full details.
+ */
+.course-unit-card--marketplace .course-unit-eyebrow,
+.course-unit-card--student .course-unit-eyebrow,
+.course-unit-card--cart .course-unit-eyebrow,
+.course-unit-card--marketplace .course-unit-meta,
+.course-unit-card--student .course-unit-meta,
+.course-unit-card--cart .course-unit-meta,
+.course-unit-card--marketplace .course-unit-rating,
+.course-unit-card--student .course-unit-rating,
+.course-unit-card--cart .course-unit-rating,
+.course-unit-card--marketplace .course-unit-metrics,
+.course-unit-card--student .course-unit-metrics,
+.course-unit-card--cart .course-unit-metrics {
+    display: none !important;
+}
+
+.course-unit-card--marketplace .course-unit-main,
+.course-unit-card--student .course-unit-main,
+.course-unit-card--cart .course-unit-main {
+    justify-content: flex-start;
+    gap: 10px;
+}
+
+.course-unit-card--marketplace .course-unit-title,
+.course-unit-card--student .course-unit-title,
+.course-unit-card--cart .course-unit-title {
+    display: -webkit-box;
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+    margin: 0;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.course-unit-card--marketplace .course-unit-summary,
+.course-unit-card--student .course-unit-summary,
+.course-unit-card--cart .course-unit-summary {
+    display: -webkit-box;
+    height: 38px;
+    min-height: 38px;
+    max-height: 38px;
+    margin: 0;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.course-unit-card--marketplace .course-unit-workflow,
+.course-unit-card--student .course-unit-workflow,
+.course-unit-card--cart .course-unit-workflow {
+    height: 70px;
+    min-height: 70px;
+    max-height: 70px;
+    margin-top: auto;
+    overflow: hidden;
+}
+
+.course-unit-card--marketplace .course-unit-footer,
+.course-unit-card--student .course-unit-footer,
+.course-unit-card--cart .course-unit-footer {
+    height: 70px;
+    min-height: 70px;
+    max-height: 70px;
+    margin-top: 0;
+    padding-top: 10px;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Details remain available through the image/title link, so learner cards keep
+ * only the action that changes the student's course state. */
+.course-unit-card--student .course-unit-action--secondary,
+.course-unit-card--cart .course-unit-action--secondary {
+    display: none !important;
+}
+
+/* Full management-card slots. */
+.course-unit-card--instructor .course-unit-eyebrow,
+.course-unit-card--admin .course-unit-eyebrow {
     height: 13px;
     min-height: 13px;
     max-height: 13px;
@@ -76,7 +176,8 @@
     white-space: nowrap;
 }
 
-.course-unit-card .course-unit-meta {
+.course-unit-card--instructor .course-unit-meta,
+.course-unit-card--admin .course-unit-meta {
     height: 24px;
     min-height: 24px;
     max-height: 24px;
@@ -88,7 +189,8 @@
     white-space: nowrap;
 }
 
-.course-unit-card .course-unit-title {
+.course-unit-card--instructor .course-unit-title,
+.course-unit-card--admin .course-unit-title {
     display: -webkit-box;
     height: 42px;
     min-height: 42px;
@@ -99,7 +201,8 @@
     -webkit-line-clamp: 2;
 }
 
-.course-unit-card .course-unit-summary {
+.course-unit-card--instructor .course-unit-summary,
+.course-unit-card--admin .course-unit-summary {
     display: -webkit-box;
     height: 42px;
     min-height: 42px;
@@ -110,7 +213,8 @@
     -webkit-line-clamp: 2;
 }
 
-.course-unit-card .course-unit-rating {
+.course-unit-card--instructor .course-unit-rating,
+.course-unit-card--admin .course-unit-rating {
     height: 16px;
     min-height: 16px;
     max-height: 16px;
@@ -118,7 +222,8 @@
     overflow: hidden;
 }
 
-.course-unit-card .course-unit-metrics {
+.course-unit-card--instructor .course-unit-metrics,
+.course-unit-card--admin .course-unit-metrics {
     display: grid;
     height: 38px;
     min-height: 38px;
@@ -130,7 +235,8 @@
     gap: 6px;
 }
 
-.course-unit-card .course-unit-metrics div {
+.course-unit-card--instructor .course-unit-metrics div,
+.course-unit-card--admin .course-unit-metrics div {
     min-height: 38px;
     max-height: 38px;
     overflow: hidden;
@@ -143,18 +249,12 @@
     overflow: hidden;
 }
 
-.course-unit-card--marketplace .course-unit-workflow,
-.course-unit-card--student .course-unit-workflow,
-.course-unit-card--cart .course-unit-workflow,
 .course-unit-card--instructor .course-unit-workflow {
     height: 66px;
     min-height: 66px;
     max-height: 66px;
 }
 
-.course-unit-card--marketplace .course-unit-footer,
-.course-unit-card--student .course-unit-footer,
-.course-unit-card--cart .course-unit-footer,
 .course-unit-card--instructor .course-unit-footer {
     height: 66px;
     min-height: 66px;
@@ -251,14 +351,19 @@
     .course-unit-card--marketplace,
     .course-unit-card--student,
     .course-unit-card--cart,
-    .course-unit-card--instructor,
-    .course-unit-card--admin,
     .editorial-course-list > .course-unit-card,
     .student-course-grid > .course-unit-card,
     .my-courses-grid > .course-unit-card,
-    .course-library-grid > .course-unit-card,
-    .review-page .review-grid > .course-unit-card,
     .cart-page .cart-items-list > .course-unit-card {
+        height: 440px !important;
+        min-height: 440px !important;
+        max-height: 440px !important;
+    }
+
+    .course-unit-card--instructor,
+    .course-unit-card--admin,
+    .course-library-grid > .course-unit-card,
+    .review-page .review-grid > .course-unit-card {
         height: 540px !important;
         min-height: 540px !important;
         max-height: 540px !important;
@@ -267,23 +372,13 @@
     .editorial-course-list,
     .student-course-grid,
     .my-courses-grid,
-    .course-library-grid,
-    .review-page .review-grid,
     .cart-page .cart-items-list {
+        grid-auto-rows: 440px !important;
+    }
+
+    .course-library-grid,
+    .review-page .review-grid {
         grid-auto-rows: 540px !important;
-    }
-
-    .course-unit-card .marketplace-cover,
-    .course-unit-card .course-unit-cover {
-        height: 220px !important;
-        min-height: 220px !important;
-        max-height: 220px !important;
-        flex-basis: 220px !important;
-    }
-
-    .course-unit-card .marketplace-content,
-    .course-unit-card .course-unit-content {
-        padding: 17px 16px 15px !important;
     }
 
     .course-unit-card .course-unit-actions {
