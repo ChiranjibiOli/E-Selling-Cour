@@ -68,9 +68,9 @@ foreach ($statQueries as $key => $query) {
     }
 }
 ?>
-<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=15">
-<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=29">
-<link rel="stylesheet" href="assets/css/components/footer.css?v=11">
+<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=16">
+<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=30">
+<link rel="stylesheet" href="assets/css/components/footer.css?v=12">
 
 <main class="landing-page">
     <section class="editorial-hero">
