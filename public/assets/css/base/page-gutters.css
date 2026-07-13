@@ -1,19 +1,20 @@
 /*
  * Shared authenticated-page boundary.
- * Public pages keep their own existing centered layouts.
- * Student, instructor, and admin pages use the available viewport with
- * equal 20px gutters, reduced to 12px on small screens.
+ * Public pages keep their existing centered layouts.
+ * Student, instructor, and admin pages use a 1200px maximum width, which is
+ * exactly 20px wider than the 1180px public-page container.
  */
 
 :root {
+    --panel-content-max: 1200px;
     --panel-page-gutter: 20px;
+    --panel-content-width: min(
+        var(--panel-content-max),
+        calc(100% - (var(--panel-page-gutter) * 2))
+    );
 }
 
-/*
- * Only authenticated panel pages receive the near-full-width layout.
- * The width is calculated from the containing block rather than 100vw so
- * browser scrollbars do not create accidental horizontal overflow.
- */
+/* Apply the 20px wider container only to authenticated panel pages. */
 body.authenticated-panel main .container,
 body.authenticated-panel main > [class*="-shell"],
 body.authenticated-panel main > [class*="-wrapper"],
@@ -44,29 +45,26 @@ body.authenticated-panel .payout-wrapper,
 body.authenticated-panel .account-wrapper,
 body.authenticated-panel .panel-shell,
 body.authenticated-panel .page-shell {
-    width: calc(100% - (var(--panel-page-gutter) * 2)) !important;
-    max-width: none !important;
+    width: var(--panel-content-width) !important;
+    max-width: var(--panel-content-max) !important;
     margin-left: auto !important;
     margin-right: auto !important;
     box-sizing: border-box;
 }
 
-/* Keep role navigation aligned with authenticated page content. */
+/* Keep authenticated role navigation aligned with the wider page content. */
 body.authenticated-panel .role-nav-container,
 body.authenticated-panel .student-nav-container,
 body.authenticated-panel .instructor-nav-container,
 body.authenticated-panel .admin-nav-container {
-    width: calc(100% - (var(--panel-page-gutter) * 2)) !important;
-    max-width: none !important;
+    width: var(--panel-content-width) !important;
+    max-width: var(--panel-content-max) !important;
     margin-left: auto !important;
     margin-right: auto !important;
     box-sizing: border-box;
 }
 
-/*
- * Public pages and public navigation are intentionally not selected here.
- * Their page-specific CSS continues to control their widths and centering.
- */
+/* Public pages and public navigation are intentionally unchanged. */
 
 @media (max-width: 620px) {
     :root {
