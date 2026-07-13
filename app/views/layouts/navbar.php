@@ -12,7 +12,7 @@ $brandMain = $brandHasHubSuffix ? substr($brandName, 0, -3) : $brandName;
 $brandAccent = $brandHasHubSuffix ? 'Hub' : '';
 ?>
 
-<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=17">
+<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=18">
 <link rel="stylesheet" href="assets/css/pages/public/public-courses.css?v=15">
 
 <style>
@@ -91,6 +91,14 @@ $brandAccent = $brandHasHubSuffix ? 'Hub' : '';
         transform: scaleX(1);
     }
 
+    .site-header.is-scrolled .coursehub-mascot {
+        transform: scale(.9);
+    }
+
+    .site-header.is-scrolled .coursehub-wordmark {
+        font-size: 17px;
+    }
+
     @keyframes coursehubAntenna {
         0%, 74%, 100% { transform: rotate(0deg); }
         80% { transform: rotate(8deg); }
@@ -104,13 +112,16 @@ $brandAccent = $brandHasHubSuffix ? 'Hub' : '';
     }
 
     @media (max-width: 900px) {
-        .coursehub-mascot {
+        .coursehub-mascot,
+        .site-header.is-scrolled .coursehub-mascot {
             width: 36px;
             height: 36px;
             flex-basis: 36px;
+            transform: none;
         }
 
-        .coursehub-wordmark {
+        .coursehub-wordmark,
+        .site-header.is-scrolled .coursehub-wordmark {
             font-size: 16px;
         }
     }
@@ -130,6 +141,7 @@ $brandAccent = $brandHasHubSuffix ? 'Hub' : '';
         }
 
         .coursehub-mascot,
+        .coursehub-wordmark,
         .coursehub-wordmark-hub::after {
             transition: none;
         }
@@ -153,7 +165,7 @@ $brandAccent = $brandHasHubSuffix ? 'Hub' : '';
 </div>
 <?php endif; ?>
 
-<header class="site-header">
+<header class="site-header" id="publicSiteHeader">
     <nav class="navbar container" aria-label="Primary navigation">
         <a class="logo coursehub-mascot-logo" href="index.php" aria-label="<?php echo htmlspecialchars(APP_NAME); ?> home">
             <svg class="coursehub-mascot" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
@@ -214,3 +226,31 @@ $brandAccent = $brandHasHubSuffix ? 'Hub' : '';
         </div>
     </nav>
 </header>
+
+<script>
+(function () {
+    const header = document.getElementById('publicSiteHeader');
+    if (!header) {
+        return;
+    }
+
+    let frameRequested = false;
+
+    function updateNavbarState() {
+        header.classList.toggle('is-scrolled', window.scrollY > 36);
+        frameRequested = false;
+    }
+
+    function requestNavbarUpdate() {
+        if (frameRequested) {
+            return;
+        }
+
+        frameRequested = true;
+        window.requestAnimationFrame(updateNavbarState);
+    }
+
+    updateNavbarState();
+    window.addEventListener('scroll', requestNavbarUpdate, { passive: true });
+})();
+</script>
