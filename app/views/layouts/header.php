@@ -52,7 +52,7 @@ $documentTitle = isset($pageTitle) && trim((string) $pageTitle) !== ''
         <link rel="stylesheet" href="assets/css/panel-final.css?v=2" data-panel-style="panel-final">
     <?php endif; ?>
 
-    <link rel="stylesheet" href="assets/css/components/course-card-theme.css?v=3">
+    <link rel="stylesheet" href="assets/css/components/course-card-theme.css?v=4">
     <link rel="stylesheet" href="assets/css/components/course-card-uniform.css?v=3">
     <link rel="stylesheet" href="assets/css/components/course-card-dimensions.css?v=5">
     <link rel="stylesheet" href="assets/css/components/course-card-rating-spacing.css?v=3">
