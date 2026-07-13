@@ -110,3 +110,137 @@
     color: #625b52;
     background: #f0ebe2;
 }
+
+/*
+ * Fixed marketplace card contract.
+ * Instructor-entered text stays inside predictable slots, while the full
+ * title and description remain available on the course details page.
+ */
+.course-unit-card--marketplace,
+.course-unit-card--student,
+.course-unit-card--cart {
+    height: 470px !important;
+    min-height: 470px !important;
+    max-height: 470px !important;
+}
+
+.course-unit-card--marketplace .course-unit-content,
+.course-unit-card--student .course-unit-content,
+.course-unit-card--cart .course-unit-content {
+    overflow: hidden;
+}
+
+.course-unit-card--marketplace .course-unit-main,
+.course-unit-card--student .course-unit-main,
+.course-unit-card--cart .course-unit-main {
+    display: grid !important;
+    min-height: 0;
+    overflow: hidden;
+    flex: 0 0 auto !important;
+    grid-template-rows: 14px 18px 40px 42px 18px 47px;
+    row-gap: 6px;
+}
+
+.course-unit-card--marketplace .course-unit-eyebrow,
+.course-unit-card--student .course-unit-eyebrow,
+.course-unit-card--cart .course-unit-eyebrow {
+    height: 14px;
+    min-height: 14px;
+    margin: 0;
+    line-height: 14px;
+}
+
+.course-unit-card--marketplace .course-unit-meta,
+.course-unit-card--student .course-unit-meta,
+.course-unit-card--cart .course-unit-meta {
+    height: 18px;
+    min-height: 18px;
+    margin: 0;
+    overflow: hidden;
+    flex-wrap: nowrap;
+    line-height: 18px;
+    white-space: nowrap;
+}
+
+.course-unit-card--marketplace .course-unit-title,
+.course-unit-card--student .course-unit-title,
+.course-unit-card--cart .course-unit-title {
+    height: 40px;
+    min-height: 40px;
+    max-height: 40px;
+    margin: 0;
+    -webkit-line-clamp: 2;
+}
+
+.course-unit-card--marketplace .course-unit-summary,
+.course-unit-card--student .course-unit-summary,
+.course-unit-card--cart .course-unit-summary {
+    height: 42px;
+    min-height: 42px;
+    max-height: 42px;
+    margin: 0;
+    -webkit-line-clamp: 2;
+}
+
+.course-unit-card--marketplace .course-unit-rating,
+.course-unit-card--student .course-unit-rating,
+.course-unit-card--cart .course-unit-rating {
+    height: 18px;
+    min-height: 18px;
+    margin: 0;
+    overflow: hidden;
+}
+
+.course-unit-card--marketplace .course-unit-metrics,
+.course-unit-card--student .course-unit-metrics,
+.course-unit-card--cart .course-unit-metrics {
+    height: 47px;
+    min-height: 47px;
+    max-height: 47px;
+    margin: 0;
+    overflow: hidden;
+}
+
+.course-unit-card--marketplace .course-unit-workflow,
+.course-unit-card--student .course-unit-workflow,
+.course-unit-card--cart .course-unit-workflow {
+    height: 75px;
+    min-height: 75px;
+    max-height: 75px;
+    margin-top: auto;
+    overflow: hidden;
+}
+
+.course-unit-card--marketplace .course-unit-footer,
+.course-unit-card--student .course-unit-footer,
+.course-unit-card--cart .course-unit-footer {
+    height: 65px;
+    min-height: 65px;
+    max-height: 65px;
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+/* Show the complete uploaded image inside the fixed thumbnail frame. */
+.marketplace-cover img,
+.course-unit-cover img {
+    object-fit: contain !important;
+    object-position: center !important;
+    background: #f1ece3;
+    transform: none !important;
+}
+
+.marketplace-card:hover .marketplace-cover img,
+.course-unit-card:hover .course-unit-cover img {
+    transform: none !important;
+}
+
+@media (max-width: 600px) {
+    .course-unit-card--marketplace,
+    .course-unit-card--student,
+    .course-unit-card--cart {
+        height: 500px !important;
+        min-height: 500px !important;
+        max-height: 500px !important;
+    }
+}
