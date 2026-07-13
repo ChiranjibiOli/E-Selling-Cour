@@ -68,7 +68,7 @@ foreach ($statQueries as $key => $query) {
     }
 }
 ?>
-<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=17">
+<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=18">
 <link rel="stylesheet" href="assets/css/pages/public/landing.css?v=30">
 <link rel="stylesheet" href="assets/css/components/footer.css?v=12">
 
