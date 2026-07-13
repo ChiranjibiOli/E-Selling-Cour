@@ -7,6 +7,9 @@ require_once __DIR__ . '/../../config/database.php';
 
 StudentMiddleware::handle();
 
+/** @var mysqli $conn */
+$conn = database_connection();
+
 $user = Auth::user();
 $studentId = (int) ($user['id'] ?? 0);
 $message = '';
@@ -15,11 +18,12 @@ $messageType = '';
 if (isset($_GET['added'])) {
     $message = 'Course added to cart successfully.';
     $messageType = 'success';
-}
-
-if (isset($_GET['removed'])) {
+} elseif (isset($_GET['removed'])) {
     $message = 'Course removed from cart.';
     $messageType = 'success';
+} elseif (isset($_GET['free_courses'])) {
+    $message = 'Free courses do not need checkout. Use Enroll Free on each free course first.';
+    $messageType = 'warning';
 }
 
 $cartItems = [];
@@ -46,9 +50,12 @@ $sql = "
     FROM cart
     INNER JOIN courses c ON cart.course_id = c.id
     INNER JOIN users u ON c.instructor_id = u.id
-    LEFT JOIN categories cat ON c.category_id = cat.id
+    INNER JOIN categories cat ON c.category_id = cat.id
     WHERE cart.student_id = ?
       AND c.status = 'published'
+      AND u.role = 'instructor'
+      AND u.status = 'active'
+      AND cat.status = 'active'
     ORDER BY cart.created_at DESC
 ";
 
@@ -65,11 +72,16 @@ if ($stmt) {
     $stmt->close();
 }
 
-$totalAmount = array_reduce(
-    $cartItems,
-    static fn (float $total, array $item): float => $total + (float) $item['price'],
-    0.0
-);
+$totalAmount = 0.0;
+$hasFreeItems = false;
+$hasPaidItems = false;
+
+foreach ($cartItems as $item) {
+    $price = (float) $item['price'];
+    $totalAmount += max(0, $price);
+    $hasFreeItems = $hasFreeItems || $price <= 0;
+    $hasPaidItems = $hasPaidItems || $price > 0;
+}
 
 function cart_h(mixed $value): string
 {
@@ -87,7 +99,7 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
             <div>
                 <p class="page-label">Student purchase pipeline</p>
                 <h1>My Cart</h1>
-                <p>Review the same published course records you selected in Student Browse before creating an order.</p>
+                <p>Paid courses continue to checkout. Free courses activate immediately through Enroll Free.</p>
             </div>
         </header>
 
@@ -101,10 +113,16 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
             <div class="empty-cart-box">
                 <div class="empty-icon">Empty cart</div>
                 <h2>Your cart is empty</h2>
-                <p>Add a published course from Student Browse before checkout.</p>
+                <p>Add a paid course to your cart or enroll in a free course directly from Student Browse.</p>
                 <a href="student-browse-courses.php" class="browse-btn">Browse Courses</a>
             </div>
         <?php else: ?>
+            <?php if ($hasFreeItems): ?>
+                <div class="cart-alert warning">
+                    Free courses require no payment. Select <strong>Enroll Free</strong> on those cards before proceeding to checkout.
+                </div>
+            <?php endif; ?>
+
             <div class="cart-layout">
                 <div class="cart-items-list" data-page-size="12">
                     <?php foreach ($cartItems as $item): ?>
@@ -118,7 +136,32 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
                             $thumbnailPath = 'assets/images/course-placeholder.svg';
                         }
 
+                        $courseId = (int) $item['course_id'];
+                        $isFree = (float) $item['price'] <= 0;
                         $detailsUrl = 'course-details.php?slug=' . rawurlencode((string) $item['slug']);
+                        $actions = [
+                            ['label' => 'View', 'href' => $detailsUrl, 'style' => 'secondary'],
+                        ];
+
+                        if ($isFree) {
+                            $actions[] = [
+                                'label' => 'Enroll Free',
+                                'href' => 'enroll-free-course.php',
+                                'method' => 'post',
+                                'style' => 'primary',
+                                'hidden' => ['course_id' => $courseId],
+                            ];
+                        }
+
+                        $actions[] = [
+                            'label' => 'Remove',
+                            'href' => 'remove-cart-item.php',
+                            'method' => 'post',
+                            'style' => 'danger',
+                            'hidden' => ['cart_id' => (int) $item['cart_id']],
+                            'confirm' => 'Remove this course from your cart?',
+                        ];
+
                         $courseCard = [
                             'context' => 'cart',
                             'title' => $item['title'],
@@ -129,26 +172,14 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
                             'eyebrow' => 'By ' . $item['instructor_name'],
                             'language' => $item['language'] ?: 'Language not set',
                             'duration' => $item['duration'] ?: 'Self-paced',
-                            'price' => (float) $item['price'] > 0
-                                ? 'Rs. ' . number_format((float) $item['price'], 2)
-                                : 'Free',
+                            'price' => $isFree ? 'Free' : 'Rs. ' . number_format((float) $item['price'], 2),
                             'href' => $detailsUrl,
-                            'rating_label' => 'Ready for checkout',
+                            'rating_label' => $isFree ? 'No payment required' : 'Ready for checkout',
                             'metrics' => [
                                 ['label' => 'Lessons', 'value' => (string) (int) $item['lesson_count']],
                                 ['label' => 'Access', 'value' => 'Lifetime'],
                             ],
-                            'actions' => [
-                                ['label' => 'View', 'href' => $detailsUrl, 'style' => 'secondary'],
-                                [
-                                    'label' => 'Remove',
-                                    'href' => 'remove-cart-item.php',
-                                    'method' => 'post',
-                                    'style' => 'danger',
-                                    'hidden' => ['cart_id' => (int) $item['cart_id']],
-                                    'confirm' => 'Remove this course from your cart?',
-                                ],
-                            ],
+                            'actions' => $actions,
                         ];
 
                         require __DIR__ . '/../components/course_card.php';
@@ -179,7 +210,12 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
                         <strong>Rs. <?php echo number_format($totalAmount, 2); ?></strong>
                     </div>
 
-                    <a href="checkout.php" class="checkout-btn">Proceed to Checkout</a>
+                    <?php if ($hasFreeItems): ?>
+                        <p class="checkout-note">Enroll in the free course cards first. They are never sent to payment checkout.</p>
+                    <?php elseif ($hasPaidItems): ?>
+                        <a href="checkout.php" class="checkout-btn">Proceed to Checkout</a>
+                    <?php endif; ?>
+
                     <a href="student-my-courses.php" class="continue-btn">My Courses</a>
                     <a href="student-browse-courses.php" class="continue-btn">Browse More Courses</a>
                 </aside>
