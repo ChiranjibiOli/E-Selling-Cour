@@ -55,6 +55,7 @@ $documentTitle = isset($pageTitle) && trim((string) $pageTitle) !== ''
     <link rel="stylesheet" href="assets/css/components/course-card-theme.css?v=3">
     <link rel="stylesheet" href="assets/css/components/course-card-uniform.css?v=3">
     <link rel="stylesheet" href="assets/css/components/course-card-dimensions.css?v=1">
+    <link rel="stylesheet" href="assets/css/components/course-reviews.css?v=1">
     <link rel="stylesheet" href="assets/css/components/purchase-flow.css?v=1">
 
     <style>
@@ -93,6 +94,7 @@ $documentTitle = isset($pageTitle) && trim((string) $pageTitle) !== ''
 
     <script src="assets/js/main.js?v=12" defer></script>
     <script src="assets/js/auth.js?v=12" defer></script>
+    <script src="assets/js/course-reviews.js?v=1" defer></script>
     <script src="assets/js/purchase-flow.js?v=2" defer></script>
     <?php if ($usesPanelLayout): ?>
         <script src="assets/js/panel.js?v=15" defer></script>
