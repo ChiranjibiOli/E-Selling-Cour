@@ -1,0 +1,112 @@
+/*
+ * Course card palette
+ * Keeps course cards visually distinct while harmonising with the
+ * platform's warm cream, bronze and charcoal design system.
+ */
+
+.marketplace-card,
+.course-unit-card {
+    border-color: #ded5c7;
+    background: #fbf8f2;
+    box-shadow: 0 12px 28px rgba(39, 31, 21, .08);
+}
+
+.marketplace-card:hover,
+.course-unit-card:hover {
+    border-color: #c8b89e;
+    box-shadow: 0 18px 38px rgba(39, 31, 21, .12);
+}
+
+.marketplace-cover,
+.course-unit-cover {
+    background:
+        radial-gradient(circle at 12% 88%, rgba(255, 248, 233, .12) 0 22%, transparent 23%),
+        linear-gradient(135deg, #30433d 0%, #56685e 56%, #8a7653 100%);
+}
+
+.course-unit-cover-shade {
+    background: linear-gradient(180deg, rgba(24, 22, 18, 0) 55%, rgba(24, 22, 18, .22) 100%);
+}
+
+.marketplace-content,
+.course-unit-content {
+    background: #fffdf8;
+}
+
+.preview-category,
+.course-unit-chip--category {
+    color: #34443e;
+    background: rgba(250, 246, 236, .96);
+    box-shadow: 0 5px 13px rgba(39, 31, 21, .08);
+}
+
+.preview-level,
+.course-unit-chip--badge:not(.is-draft):not(.is-pending):not(.is-published):not(.is-rejected) {
+    color: #3f4f49;
+    background: rgba(239, 235, 224, .97);
+    box-shadow: 0 7px 17px rgba(39, 31, 21, .09);
+}
+
+.course-unit-eyebrow,
+.preview-meta,
+.course-unit-meta {
+    color: #70695f;
+}
+
+.marketplace-content > h3,
+#previewTitle,
+.course-unit-title,
+#previewPrice,
+.course-unit-price,
+.preview-price-row strong {
+    color: #24211d;
+}
+
+.marketplace-content > p,
+#previewDescription,
+.course-unit-summary,
+.preview-rating small,
+.course-unit-rating small {
+    color: #746c61;
+}
+
+.course-unit-metrics div {
+    border-color: #e5dccf;
+    background: #faf7f1;
+}
+
+.course-unit-metrics dt {
+    color: #8a8175;
+}
+
+.course-unit-metrics dd {
+    color: #403a33;
+}
+
+.preview-price-row,
+.course-unit-footer,
+.course-unit-card--admin .course-unit-feature {
+    border-color: #e2d8ca;
+}
+
+.preview-price-row button,
+.course-unit-action--primary {
+    color: #fffaf0;
+    background: #30433d;
+    box-shadow: 0 6px 14px rgba(48, 67, 61, .18);
+}
+
+.preview-price-row button:hover,
+.course-unit-action--primary:hover {
+    background: #23332e;
+}
+
+.course-unit-action--secondary {
+    color: #30433d;
+    background: #e8eee9;
+}
+
+.course-unit-action--muted {
+    color: #625b52;
+    background: #f0ebe2;
+}
