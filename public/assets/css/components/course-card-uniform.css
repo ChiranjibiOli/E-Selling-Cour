@@ -1,0 +1,292 @@
+/*
+ * Universal course-card geometry.
+ * Every course-card context uses the same outer boundary and predictable
+ * internal slots. Long instructor content is truncated on the card and remains
+ * fully available on the course details page.
+ */
+
+.course-unit-card--marketplace,
+.course-unit-card--student,
+.course-unit-card--cart,
+.course-unit-card--instructor,
+.course-unit-card--admin {
+    width: 100% !important;
+    height: 560px !important;
+    min-height: 560px !important;
+    max-height: 560px !important;
+    overflow: hidden;
+}
+
+.editorial-course-list,
+.student-course-grid,
+.my-courses-grid,
+.course-library-grid,
+.review-page .review-grid,
+.cart-page .cart-items-list {
+    grid-auto-rows: 560px !important;
+    align-items: stretch !important;
+}
+
+.editorial-course-list > .course-unit-card,
+.student-course-grid > .course-unit-card,
+.my-courses-grid > .course-unit-card,
+.course-library-grid > .course-unit-card,
+.review-page .review-grid > .course-unit-card,
+.cart-page .cart-items-list > .course-unit-card {
+    width: 100% !important;
+    height: 560px !important;
+    min-height: 560px !important;
+    max-height: 560px !important;
+}
+
+.course-unit-card--marketplace .course-unit-content,
+.course-unit-card--student .course-unit-content,
+.course-unit-card--cart .course-unit-content,
+.course-unit-card--instructor .course-unit-content,
+.course-unit-card--admin .course-unit-content {
+    min-height: 0;
+    overflow: hidden;
+}
+
+.course-unit-card--marketplace .course-unit-main,
+.course-unit-card--student .course-unit-main,
+.course-unit-card--cart .course-unit-main,
+.course-unit-card--instructor .course-unit-main,
+.course-unit-card--admin .course-unit-main {
+    display: grid !important;
+    min-height: 0;
+    overflow: hidden;
+    flex: 0 0 auto !important;
+    grid-template-rows: 14px 18px 40px 42px 18px 72px;
+    row-gap: 6px;
+}
+
+.course-unit-card--marketplace .course-unit-eyebrow,
+.course-unit-card--student .course-unit-eyebrow,
+.course-unit-card--cart .course-unit-eyebrow,
+.course-unit-card--instructor .course-unit-eyebrow,
+.course-unit-card--admin .course-unit-eyebrow {
+    height: 14px;
+    min-height: 14px;
+    max-height: 14px;
+    margin: 0;
+    overflow: hidden;
+    line-height: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.course-unit-card--marketplace .course-unit-meta,
+.course-unit-card--student .course-unit-meta,
+.course-unit-card--cart .course-unit-meta,
+.course-unit-card--instructor .course-unit-meta,
+.course-unit-card--admin .course-unit-meta {
+    height: 18px;
+    min-height: 18px;
+    max-height: 18px;
+    margin: 0;
+    overflow: hidden;
+    flex-wrap: nowrap;
+    line-height: 18px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.course-unit-card--marketplace .course-unit-title,
+.course-unit-card--student .course-unit-title,
+.course-unit-card--cart .course-unit-title,
+.course-unit-card--instructor .course-unit-title,
+.course-unit-card--admin .course-unit-title {
+    display: -webkit-box;
+    height: 40px;
+    min-height: 40px;
+    max-height: 40px;
+    margin: 0;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.course-unit-card--marketplace .course-unit-summary,
+.course-unit-card--student .course-unit-summary,
+.course-unit-card--cart .course-unit-summary,
+.course-unit-card--instructor .course-unit-summary,
+.course-unit-card--admin .course-unit-summary {
+    display: -webkit-box;
+    height: 42px;
+    min-height: 42px;
+    max-height: 42px;
+    margin: 0;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+}
+
+.course-unit-card--marketplace .course-unit-rating,
+.course-unit-card--student .course-unit-rating,
+.course-unit-card--cart .course-unit-rating,
+.course-unit-card--instructor .course-unit-rating,
+.course-unit-card--admin .course-unit-rating {
+    height: 18px;
+    min-height: 18px;
+    max-height: 18px;
+    margin: 0;
+    overflow: hidden;
+}
+
+.course-unit-card--marketplace .course-unit-metrics,
+.course-unit-card--student .course-unit-metrics,
+.course-unit-card--cart .course-unit-metrics,
+.course-unit-card--instructor .course-unit-metrics,
+.course-unit-card--admin .course-unit-metrics {
+    display: grid;
+    height: 72px;
+    min-height: 72px;
+    max-height: 72px;
+    margin: 0;
+    overflow: hidden;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 33px;
+    gap: 6px;
+}
+
+.course-unit-card--marketplace .course-unit-metrics div,
+.course-unit-card--student .course-unit-metrics div,
+.course-unit-card--cart .course-unit-metrics div,
+.course-unit-card--instructor .course-unit-metrics div,
+.course-unit-card--admin .course-unit-metrics div {
+    min-height: 33px;
+    max-height: 33px;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.course-unit-card--marketplace .course-unit-workflow,
+.course-unit-card--student .course-unit-workflow,
+.course-unit-card--cart .course-unit-workflow,
+.course-unit-card--instructor .course-unit-workflow,
+.course-unit-card--admin .course-unit-workflow {
+    min-height: 0;
+    margin-top: auto;
+    overflow: hidden;
+}
+
+.course-unit-card--marketplace .course-unit-footer,
+.course-unit-card--student .course-unit-footer,
+.course-unit-card--cart .course-unit-footer,
+.course-unit-card--instructor .course-unit-footer {
+    height: 70px;
+    min-height: 70px;
+    max-height: 70px;
+    margin-top: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.course-unit-card--admin .course-unit-workflow {
+    height: 140px;
+    min-height: 140px;
+    max-height: 140px;
+    display: flex;
+    flex-direction: column;
+}
+
+.course-unit-card--admin .course-unit-footer {
+    height: 56px;
+    min-height: 56px;
+    max-height: 56px;
+    margin-top: 0;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.course-unit-card--admin .course-unit-feature {
+    min-height: 0;
+    max-height: 76px;
+    flex: 1 1 auto;
+    margin-top: 8px !important;
+    padding-top: 8px !important;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    overscroll-behavior: contain;
+}
+
+.course-unit-card--admin .course-admin-note {
+    max-height: 58px;
+    overflow: auto;
+}
+
+.course-unit-card--marketplace .course-unit-actions,
+.course-unit-card--student .course-unit-actions,
+.course-unit-card--cart .course-unit-actions,
+.course-unit-card--instructor .course-unit-actions,
+.course-unit-card--admin .course-unit-actions {
+    min-width: 0;
+    max-width: calc(100% - 58px);
+    align-content: center;
+}
+
+.course-unit-card--marketplace .course-unit-action,
+.course-unit-card--student .course-unit-action,
+.course-unit-card--cart .course-unit-action,
+.course-unit-card--instructor .course-unit-action,
+.course-unit-card--admin .course-unit-action {
+    min-height: 30px;
+    padding: 0 8px;
+    font-size: .6rem;
+}
+
+/* The full uploaded thumbnail remains visible inside the shared fixed frame. */
+.course-unit-card .course-unit-cover img,
+.marketplace-card .marketplace-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain !important;
+    object-position: center !important;
+    transform: none !important;
+}
+
+@media (max-width: 600px) {
+    .course-unit-card--marketplace,
+    .course-unit-card--student,
+    .course-unit-card--cart,
+    .course-unit-card--instructor,
+    .course-unit-card--admin,
+    .editorial-course-list > .course-unit-card,
+    .student-course-grid > .course-unit-card,
+    .my-courses-grid > .course-unit-card,
+    .course-library-grid > .course-unit-card,
+    .review-page .review-grid > .course-unit-card,
+    .cart-page .cart-items-list > .course-unit-card {
+        height: 580px !important;
+        min-height: 580px !important;
+        max-height: 580px !important;
+    }
+
+    .editorial-course-list,
+    .student-course-grid,
+    .my-courses-grid,
+    .course-library-grid,
+    .review-page .review-grid,
+    .cart-page .cart-items-list {
+        grid-auto-rows: 580px !important;
+    }
+
+    .course-unit-card .course-unit-footer {
+        align-items: center;
+        flex-direction: row;
+    }
+
+    .course-unit-card .course-unit-actions {
+        width: auto;
+        max-width: calc(100% - 58px);
+        flex: 1 1 auto;
+        justify-content: flex-end;
+    }
+
+    .course-unit-card .course-unit-actions form,
+    .course-unit-card .course-unit-action {
+        width: auto;
+    }
+}
