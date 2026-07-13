@@ -77,17 +77,17 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
                 <div>
                     <p class="dashboard-subtitle">Student marketplace</p>
                     <h1>Browse published courses</h1>
-                    <p>Choose an approved course, save it for later, or buy it now. Course access starts after admin verifies your payment.</p>
+                    <p>Choose an approved course, save a paid course for later, buy it now, or enroll in a free course instantly.</p>
                 </div>
                 <a class="btn btn-secondary" href="cart.php">Open cart</a>
             </header>
 
             <?php if (isset($_GET['added'])): ?>
                 <div class="alert alert-success">Course added to your cart.</div>
-            <?php elseif (isset($_GET['cart_error']) || isset($_GET['buy_error'])): ?>
-                <div class="alert alert-error">The course purchase action could not be completed. Refresh and try again.</div>
+            <?php elseif (isset($_GET['cart_error']) || isset($_GET['buy_error']) || isset($_GET['free_error'])): ?>
+                <div class="alert alert-error">The course action could not be completed. Refresh and try again.</div>
             <?php elseif (isset($_GET['notfound']) || isset($_GET['invalid'])): ?>
-                <div class="alert alert-warning">That course is no longer available for purchase.</div>
+                <div class="alert alert-warning">That course is no longer available.</div>
             <?php endif; ?>
 
             <?php if ($courses === []): ?>
@@ -109,6 +109,7 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
                         }
 
                         $courseId = (int) $course['id'];
+                        $isFree = (float) $course['price'] <= 0;
                         $detailsUrl = 'course-details.php?slug=' . rawurlencode((string) $course['slug']);
                         $actions = [
                             ['label' => 'View details', 'href' => $detailsUrl, 'style' => 'secondary'],
@@ -119,6 +120,14 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
                                 'label' => 'Continue learning',
                                 'href' => 'student-course-view.php?course_id=' . $courseId,
                                 'style' => 'primary',
+                            ];
+                        } elseif ($isFree) {
+                            $actions[] = [
+                                'label' => 'Enroll Free',
+                                'href' => 'enroll-free-course.php',
+                                'method' => 'post',
+                                'style' => 'primary',
+                                'hidden' => ['course_id' => $courseId],
                             ];
                         } elseif ((int) $course['has_pending_order'] === 1) {
                             $actions[] = [
@@ -148,13 +157,11 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
                             'eyebrow' => 'By ' . $course['instructor_name'],
                             'language' => $course['language'] ?: 'Language not set',
                             'duration' => $course['duration'] ?: 'Self-paced',
-                            'price' => (float) $course['price'] > 0
-                                ? 'Rs. ' . number_format((float) $course['price'], 2)
-                                : 'Free',
+                            'price' => $isFree ? 'Free' : 'Rs. ' . number_format((float) $course['price'], 2),
                             'href' => $detailsUrl,
-                            'rating_label' => (int) $course['has_pending_order'] === 1
-                                ? 'Waiting for verification'
-                                : 'Published course',
+                            'rating_label' => $isFree
+                                ? 'Instant lifetime access'
+                                : ((int) $course['has_pending_order'] === 1 ? 'Waiting for verification' : 'Published course'),
                             'metrics' => [
                                 ['label' => 'Lessons', 'value' => (string) (int) $course['lesson_count']],
                                 ['label' => 'Students', 'value' => number_format((int) $course['student_count'])],
