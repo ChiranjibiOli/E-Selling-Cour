@@ -27,7 +27,7 @@ $documentTitle = isset($pageTitle) && trim((string) $pageTitle) !== ''
     <link rel="stylesheet" href="assets/css/base/variables.css?v=12">
     <link rel="stylesheet" href="assets/css/base/typography.css?v=12">
     <link rel="stylesheet" href="assets/css/base/layout.css?v=12">
-    <link rel="stylesheet" href="assets/css/base/page-gutters.css?v=2">
+    <link rel="stylesheet" href="assets/css/base/page-gutters.css?v=3">
     <link rel="stylesheet" href="assets/css/components/buttons.css?v=12">
     <link rel="stylesheet" href="assets/css/components/forms.css?v=12">
     <link rel="stylesheet" href="assets/css/components/alerts.css?v=12">
