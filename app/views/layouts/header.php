@@ -54,7 +54,7 @@ $documentTitle = isset($pageTitle) && trim((string) $pageTitle) !== ''
 
     <link rel="stylesheet" href="assets/css/components/course-card-theme.css?v=3">
     <link rel="stylesheet" href="assets/css/components/course-card-uniform.css?v=3">
-    <link rel="stylesheet" href="assets/css/components/course-card-dimensions.css?v=4">
+    <link rel="stylesheet" href="assets/css/components/course-card-dimensions.css?v=5">
     <link rel="stylesheet" href="assets/css/components/course-card-rating-spacing.css?v=3">
     <link rel="stylesheet" href="assets/css/components/course-reviews.css?v=1">
     <link rel="stylesheet" href="assets/css/components/purchase-flow.css?v=1">
