@@ -8,7 +8,7 @@ $isLoggedIn = $currentUser !== null;
 $role = $currentUser['role'] ?? '';
 ?>
 
-<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=15">
+<link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=16">
 <link rel="stylesheet" href="assets/css/pages/public/public-courses.css?v=15">
 
 <?php if ($isLoggedIn): ?>
