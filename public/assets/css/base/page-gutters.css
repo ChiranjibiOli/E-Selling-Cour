@@ -1,0 +1,77 @@
+/*
+ * Shared horizontal page boundary.
+ * Matches the landing page exactly: 1180px maximum content width,
+ * 20px viewport gutters on regular screens and 12px on small screens.
+ */
+
+:root {
+    --site-content-max: 1180px;
+    --site-page-gutter: 20px;
+    --site-content-width: min(
+        var(--site-content-max),
+        calc(100vw - (var(--site-page-gutter) * 2))
+    );
+}
+
+/* Standard content containers used across public and authenticated pages. */
+main .container,
+main > [class*="-shell"],
+main > [class*="-wrapper"],
+main > section > [class*="-shell"],
+main > section > [class*="-wrapper"],
+main > div > [class*="-shell"],
+main > div > [class*="-wrapper"],
+.learning-shell,
+.command-shell,
+.course-library-shell,
+.review-shell,
+.change-shell,
+.cart-wrapper,
+.checkout-wrapper,
+.checkout-success-wrapper,
+.course-details-wrapper,
+.student-learning-wrapper,
+.student-courses-wrapper,
+.profile-wrapper,
+.notifications-wrapper,
+.orders-wrapper,
+.reports-wrapper,
+.settings-wrapper,
+.users-wrapper,
+.instructors-wrapper,
+.withdrawals-wrapper,
+.payout-wrapper,
+.account-wrapper,
+.panel-shell,
+.page-shell {
+    width: var(--site-content-width) !important;
+    max-width: min(var(--site-content-max), 100%) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-sizing: border-box;
+}
+
+/* Keep public and role navigation content aligned with page content. */
+.navbar,
+.public-nav-container,
+.role-nav-container,
+.student-nav-container,
+.instructor-nav-container,
+.admin-nav-container {
+    width: var(--site-content-width) !important;
+    max-width: min(var(--site-content-max), 100%) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    box-sizing: border-box;
+}
+
+/* Preserve full-width backgrounds while aligning their direct content. */
+.landing-page .container {
+    width: var(--site-content-width) !important;
+}
+
+@media (max-width: 620px) {
+    :root {
+        --site-page-gutter: 12px;
+    }
+}
