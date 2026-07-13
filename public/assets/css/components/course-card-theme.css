@@ -243,4 +243,28 @@
         min-height: 500px !important;
         max-height: 500px !important;
     }
+
+    .course-unit-card--marketplace .course-unit-footer,
+    .course-unit-card--student .course-unit-footer,
+    .course-unit-card--cart .course-unit-footer {
+        align-items: center;
+        flex-direction: row;
+    }
+
+    .course-unit-card--marketplace .course-unit-actions,
+    .course-unit-card--student .course-unit-actions,
+    .course-unit-card--cart .course-unit-actions {
+        width: auto;
+        flex: 1 1 auto;
+        justify-content: flex-end;
+    }
+
+    .course-unit-card--marketplace .course-unit-actions form,
+    .course-unit-card--student .course-unit-actions form,
+    .course-unit-card--cart .course-unit-actions form,
+    .course-unit-card--marketplace .course-unit-action,
+    .course-unit-card--student .course-unit-action,
+    .course-unit-card--cart .course-unit-action {
+        width: auto;
+    }
 }
