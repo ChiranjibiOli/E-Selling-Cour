@@ -26,15 +26,17 @@
         return input;
     }
 
-    function createBuyNowForm({ courseId = '', slug = '', buttonClass = '' }) {
+    function createPostForm({ action, label, courseId = '', slug = '', buttonClass = '' }) {
         if (!csrfToken || (!courseId && !slug)) {
             return null;
         }
 
         const form = document.createElement('form');
         form.method = 'post';
-        form.action = 'buy-now.php';
-        form.className = 'purchase-buy-now-form';
+        form.action = action;
+        form.className = action === 'enroll-free-course.php'
+            ? 'purchase-free-enroll-form'
+            : 'purchase-buy-now-form';
         form.append(createHidden('_csrf_token', csrfToken));
 
         if (courseId) {
@@ -46,9 +48,8 @@
         const button = document.createElement('button');
         button.type = 'submit';
         button.className = buttonClass;
-        button.textContent = 'Buy Now';
+        button.textContent = label;
         form.append(button);
-
         return form;
     }
 
@@ -65,6 +66,20 @@
         }
     }
 
+    function isFreePriceText(value) {
+        const text = String(value || '').trim().toLowerCase();
+        if (text === 'free') {
+            return true;
+        }
+
+        const numeric = Number(text.replace(/[^0-9.-]/g, ''));
+        return Number.isFinite(numeric) && numeric === 0;
+    }
+
+    function cardIsFree(card) {
+        return isFreePriceText(card.querySelector('.course-unit-price')?.textContent || '');
+    }
+
     function addCardBuyButtons() {
         document.querySelectorAll('.course-unit-card').forEach((card) => {
             const actions = card.querySelector('.course-unit-actions');
@@ -74,6 +89,10 @@
 
             const labels = Array.from(actions.querySelectorAll('a, button, span'))
                 .map((control) => (control.textContent || '').trim().toLowerCase());
+
+            if (cardIsFree(card) || labels.includes('enroll free')) {
+                return;
+            }
 
             if (labels.some((label) => [
                 'continue learning',
@@ -94,7 +113,9 @@
                 control.classList.add('course-unit-action--secondary');
             });
 
-            const form = createBuyNowForm({
+            const form = createPostForm({
+                action: 'buy-now.php',
+                label: 'Buy Now',
                 slug,
                 buttonClass: 'course-unit-action course-unit-action--primary',
             });
@@ -105,16 +126,34 @@
         });
     }
 
-    function addDetailsBuyButton() {
+    function addDetailsPurchaseButton() {
         if (page !== 'course-details.php') {
             return;
         }
 
         const body = document.querySelector('.course-buy-card .buy-body');
-        if (!body || body.querySelector('.purchase-buy-now-form')) {
+        if (!body) {
             return;
         }
 
+        const labels = Array.from(body.querySelectorAll('a, button'))
+            .map((control) => (control.textContent || '').trim().toLowerCase());
+
+        if (labels.some((label) => [
+            'go to course',
+            'manage lessons',
+            'back to course review',
+            'payment pending',
+        ].includes(label))) {
+            return;
+        }
+
+        const slug = new URLSearchParams(window.location.search).get('slug') || '';
+        if (!slug) {
+            return;
+        }
+
+        const freeCourse = isFreePriceText(body.querySelector('.buy-price')?.textContent || '');
         const existingControl = Array.from(body.querySelectorAll(':scope > a.buy-btn, :scope > form'))
             .find((control) => {
                 const label = (control.textContent || '').trim().toLowerCase();
@@ -125,8 +164,25 @@
             return;
         }
 
-        const slug = new URLSearchParams(window.location.search).get('slug') || '';
-        if (!slug) {
+        if (freeCourse) {
+            const freeForm = createPostForm({
+                action: 'enroll-free-course.php',
+                label: 'Enroll Free',
+                slug,
+                buttonClass: 'buy-btn purchase-free-enroll',
+            });
+
+            if (freeForm) {
+                existingControl.replaceWith(freeForm);
+                const note = document.createElement('p');
+                note.className = 'purchase-flow-note';
+                note.textContent = 'No payment, transaction ID, proof upload, or admin verification is required.';
+                freeForm.after(note);
+            }
+            return;
+        }
+
+        if (body.querySelector('.purchase-buy-now-form')) {
             return;
         }
 
@@ -135,13 +191,15 @@
         existingControl.before(wrapper);
         wrapper.append(existingControl);
 
-        const form = createBuyNowForm({
+        const buyForm = createPostForm({
+            action: 'buy-now.php',
+            label: 'Buy Now',
             slug,
             buttonClass: 'buy-btn purchase-buy-now',
         });
 
-        if (form) {
-            wrapper.append(form);
+        if (buyForm) {
+            wrapper.append(buyForm);
         }
     }
 
@@ -159,21 +217,30 @@
             return;
         }
 
-        const steps = [
-            ['Choose', 'Select a course'],
-            ['Cart', 'Review your selection'],
-            ['Checkout', 'Submit payment'],
-            ['Verification', 'Admin verifies proof'],
-            ['Access', 'Start learning'],
-        ];
+        const detailIsFree = page === 'course-details.php'
+            && isFreePriceText(document.querySelector('.course-buy-card .buy-price')?.textContent || '');
+
+        const steps = detailIsFree
+            ? [
+                ['Choose', 'Review the free course'],
+                ['Enroll', 'Activate lifetime access'],
+                ['Access', 'Start learning immediately'],
+            ]
+            : [
+                ['Choose', 'Select a course'],
+                ['Cart', 'Review your selection'],
+                ['Checkout', 'Submit payment'],
+                ['Verification', 'Admin verifies proof'],
+                ['Access', 'Start learning'],
+            ];
 
         const nav = document.createElement('nav');
         nav.className = 'purchase-flow';
-        nav.setAttribute('aria-label', 'Course purchase progress');
+        nav.setAttribute('aria-label', detailIsFree ? 'Free course enrollment progress' : 'Course purchase progress');
 
         const title = document.createElement('p');
         title.className = 'purchase-flow__title';
-        title.textContent = 'Course purchase steps';
+        title.textContent = detailIsFree ? 'Free course enrollment' : 'Course purchase steps';
         nav.append(title);
 
         const list = document.createElement('ol');
@@ -201,10 +268,15 @@
 
         nav.append(list);
 
-        if (page === 'checkout.php' && new URLSearchParams(window.location.search).has('buy_now')) {
+        if (detailIsFree) {
             const note = document.createElement('p');
             note.className = 'purchase-flow-note';
-            note.textContent = 'Buy Now opened checkout immediately. The order includes the purchasable courses currently in your cart.';
+            note.textContent = 'Free courses skip cart, payment, proof upload, and verification.';
+            nav.append(note);
+        } else if (page === 'checkout.php' && new URLSearchParams(window.location.search).has('buy_now')) {
+            const note = document.createElement('p');
+            note.className = 'purchase-flow-note';
+            note.textContent = 'Buy Now opened checkout immediately. The order includes the paid courses currently in your cart.';
             nav.append(note);
         }
 
@@ -213,5 +285,5 @@
 
     renderPurchaseSteps();
     addCardBuyButtons();
-    addDetailsBuyButton();
+    addDetailsPurchaseButton();
 })();
