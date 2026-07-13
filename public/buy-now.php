@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once '../app/middleware/StudentMiddleware.php';
 require_once '../app/config/database.php';
+require_once '../app/helpers/free_enrollment_helper.php';
 
 StudentMiddleware::handle();
 Security::requirePost();
@@ -28,7 +29,7 @@ try {
 
     if ($courseId > 0) {
         $courseStmt = $conn->prepare("
-            SELECT c.id
+            SELECT c.id, c.title, c.price, c.instructor_id
             FROM courses c
             INNER JOIN users instructor ON instructor.id = c.instructor_id
             INNER JOIN categories category ON category.id = c.category_id
@@ -43,7 +44,7 @@ try {
         $courseStmt->bind_param('i', $courseId);
     } else {
         $courseStmt = $conn->prepare("
-            SELECT c.id
+            SELECT c.id, c.title, c.price, c.instructor_id
             FROM courses c
             INNER JOIN users instructor ON instructor.id = c.instructor_id
             INNER JOIN categories category ON category.id = c.category_id
@@ -67,6 +68,13 @@ try {
     }
 
     $courseId = (int) $course['id'];
+
+    if ((float) $course['price'] <= 0) {
+        free_course_enroll_locked($conn, $studentId, $course);
+        $conn->commit();
+        $transactionStarted = false;
+        Auth::redirect('student-course-view.php?course_id=' . $courseId . '&free_enrolled=1');
+    }
 
     $enrollStmt = $conn->prepare("
         SELECT id
