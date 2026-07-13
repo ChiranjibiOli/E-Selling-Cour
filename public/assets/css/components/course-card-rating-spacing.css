@@ -1,0 +1,10 @@
+/* Keep the rating group visibly separated from the price divider. */
+.course-unit-card .course-unit-rating,
+#liveCourseCard .preview-rating {
+    bottom: 88px !important;
+}
+
+.course-unit-card .course-unit-main,
+#liveCourseCard .marketplace-content {
+    padding-bottom: 40px !important;
+}
