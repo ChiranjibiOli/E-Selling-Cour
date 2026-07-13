@@ -34,12 +34,71 @@ $language = trim((string) ($card['language'] ?? ''));
 $duration = trim((string) ($card['duration'] ?? ''));
 $price = trim((string) ($card['price'] ?? ''));
 $href = trim((string) ($card['href'] ?? ''));
-$ratingLabel = trim((string) ($card['rating_label'] ?? 'Course'));
 $metrics = is_array($card['metrics'] ?? null) ? $card['metrics'] : [];
 $actions = is_array($card['actions'] ?? null) ? $card['actions'] : [];
 $featureHtml = is_string($card['feature_html'] ?? null) ? $card['feature_html'] : '';
 $statusClass = preg_replace('/[^a-z0-9_-]/i', '', (string) ($card['status_class'] ?? ''));
 $cardId = 'course-card-' . substr(hash('sha256', $context . '|' . $title . '|' . $href), 0, 12);
+
+$courseId = (int) ($card['course_id'] ?? 0);
+$ratingValue = max(0.0, min(5.0, (float) ($card['rating'] ?? 0)));
+$reviewCount = max(0, (int) ($card['review_count'] ?? 0));
+
+if ($courseId <= 0 && $href !== '') {
+    $queryString = (string) parse_url($href, PHP_URL_QUERY);
+    $queryValues = [];
+    parse_str($queryString, $queryValues);
+
+    if (!empty($queryValues['course_id'])) {
+        $courseId = (int) $queryValues['course_id'];
+    } elseif (!empty($queryValues['slug']) && isset($conn) && $conn instanceof mysqli) {
+        $slug = trim((string) $queryValues['slug']);
+        if ($slug !== '') {
+            $idStmt = $conn->prepare('SELECT id FROM courses WHERE slug = ? LIMIT 1');
+            if ($idStmt) {
+                $idStmt->bind_param('s', $slug);
+                $idStmt->execute();
+                $idRow = $idStmt->get_result()->fetch_assoc();
+                $courseId = (int) ($idRow['id'] ?? 0);
+                $idStmt->close();
+            }
+        }
+    }
+}
+
+if ($courseId > 0 && isset($conn) && $conn instanceof mysqli && !array_key_exists('rating', $card)) {
+    if (!isset($GLOBALS['course_card_rating_cache']) || !is_array($GLOBALS['course_card_rating_cache'])) {
+        $GLOBALS['course_card_rating_cache'] = [];
+    }
+
+    if (!isset($GLOBALS['course_card_rating_cache'][$courseId])) {
+        $ratingSummary = ['rating' => 0.0, 'count' => 0];
+        $ratingStmt = $conn->prepare("
+            SELECT COALESCE(AVG(rating), 0) AS average_rating, COUNT(*) AS review_count
+            FROM reviews
+            WHERE course_id = ? AND status = 'visible'
+        ");
+
+        if ($ratingStmt) {
+            $ratingStmt->bind_param('i', $courseId);
+            $ratingStmt->execute();
+            $ratingRow = $ratingStmt->get_result()->fetch_assoc() ?: [];
+            $ratingSummary = [
+                'rating' => (float) ($ratingRow['average_rating'] ?? 0),
+                'count' => (int) ($ratingRow['review_count'] ?? 0),
+            ];
+            $ratingStmt->close();
+        }
+
+        $GLOBALS['course_card_rating_cache'][$courseId] = $ratingSummary;
+    }
+
+    $ratingValue = max(0.0, min(5.0, (float) $GLOBALS['course_card_rating_cache'][$courseId]['rating']));
+    $reviewCount = max(0, (int) $GLOBALS['course_card_rating_cache'][$courseId]['count']);
+}
+
+$filledStars = $reviewCount > 0 ? (int) round($ratingValue) : 0;
+$reviewLabel = $reviewCount === 1 ? '1 review' : number_format($reviewCount) . ' reviews';
 
 static $canonicalLayoutRendered = false;
 if (!$canonicalLayoutRendered):
@@ -127,9 +186,18 @@ if (!$canonicalLayoutRendered):
                 <p class="course-unit-summary"><?php echo $escape($summary); ?></p>
             <?php endif; ?>
 
-            <div class="preview-rating course-unit-rating">
-                <span aria-label="Five star course">★ ★ ★ ★ ★</span>
-                <small><?php echo $escape($ratingLabel); ?></small>
+            <div class="preview-rating course-unit-rating" aria-label="<?php echo $reviewCount > 0 ? $escape(number_format($ratingValue, 1) . ' out of 5 from ' . $reviewLabel) : 'No student reviews yet'; ?>">
+                <span class="course-rating-stars" aria-hidden="true">
+                    <?php for ($star = 1; $star <= 5; $star++): ?>
+                        <span class="<?php echo $star <= $filledStars ? 'is-filled' : ''; ?>">★</span>
+                    <?php endfor; ?>
+                </span>
+                <?php if ($reviewCount > 0): ?>
+                    <strong><?php echo number_format($ratingValue, 1); ?></strong>
+                    <small>(<?php echo $escape($reviewLabel); ?>)</small>
+                <?php else: ?>
+                    <small>No reviews yet</small>
+                <?php endif; ?>
             </div>
 
             <?php if ($metrics): ?>
