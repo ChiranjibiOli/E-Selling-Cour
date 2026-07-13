@@ -68,20 +68,37 @@
 .course-unit-card .course-unit-cover,
 #liveCourseCard .marketplace-cover {
     position: relative !important;
+    box-sizing: border-box !important;
     width: 100% !important;
     height: auto !important;
     min-height: 0 !important;
     max-height: none !important;
     aspect-ratio: 16 / 9 !important;
     flex: 0 0 auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
     overflow: hidden !important;
 }
 
-/* Fill the complete 16:9 stage with no blank bars or spill outside the frame. */
+/* Make clickable image links occupy the complete media stage. */
+.course-unit-cover-link {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 1 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+}
+
+/* Fill the complete frame from edge to edge with no blank bars or spill. */
 .marketplace-card .marketplace-cover img,
 .marketplace-card .course-unit-cover img,
 .course-unit-card .marketplace-cover img,
 .course-unit-card .course-unit-cover img,
+.course-unit-cover-link img,
 #liveCourseCard .marketplace-cover img,
 #previewImage {
     position: absolute !important;
@@ -90,11 +107,13 @@
     height: 100% !important;
     min-width: 100% !important;
     min-height: 100% !important;
-    max-width: none !important;
-    max-height: none !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
     display: block !important;
     padding: 0 !important;
     margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
     object-fit: cover !important;
     object-position: center center !important;
     transform: none !important;
@@ -104,6 +123,14 @@
 .course-unit-card:hover .course-unit-cover img,
 #liveCourseCard:hover #previewImage {
     transform: none !important;
+}
+
+/* Keep overlays above the full-size image. */
+.course-unit-cover-shade,
+.preview-category,
+.preview-level,
+.course-unit-chip {
+    z-index: 3 !important;
 }
 
 /* Shared content area uses the rest of the fixed 440px frame. */
