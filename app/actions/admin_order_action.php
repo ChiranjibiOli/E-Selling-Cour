@@ -7,6 +7,9 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../helpers/notification_helper.php';
 require_once __DIR__ . '/../helpers/security_helper.php';
 
+/** @var mysqli $conn */
+$conn = database_connection();
+
 AdminMiddleware::handle();
 Security::requirePost();
 
