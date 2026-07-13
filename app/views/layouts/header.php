@@ -90,7 +90,7 @@ $documentTitle = isset($pageTitle) && trim((string) $pageTitle) !== ''
 
     <script src="assets/js/main.js?v=12" defer></script>
     <script src="assets/js/auth.js?v=12" defer></script>
-    <script src="assets/js/purchase-flow.js?v=1" defer></script>
+    <script src="assets/js/purchase-flow.js?v=2" defer></script>
     <?php if ($usesPanelLayout): ?>
         <script src="assets/js/panel.js?v=15" defer></script>
     <?php endif; ?>
