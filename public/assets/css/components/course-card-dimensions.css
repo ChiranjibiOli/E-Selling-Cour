@@ -120,11 +120,19 @@
 /* Keep cards visually light. Full metadata belongs on the details page. */
 .course-unit-card .course-unit-eyebrow,
 .course-unit-card .course-unit-meta,
-.course-unit-card .course-unit-rating,
 .course-unit-card .course-unit-metrics,
-#liveCourseCard .preview-meta,
-#liveCourseCard .preview-rating {
+#liveCourseCard .preview-meta {
     display: none !important;
+}
+
+.course-unit-card .course-unit-rating,
+#liveCourseCard .preview-rating {
+    min-height: 20px !important;
+    display: flex !important;
+    flex: 0 0 20px !important;
+    align-items: center !important;
+    margin: 0 !important;
+    overflow: hidden !important;
 }
 
 .course-unit-card .course-unit-title,
