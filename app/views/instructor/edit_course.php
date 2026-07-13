@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../../middleware/InstructorMiddleware.php';
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../helpers/course_workflow_helper.php';
+
 
 InstructorMiddleware::handle();
 
