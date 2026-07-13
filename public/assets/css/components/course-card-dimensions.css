@@ -161,6 +161,20 @@
     line-height: 1 !important;
 }
 
+/*
+ * The number of colored stars follows the real rounded average. For example,
+ * a 2.0 rating colors two stars and leaves the remaining three muted.
+ */
+.course-unit-card .course-rating-stars > span {
+    color: #d6d3df !important;
+    text-shadow: none !important;
+}
+
+.course-unit-card .course-rating-stars > span.is-filled {
+    color: #f4b740 !important;
+    text-shadow: 0 1px 2px rgba(154, 102, 13, .18) !important;
+}
+
 .course-unit-card .course-unit-rating strong {
     flex: 0 0 auto !important;
     margin: 0 !important;
