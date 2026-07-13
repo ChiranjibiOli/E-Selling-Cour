@@ -51,6 +51,8 @@ $documentTitle = isset($pageTitle) && trim((string) $pageTitle) !== ''
         <link rel="stylesheet" href="assets/css/panel-final.css?v=2" data-panel-style="panel-final">
     <?php endif; ?>
 
+    <link rel="stylesheet" href="assets/css/components/course-card-theme.css?v=1">
+
     <style>
         .sr-only {
             position: absolute !important;
