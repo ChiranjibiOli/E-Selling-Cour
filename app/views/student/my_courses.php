@@ -74,6 +74,26 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
     align-items: stretch !important;
 }
 
+.course-reset-alert {
+    margin: 0 0 18px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    font-size: .86rem;
+    line-height: 1.55;
+}
+
+.course-reset-alert.success {
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+    background: #ecfdf5;
+}
+
+.course-reset-alert.error {
+    border: 1px solid #fecaca;
+    color: #991b1b;
+    background: #fef2f2;
+}
+
 @media (max-width: 900px) {
     .student-my-courses-page .my-courses-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -97,6 +117,16 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
             </div>
             <a class="browse-btn" href="student-browse-courses.php">Browse courses</a>
         </header>
+
+        <?php if (isset($_GET['removed'])): ?>
+            <div class="course-reset-alert success">
+                Course access was reset and removed from your account. To study it again, purchase it again or enroll again if it is free.
+            </div>
+        <?php elseif (isset($_GET['remove_error'])): ?>
+            <div class="course-reset-alert error">
+                The course could not be removed from your account. Refresh the page and try again.
+            </div>
+        <?php endif; ?>
 
         <?php if ($pendingOrders): ?>
             <div class="pending-orders-box">
@@ -156,6 +186,14 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
                         ],
                         'actions' => [
                             ['label' => 'Continue learning', 'href' => $learningUrl, 'style' => 'primary'],
+                            [
+                                'label' => 'Remove',
+                                'href' => 'remove-enrolled-course.php',
+                                'method' => 'post',
+                                'style' => 'danger',
+                                'hidden' => ['enrollment_id' => (int) $course['enrollment_id']],
+                                'confirm' => 'Remove this course from your account? Your access will be reset and you must purchase or enroll again to restore it.',
+                            ],
                         ],
                     ];
                     require __DIR__ . '/../components/course_card.php';
