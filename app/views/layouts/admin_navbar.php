@@ -16,6 +16,7 @@ $currentPage = basename((string) ($_SERVER['PHP_SELF'] ?? ''));
             <li><a data-icon="⌂" href="admin-dashboard.php" class="<?php echo $currentPage === 'admin-dashboard.php' ? 'active' : ''; ?>">Dashboard</a></li>
             <li><a data-icon="◎" href="admin-instructors.php" class="<?php echo $currentPage === 'admin-instructors.php' ? 'active' : ''; ?>">Instructors</a></li>
             <li><a data-icon="▤" href="admin-courses.php" class="<?php echo in_array($currentPage, ['admin-courses.php', 'admin-course-changes.php', 'course-details.php'], true) ? 'active' : ''; ?>">Courses</a></li>
+            <li><a data-icon="×" href="admin-course-removal.php" class="<?php echo $currentPage === 'admin-course-removal.php' ? 'active' : ''; ?>">Course cleanup</a></li>
             <li><a data-icon="○" href="admin-users.php" class="<?php echo $currentPage === 'admin-users.php' ? 'active' : ''; ?>">Users</a></li>
             <li><a data-icon="◫" href="admin-orders.php" class="<?php echo in_array($currentPage, ['admin-orders.php', 'admin-order-details.php'], true) ? 'active' : ''; ?>">Orders</a></li>
             <li><a data-icon="◇" href="admin-withdrawals.php" class="<?php echo $currentPage === 'admin-withdrawals.php' ? 'active' : ''; ?>">Withdrawals</a></li>
