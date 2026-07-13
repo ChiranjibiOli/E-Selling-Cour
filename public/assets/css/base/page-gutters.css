@@ -1,77 +1,75 @@
 /*
- * Shared horizontal page boundary.
- * Matches the landing page exactly: 1180px maximum content width,
- * 20px viewport gutters on regular screens and 12px on small screens.
+ * Shared authenticated-page boundary.
+ * Public pages keep their own existing centered layouts.
+ * Student, instructor, and admin pages use the available viewport with
+ * equal 20px gutters, reduced to 12px on small screens.
  */
 
 :root {
-    --site-content-max: 1180px;
-    --site-page-gutter: 20px;
-    --site-content-width: min(
-        var(--site-content-max),
-        calc(100vw - (var(--site-page-gutter) * 2))
-    );
+    --panel-page-gutter: 20px;
 }
 
-/* Standard content containers used across public and authenticated pages. */
-main .container,
-main > [class*="-shell"],
-main > [class*="-wrapper"],
-main > section > [class*="-shell"],
-main > section > [class*="-wrapper"],
-main > div > [class*="-shell"],
-main > div > [class*="-wrapper"],
-.learning-shell,
-.command-shell,
-.course-library-shell,
-.review-shell,
-.change-shell,
-.cart-wrapper,
-.checkout-wrapper,
-.checkout-success-wrapper,
-.course-details-wrapper,
-.student-learning-wrapper,
-.student-courses-wrapper,
-.profile-wrapper,
-.notifications-wrapper,
-.orders-wrapper,
-.reports-wrapper,
-.settings-wrapper,
-.users-wrapper,
-.instructors-wrapper,
-.withdrawals-wrapper,
-.payout-wrapper,
-.account-wrapper,
-.panel-shell,
-.page-shell {
-    width: var(--site-content-width) !important;
-    max-width: min(var(--site-content-max), 100%) !important;
+/*
+ * Only authenticated panel pages receive the near-full-width layout.
+ * The width is calculated from the containing block rather than 100vw so
+ * browser scrollbars do not create accidental horizontal overflow.
+ */
+body.authenticated-panel main .container,
+body.authenticated-panel main > [class*="-shell"],
+body.authenticated-panel main > [class*="-wrapper"],
+body.authenticated-panel main > section > [class*="-shell"],
+body.authenticated-panel main > section > [class*="-wrapper"],
+body.authenticated-panel main > div > [class*="-shell"],
+body.authenticated-panel main > div > [class*="-wrapper"],
+body.authenticated-panel .learning-shell,
+body.authenticated-panel .command-shell,
+body.authenticated-panel .course-library-shell,
+body.authenticated-panel .review-shell,
+body.authenticated-panel .change-shell,
+body.authenticated-panel .cart-wrapper,
+body.authenticated-panel .checkout-wrapper,
+body.authenticated-panel .checkout-success-wrapper,
+body.authenticated-panel .course-details-wrapper,
+body.authenticated-panel .student-learning-wrapper,
+body.authenticated-panel .student-courses-wrapper,
+body.authenticated-panel .profile-wrapper,
+body.authenticated-panel .notifications-wrapper,
+body.authenticated-panel .orders-wrapper,
+body.authenticated-panel .reports-wrapper,
+body.authenticated-panel .settings-wrapper,
+body.authenticated-panel .users-wrapper,
+body.authenticated-panel .instructors-wrapper,
+body.authenticated-panel .withdrawals-wrapper,
+body.authenticated-panel .payout-wrapper,
+body.authenticated-panel .account-wrapper,
+body.authenticated-panel .panel-shell,
+body.authenticated-panel .page-shell {
+    width: calc(100% - (var(--panel-page-gutter) * 2)) !important;
+    max-width: none !important;
     margin-left: auto !important;
     margin-right: auto !important;
     box-sizing: border-box;
 }
 
-/* Keep public and role navigation content aligned with page content. */
-.navbar,
-.public-nav-container,
-.role-nav-container,
-.student-nav-container,
-.instructor-nav-container,
-.admin-nav-container {
-    width: var(--site-content-width) !important;
-    max-width: min(var(--site-content-max), 100%) !important;
+/* Keep role navigation aligned with authenticated page content. */
+body.authenticated-panel .role-nav-container,
+body.authenticated-panel .student-nav-container,
+body.authenticated-panel .instructor-nav-container,
+body.authenticated-panel .admin-nav-container {
+    width: calc(100% - (var(--panel-page-gutter) * 2)) !important;
+    max-width: none !important;
     margin-left: auto !important;
     margin-right: auto !important;
     box-sizing: border-box;
 }
 
-/* Preserve full-width backgrounds while aligning their direct content. */
-.landing-page .container {
-    width: var(--site-content-width) !important;
-}
+/*
+ * Public pages and public navigation are intentionally not selected here.
+ * Their page-specific CSS continues to control their widths and centering.
+ */
 
 @media (max-width: 620px) {
     :root {
-        --site-page-gutter: 12px;
+        --panel-page-gutter: 12px;
     }
 }
