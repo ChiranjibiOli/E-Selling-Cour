@@ -7,6 +7,9 @@ require_once __DIR__ . '/../../config/database.php';
 
 StudentMiddleware::handle();
 
+/** @var mysqli $conn */
+$conn = database_connection();
+
 $user = Auth::user();
 $studentId = (int) ($user['id'] ?? 0);
 $courses = [];
@@ -24,6 +27,14 @@ $stmt = $conn->prepare("
             SELECT 1 FROM cart student_cart
             WHERE student_cart.student_id = ? AND student_cart.course_id = c.id
         ) AS is_in_cart,
+        EXISTS(
+            SELECT 1
+            FROM orders pending_order
+            INNER JOIN order_items pending_item ON pending_item.order_id = pending_order.id
+            WHERE pending_order.student_id = ?
+              AND pending_item.course_id = c.id
+              AND pending_order.order_status = 'pending'
+        ) AS has_pending_order,
         (SELECT COUNT(*)
          FROM course_lessons lesson
          INNER JOIN course_sections section ON section.id = lesson.section_id
@@ -40,7 +51,7 @@ $stmt = $conn->prepare("
       AND cat.status = 'active'
     ORDER BY c.created_at DESC, c.id DESC
 ");
-$stmt->bind_param('ii', $studentId, $studentId);
+$stmt->bind_param('iii', $studentId, $studentId, $studentId);
 $stmt->execute();
 $result = $stmt->get_result();
 while ($result && $row = $result->fetch_assoc()) {
@@ -66,15 +77,15 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
                 <div>
                     <p class="dashboard-subtitle">Student marketplace</p>
                     <h1>Browse published courses</h1>
-                    <p>Choose an approved course from an active instructor, add it to your cart, complete checkout, and receive lifetime access after payment verification.</p>
+                    <p>Choose an approved course, save it for later, or buy it now. Course access starts after admin verifies your payment.</p>
                 </div>
                 <a class="btn btn-secondary" href="cart.php">Open cart</a>
             </header>
 
             <?php if (isset($_GET['added'])): ?>
                 <div class="alert alert-success">Course added to your cart.</div>
-            <?php elseif (isset($_GET['cart_error'])): ?>
-                <div class="alert alert-error">The course could not be added to your cart. Refresh and try again.</div>
+            <?php elseif (isset($_GET['cart_error']) || isset($_GET['buy_error'])): ?>
+                <div class="alert alert-error">The course purchase action could not be completed. Refresh and try again.</div>
             <?php elseif (isset($_GET['notfound']) || isset($_GET['invalid'])): ?>
                 <div class="alert alert-warning">That course is no longer available for purchase.</div>
             <?php endif; ?>
@@ -109,6 +120,12 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
                                 'href' => 'student-course-view.php?course_id=' . $courseId,
                                 'style' => 'primary',
                             ];
+                        } elseif ((int) $course['has_pending_order'] === 1) {
+                            $actions[] = [
+                                'label' => 'Payment Pending',
+                                'style' => 'muted',
+                                'disabled' => true,
+                            ];
                         } elseif ((int) $course['is_in_cart'] === 1) {
                             $actions[] = ['label' => 'View cart', 'href' => 'cart.php', 'style' => 'primary'];
                         } else {
@@ -135,7 +152,9 @@ require_once __DIR__ . '/../layouts/student_navbar.php';
                                 ? 'Rs. ' . number_format((float) $course['price'], 2)
                                 : 'Free',
                             'href' => $detailsUrl,
-                            'rating_label' => 'Published course',
+                            'rating_label' => (int) $course['has_pending_order'] === 1
+                                ? 'Waiting for verification'
+                                : 'Published course',
                             'metrics' => [
                                 ['label' => 'Lessons', 'value' => (string) (int) $course['lesson_count']],
                                 ['label' => 'Students', 'value' => number_format((int) $course['student_count'])],
