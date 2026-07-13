@@ -53,7 +53,7 @@ $documentTitle = isset($pageTitle) && trim((string) $pageTitle) !== ''
     <?php endif; ?>
 
     <link rel="stylesheet" href="assets/css/components/course-card-theme.css?v=3">
-    <link rel="stylesheet" href="assets/css/components/course-card-uniform.css?v=2">
+    <link rel="stylesheet" href="assets/css/components/course-card-uniform.css?v=3">
     <link rel="stylesheet" href="assets/css/components/purchase-flow.css?v=1">
 
     <style>
