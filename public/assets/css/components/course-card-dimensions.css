@@ -112,9 +112,15 @@
 .course-unit-card .marketplace-content,
 .course-unit-card .course-unit-content,
 #liveCourseCard .marketplace-content {
+    position: relative !important;
     min-height: 0 !important;
     flex: 1 1 auto !important;
     overflow: hidden !important;
+}
+
+#liveCourseCard .marketplace-content {
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 /* Keep cards visually light. Full metadata belongs on the details page. */
@@ -125,14 +131,54 @@
     display: none !important;
 }
 
+/*
+ * Rating stays immediately above the price separator. Stars, average and review
+ * count form one compact group instead of being spread across the card width.
+ */
 .course-unit-card .course-unit-rating,
 #liveCourseCard .preview-rating {
+    position: absolute !important;
+    left: 16px !important;
+    right: 16px !important;
+    bottom: 76px !important;
     min-height: 20px !important;
     display: flex !important;
     flex: 0 0 20px !important;
     align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 6px !important;
     margin: 0 !important;
     overflow: hidden !important;
+    white-space: nowrap !important;
+}
+
+.course-unit-card .course-rating-stars,
+#liveCourseCard .preview-rating > span {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 1px !important;
+    flex: 0 0 auto !important;
+    line-height: 1 !important;
+}
+
+.course-unit-card .course-unit-rating strong {
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    font-size: .72rem !important;
+    line-height: 1 !important;
+}
+
+.course-unit-card .course-unit-rating small,
+#liveCourseCard .preview-rating small {
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    font-size: .66rem !important;
+    line-height: 1 !important;
+}
+
+.course-unit-card .course-unit-main,
+#liveCourseCard .marketplace-content {
+    padding-bottom: 28px !important;
 }
 
 .course-unit-card .course-unit-title,
