@@ -77,10 +77,10 @@ body { padding-top: 96px; }
 .nav-panel {
     min-width: 0;
     flex: 1;
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
-    justify-content: space-between;
-    gap: 22px;
+    gap: 24px;
 }
 
 .nav-links,
@@ -92,6 +92,12 @@ body { padding-top: 96px; }
     margin: 0;
     padding: 0;
     list-style: none;
+}
+
+.nav-links {
+    width: 580px;
+    max-width: 100%;
+    justify-self: center;
 }
 
 .nav-links a,
