@@ -52,6 +52,7 @@ $documentTitle = isset($pageTitle) && trim((string) $pageTitle) !== ''
     <?php endif; ?>
 
     <link rel="stylesheet" href="assets/css/components/course-card-theme.css?v=1">
+    <link rel="stylesheet" href="assets/css/components/purchase-flow.css?v=1">
 
     <style>
         .sr-only {
@@ -89,6 +90,7 @@ $documentTitle = isset($pageTitle) && trim((string) $pageTitle) !== ''
 
     <script src="assets/js/main.js?v=12" defer></script>
     <script src="assets/js/auth.js?v=12" defer></script>
+    <script src="assets/js/purchase-flow.js?v=1" defer></script>
     <?php if ($usesPanelLayout): ?>
         <script src="assets/js/panel.js?v=15" defer></script>
     <?php endif; ?>
