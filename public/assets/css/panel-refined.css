@@ -1,0 +1,1434 @@
+/*
+ * CourseHub authenticated workspace — restrained application theme.
+ *
+ * Scope is intentionally limited to body#main-content.authenticated-panel. Public pages,
+ * public navigation, and storefront styling are not part of this stylesheet.
+ * The visual language is matte, compact, and low-glare: one warm accent,
+ * solid surfaces, thin borders, and almost-flat shadows.
+ */
+
+body#main-content.authenticated-panel {
+    --panel-sidebar-width: 248px;
+    --panel-topbar-height: 64px;
+    --panel-canvas: #efede8;
+    --panel-surface: #fbfaf7;
+    --panel-surface-muted: #f4f1eb;
+    --panel-surface-strong: #ebe6dc;
+    --panel-line: #ddd8ce;
+    --panel-line-strong: #cac2b5;
+    --panel-ink: #24221e;
+    --panel-muted: #777066;
+    --panel-soft-text: #989084;
+    --panel-accent: #a77a2d;
+    --panel-accent-soft: #eee3ce;
+    --panel-sidebar: #191815;
+    --panel-sidebar-line: #302e29;
+    --panel-sidebar-text: #c8c1b6;
+    --panel-sidebar-muted: #817b72;
+    min-height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 0 0 var(--panel-sidebar-width) !important;
+    color: var(--panel-ink) !important;
+    background: var(--panel-canvas) !important;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+}
+
+body#main-content.authenticated-panel::before,
+body#main-content.authenticated-panel::after {
+    display: none !important;
+}
+
+body#main-content.authenticated-panel .site-footer {
+    display: none !important;
+}
+
+/* Fixed role sidebar */
+body#main-content.authenticated-panel .role-navbar {
+    position: fixed !important;
+    z-index: 1100 !important;
+    inset: 0 auto 0 0 !important;
+    width: var(--panel-sidebar-width) !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    transform: none !important;
+    border: 0 !important;
+    border-right: 1px solid var(--panel-sidebar-line) !important;
+    border-radius: 0 !important;
+    color: var(--panel-sidebar-text) !important;
+    background: var(--panel-sidebar) !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+body#main-content.authenticated-panel .role-nav-container {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    display: flex !important;
+    align-items: stretch !important;
+    flex-direction: column !important;
+    gap: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body#main-content.authenticated-panel .role-logo {
+    min-width: 0 !important;
+    min-height: 78px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 11px !important;
+    padding: 15px 18px !important;
+    border-bottom: 1px solid var(--panel-sidebar-line) !important;
+    color: #f5f1e9 !important;
+    font-family: inherit !important;
+    text-decoration: none !important;
+}
+
+body#main-content.authenticated-panel .role-logo::before {
+    display: none !important;
+}
+
+body#main-content.authenticated-panel .role-logo-mark {
+    width: 38px !important;
+    height: 38px !important;
+    display: block !important;
+    flex: 0 0 38px !important;
+    border-radius: 11px !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel .role-logo-copy {
+    min-width: 0 !important;
+    display: grid !important;
+    gap: 1px !important;
+}
+
+body#main-content.authenticated-panel .role-logo-copy strong {
+    overflow: hidden !important;
+    color: #f7f3ec !important;
+    font-size: .96rem !important;
+    font-weight: 760 !important;
+    letter-spacing: -.02em !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+body#main-content.authenticated-panel .role-logo-copy small {
+    overflow: hidden !important;
+    color: var(--panel-sidebar-muted) !important;
+    font-size: .59rem !important;
+    font-weight: 750 !important;
+    letter-spacing: .13em !important;
+    text-overflow: ellipsis !important;
+    text-transform: uppercase !important;
+    white-space: nowrap !important;
+}
+
+body#main-content.authenticated-panel .role-nav-menu {
+    min-height: 0 !important;
+    display: flex !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    flex: 1 1 auto !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    flex-direction: column !important;
+    gap: 3px !important;
+    margin: 0 !important;
+    padding: 16px 12px 14px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    list-style: none !important;
+    scrollbar-width: thin !important;
+    scrollbar-color: #3a3731 transparent !important;
+}
+
+body#main-content.authenticated-panel .role-nav-menu li,
+body#main-content.authenticated-panel .role-nav-menu form {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+}
+
+body#main-content.authenticated-panel .role-nav-menu .role-nav-section {
+    padding: 15px 10px 5px !important;
+    color: var(--panel-sidebar-muted) !important;
+    font-size: .57rem !important;
+    font-weight: 800 !important;
+    letter-spacing: .14em !important;
+    line-height: 1.2 !important;
+    text-transform: uppercase !important;
+}
+
+body#main-content.authenticated-panel .role-nav-menu .role-nav-section:first-child {
+    padding-top: 2px !important;
+}
+
+body#main-content.authenticated-panel .role-nav-menu a,
+body#main-content.authenticated-panel .role-nav-menu button {
+    width: 100% !important;
+    min-height: 42px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 11px !important;
+    margin: 0 !important;
+    padding: 0 11px !important;
+    border: 1px solid transparent !important;
+    border-radius: 10px !important;
+    color: var(--panel-sidebar-text) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    font-size: .72rem !important;
+    font-weight: 680 !important;
+    line-height: 1.2 !important;
+    text-align: left !important;
+    text-decoration: none !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    transition: color .16s ease, background .16s ease, border-color .16s ease !important;
+}
+
+body#main-content.authenticated-panel .role-nav-menu a::before,
+body#main-content.authenticated-panel .role-nav-menu button::before {
+    content: attr(data-icon) !important;
+    width: 22px !important;
+    height: 22px !important;
+    display: grid !important;
+    place-items: center !important;
+    flex: 0 0 22px !important;
+    color: #9a9389 !important;
+    font-size: .88rem !important;
+    font-weight: 500 !important;
+    line-height: 1 !important;
+}
+
+body#main-content.authenticated-panel .role-nav-menu a:hover,
+body#main-content.authenticated-panel .role-nav-menu button:hover {
+    transform: none !important;
+    color: #f7f3ec !important;
+    background: #24221e !important;
+}
+
+body#main-content.authenticated-panel .role-nav-menu a.active {
+    border-color: #4a402f !important;
+    color: #fffaf0 !important;
+    background: #302a20 !important;
+    box-shadow: inset 2px 0 var(--panel-accent) !important;
+}
+
+body#main-content.authenticated-panel .role-nav-menu a.active::before {
+    color: #d1aa62 !important;
+}
+
+body#main-content.authenticated-panel .role-nav-menu li:last-child {
+    margin-top: 13px !important;
+    padding-top: 13px !important;
+    border-top: 1px solid var(--panel-sidebar-line) !important;
+}
+
+body#main-content.authenticated-panel .role-nav-menu .role-logout-btn,
+body#main-content.authenticated-panel .role-nav-menu .confirm-logout-btn {
+    color: #c9aaa4 !important;
+    background: transparent !important;
+}
+
+body#main-content.authenticated-panel .role-nav-menu .role-logout-btn:hover,
+body#main-content.authenticated-panel .role-nav-menu .confirm-logout-btn:hover {
+    color: #f2d7d1 !important;
+    background: #2b211e !important;
+}
+
+/* Flat top utility bar */
+body#main-content.authenticated-panel .panel-topbar {
+    position: fixed !important;
+    z-index: 1000 !important;
+    top: 0 !important;
+    right: 0 !important;
+    left: var(--panel-sidebar-width) !important;
+    height: var(--panel-topbar-height) !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 14px !important;
+    padding: 0 26px !important;
+    border-bottom: 1px solid var(--panel-line) !important;
+    background: #f9f8f4 !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel .panel-topbar-context {
+    min-width: 0 !important;
+    display: grid !important;
+    flex: 1 !important;
+    gap: 1px !important;
+}
+
+body#main-content.authenticated-panel .panel-topbar-context span {
+    overflow: hidden !important;
+    color: var(--panel-soft-text) !important;
+    font-size: .59rem !important;
+    font-weight: 700 !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+body#main-content.authenticated-panel .panel-topbar-context strong {
+    overflow: hidden !important;
+    color: var(--panel-ink) !important;
+    font-size: .79rem !important;
+    font-weight: 760 !important;
+    letter-spacing: -.01em !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+body#main-content.authenticated-panel .panel-topbar-user {
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 9px !important;
+}
+
+body#main-content.authenticated-panel .panel-user-avatar {
+    width: 34px !important;
+    height: 34px !important;
+    display: grid !important;
+    place-items: center !important;
+    flex: 0 0 34px !important;
+    border-radius: 10px !important;
+    color: #fffaf0 !important;
+    background: #2a2823 !important;
+    box-shadow: none !important;
+    font-size: .65rem !important;
+    font-weight: 800 !important;
+}
+
+body#main-content.authenticated-panel .panel-user-copy {
+    min-width: 0 !important;
+    display: grid !important;
+    gap: 1px !important;
+}
+
+body#main-content.authenticated-panel .panel-user-copy strong,
+body#main-content.authenticated-panel .panel-user-copy small {
+    max-width: 180px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+body#main-content.authenticated-panel .panel-user-copy strong {
+    color: var(--panel-ink) !important;
+    font-size: .7rem !important;
+    font-weight: 750 !important;
+}
+
+body#main-content.authenticated-panel .panel-user-copy small {
+    color: var(--panel-soft-text) !important;
+    font-size: .56rem !important;
+}
+
+body#main-content.authenticated-panel .panel-menu-toggle {
+    width: 38px !important;
+    height: 38px !important;
+    display: none !important;
+    flex: 0 0 38px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 1px solid var(--panel-line) !important;
+    border-radius: 10px !important;
+    background: var(--panel-surface) !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel .panel-menu-toggle span {
+    width: 16px !important;
+    height: 1.5px !important;
+    display: block !important;
+    margin: 3px auto !important;
+    border-radius: 2px !important;
+    background: var(--panel-ink) !important;
+}
+
+body#main-content.authenticated-panel .panel-sidebar-scrim {
+    position: fixed !important;
+    z-index: 1050 !important;
+    inset: 0 !important;
+    display: none !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: rgba(24, 22, 18, .42) !important;
+    box-shadow: none !important;
+}
+
+/* Main application canvas */
+body#main-content.authenticated-panel > main {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: calc(100vh - var(--panel-topbar-height)) !important;
+    margin: var(--panel-topbar-height) 0 0 !important;
+    background: transparent !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .command-page, .review-page, .change-page,
+    .admin-instructors-page, .admin-users-page, .admin-orders-page,
+    .admin-order-details-page, .admin-reports-page, .admin-settings-page,
+    .admin-withdrawals-page, .admin-profile-page, .notifications-page,
+    .instructor-command, .course-library-page, .course-studio-page,
+    .edit-course-page, .instructor-students-page, .instructor-sales-page,
+    .instructor-withdrawals-page, .payout-account-page,
+    .instructor-profile-page, .profile-page-shell,
+    .learning-command, .student-page, .student-browse-page,
+    .student-my-courses-page, .student-learning-page,
+    .cart-page, .checkout-page, .checkout-success-page,
+    .course-removal-page
+) {
+    min-height: calc(100vh - var(--panel-topbar-height)) !important;
+    padding: 26px 26px 56px !important;
+    background: transparent !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .command-shell, .review-shell, .change-shell,
+    .admin-instructors-wrapper, .admin-users-wrapper, .admin-orders-wrapper,
+    .admin-order-details-wrapper, .admin-reports-wrapper,
+    .admin-settings-wrapper, .admin-withdrawals-wrapper, .admin-profile-wrapper,
+    .notifications-wrapper, .instructor-command-shell, .course-library-shell,
+    .course-studio-shell, .edit-course-shell, .instructor-students-wrapper,
+    .instructor-sales-wrapper, .instructor-withdrawals-wrapper,
+    .payout-account-wrapper, .instructor-profile-wrapper,
+    .learning-shell, .student-section, .student-my-courses-wrapper,
+    .student-learning-wrapper, .cart-wrapper, .checkout-wrapper,
+    .checkout-success-wrapper, .course-removal-wrapper
+) {
+    width: min(1380px, 100%) !important;
+    margin: 0 auto !important;
+}
+
+body#main-content.authenticated-panel .student-section > .container {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Page introductions: typography does the work, not decorative glow. */
+body#main-content.authenticated-panel :is(
+    .command-hero, .review-head, .change-head, .dashboard-header,
+    .admin-dashboard-header, .admin-instructors-header,
+    .admin-users-header, .admin-orders-header, .admin-reports-header,
+    .admin-settings-header, .notifications-header, .courses-header,
+    .library-head, .studio-hero, .instructor-hero, .learning-hero,
+    .my-courses-header, .students-header, .sales-header,
+    .withdrawals-header, .payout-header, .profile-header,
+    .page-header, .edit-course-heading, .courses-hero,
+    .cart-header, .checkout-header, .order-details-header,
+    .course-removal-head
+) {
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: space-between !important;
+    gap: 24px !important;
+    margin: 0 0 22px !important;
+    padding: 8px 0 20px !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--panel-line-strong) !important;
+    border-radius: 0 !important;
+    color: var(--panel-ink) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .command-hero, .review-head, .change-head, .dashboard-header,
+    .admin-dashboard-header, .admin-instructors-header,
+    .admin-users-header, .admin-orders-header, .admin-reports-header,
+    .admin-settings-header, .notifications-header, .courses-header,
+    .library-head, .studio-hero, .instructor-hero, .learning-hero,
+    .my-courses-header, .students-header, .sales-header,
+    .withdrawals-header, .payout-header, .profile-header,
+    .page-header, .edit-course-heading, .courses-hero,
+    .cart-header, .checkout-header, .order-details-header,
+    .course-removal-head
+) h1 {
+    margin: 5px 0 6px !important;
+    color: var(--panel-ink) !important;
+    background: none !important;
+    -webkit-background-clip: border-box !important;
+    background-clip: border-box !important;
+    -webkit-text-fill-color: currentColor !important;
+    font-family: inherit !important;
+    font-size: clamp(1.85rem, 3.1vw, 2.75rem) !important;
+    font-weight: 730 !important;
+    letter-spacing: -.045em !important;
+    line-height: 1.04 !important;
+    text-shadow: none !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .command-hero, .review-head, .change-head, .dashboard-header,
+    .admin-dashboard-header, .admin-instructors-header,
+    .admin-users-header, .admin-orders-header, .admin-reports-header,
+    .admin-settings-header, .notifications-header, .courses-header,
+    .library-head, .studio-hero, .instructor-hero, .learning-hero,
+    .my-courses-header, .students-header, .sales-header,
+    .withdrawals-header, .payout-header, .profile-header,
+    .page-header, .edit-course-heading, .courses-hero,
+    .cart-header, .checkout-header, .order-details-header,
+    .course-removal-head
+) p:not(.page-label):not(.eyebrow):not(.command-kicker):not(.instructor-kicker):not(.learning-kicker):not(.library-kicker):not(.review-kicker):not(.studio-eyebrow):not(.studio-label):not(.dashboard-subtitle):not(.course-removal-kicker) {
+    max-width: 760px !important;
+    margin: 0 !important;
+    color: var(--panel-muted) !important;
+    font-size: .78rem !important;
+    line-height: 1.62 !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .page-label, .eyebrow, .command-kicker, .instructor-kicker,
+    .learning-kicker, .library-kicker, .review-kicker, .studio-eyebrow,
+    .studio-label, .dashboard-subtitle, .course-removal-kicker
+) {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin: 0 !important;
+    color: #846326 !important;
+    font-size: .61rem !important;
+    font-weight: 820 !important;
+    letter-spacing: .12em !important;
+    line-height: 1.3 !important;
+    text-transform: uppercase !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .page-label, .eyebrow, .command-kicker, .instructor-kicker,
+    .learning-kicker, .library-kicker, .review-kicker, .studio-eyebrow,
+    .studio-label, .dashboard-subtitle, .course-removal-kicker
+)::before {
+    width: 20px !important;
+    height: 1px !important;
+    flex: 0 0 20px !important;
+    content: "" !important;
+    background: var(--panel-accent) !important;
+}
+
+/* Shared cards and panels */
+body#main-content.authenticated-panel :is(
+    .ui-card, .dashboard-card, .stat-card, .metric-card, .summary-card,
+    .command-metric, .student-metric, .instructor-metric,
+    .sales-stat-card, .withdrawal-stat-card, .report-stat-card,
+    .command-panel, .insight-panel, .panel-card, .action-card,
+    .student-card, .user-card, .instructor-request-card, .order-card,
+    .withdrawal-request-card, .withdrawal-form-card, .withdrawal-history-card,
+    .payout-form-card, .profile-card, .profile-form-card,
+    .settings-card, .settings-form-card, .settings-preview-card,
+    .report-card, .report-panel, .table-card, .filter-card,
+    .sales-table-card, .notification-card, .details-card,
+    .order-summary-card, .proof-card, .admin-action-card,
+    .studio-panel, .rail-card, .review-panel, .quality-card,
+    .chapter-card, .lesson-card, .draft-tile, .outline-preview-card,
+    .learning-card, .pending-orders-box, .pending-order-card,
+    .top-course-card, .pending-card, .withdrawal-item, .report-list-item,
+    .course-removal-row, .success-card, .dashboard-panel
+) {
+    border: 1px solid var(--panel-line) !important;
+    border-radius: 16px !important;
+    background: var(--panel-surface) !important;
+    box-shadow: 0 3px 12px rgba(36, 34, 30, .045) !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .dashboard-card, .stat-card, .metric-card, .summary-card,
+    .command-metric, .student-metric, .instructor-metric,
+    .command-panel, .insight-panel, .student-card, .user-card,
+    .instructor-request-card, .order-card, .learning-card,
+    .top-course-card, .pending-card, .withdrawal-item, .report-list-item
+):hover {
+    transform: none !important;
+    border-color: var(--panel-line-strong) !important;
+    box-shadow: 0 5px 16px rgba(36, 34, 30, .065) !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .stat-card, .metric-card, .summary-card,
+    .command-metric, .student-metric, .instructor-metric,
+    .report-stat-card, .sales-stat-card, .withdrawal-stat-card
+) {
+    min-height: 112px !important;
+    padding: 17px !important;
+    overflow: hidden !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .stat-card, .metric-card, .summary-card,
+    .command-metric, .student-metric, .instructor-metric,
+    .report-stat-card, .sales-stat-card, .withdrawal-stat-card
+)::before {
+    display: none !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .stat-card, .metric-card, .summary-card,
+    .command-metric, .student-metric, .instructor-metric,
+    .report-stat-card, .sales-stat-card, .withdrawal-stat-card
+) span {
+    color: var(--panel-muted) !important;
+    font-size: .62rem !important;
+    font-weight: 780 !important;
+    letter-spacing: .06em !important;
+    text-transform: uppercase !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .stat-card, .metric-card, .summary-card,
+    .command-metric, .student-metric, .instructor-metric,
+    .report-stat-card, .sales-stat-card, .withdrawal-stat-card
+) strong {
+    display: block !important;
+    margin: 9px 0 3px !important;
+    color: var(--panel-ink) !important;
+    font-family: inherit !important;
+    font-size: 1.5rem !important;
+    font-weight: 740 !important;
+    letter-spacing: -.04em !important;
+    line-height: 1 !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .stat-card, .metric-card, .summary-card,
+    .command-metric, .student-metric, .instructor-metric,
+    .report-stat-card, .sales-stat-card, .withdrawal-stat-card
+) small {
+    color: var(--panel-soft-text) !important;
+    font-size: .64rem !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .stat-card, .metric-card, .summary-card,
+    .report-stat-card, .sales-stat-card, .withdrawal-stat-card
+) p {
+    margin: 0 !important;
+    color: var(--panel-soft-text) !important;
+    font-family: inherit !important;
+    font-size: .64rem !important;
+    font-weight: 500 !important;
+    letter-spacing: 0 !important;
+    line-height: 1.45 !important;
+    text-transform: none !important;
+}
+
+body#main-content.authenticated-panel :is(.metric-grid, .student-metrics, .instructor-metrics) {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 12px !important;
+    margin-bottom: 20px !important;
+}
+
+body#main-content.authenticated-panel .command-grid {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 14px !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .panel-heading, .insight-heading, .card-header, .panel-header,
+    .form-card-header, .order-card-top, .request-card-top,
+    .withdrawal-top, .notification-card > h2
+) {
+    min-height: 54px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    margin: 0 !important;
+    padding: 14px 16px !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--panel-line) !important;
+    border-radius: 0 !important;
+    color: var(--panel-ink) !important;
+    background: var(--panel-surface-muted) !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .panel-heading, .insight-heading, .card-header, .panel-header,
+    .form-card-header, .notification-card > h2
+) h2,
+body#main-content.authenticated-panel :is(.panel-heading, .insight-heading, .card-header, .panel-header) h3 {
+    margin: 0 !important;
+    color: var(--panel-ink) !important;
+    font-family: inherit !important;
+    font-size: .88rem !important;
+    font-weight: 740 !important;
+    letter-spacing: -.015em !important;
+}
+
+body#main-content.authenticated-panel :is(.panel-heading, .insight-heading, .card-header) a {
+    color: #846326 !important;
+    font-size: .66rem !important;
+    font-weight: 780 !important;
+    text-decoration: none !important;
+}
+
+/* Dashboard rows and quick actions */
+body#main-content.authenticated-panel :is(.activity-row, .course-row, .list-item, .notification-item) {
+    min-height: 54px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 12px !important;
+    padding: 12px 16px !important;
+    border-bottom: 1px solid var(--panel-line) !important;
+    background: transparent !important;
+}
+
+body#main-content.authenticated-panel .activity-list {
+    display: grid !important;
+}
+
+body#main-content.authenticated-panel :is(.activity-row, .course-row) > :first-child {
+    min-width: 0 !important;
+}
+
+body#main-content.authenticated-panel :is(.activity-row, .course-row) .activity-badge {
+    flex: 0 0 auto !important;
+}
+
+body#main-content.authenticated-panel :is(.activity-row, .course-row, .list-item, .notification-item):hover {
+    background: var(--panel-surface-muted) !important;
+}
+
+body#main-content.authenticated-panel :is(.activity-row, .course-row) strong {
+    color: var(--panel-ink) !important;
+    font-size: .75rem !important;
+}
+
+body#main-content.authenticated-panel :is(.activity-row, .course-row) span,
+body#main-content.authenticated-panel :is(.activity-row, .course-row) small {
+    color: var(--panel-muted) !important;
+    font-size: .62rem !important;
+}
+
+body#main-content.authenticated-panel :is(.quick-grid, .dashboard-quick) {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    margin-top: 16px !important;
+}
+
+body#main-content.authenticated-panel :is(.quick-grid, .dashboard-quick) a {
+    min-height: 58px !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 13px 15px !important;
+    border: 1px solid var(--panel-line) !important;
+    border-radius: 13px !important;
+    color: var(--panel-ink) !important;
+    background: var(--panel-surface) !important;
+    box-shadow: none !important;
+    font-size: .69rem !important;
+    font-weight: 730 !important;
+}
+
+body#main-content.authenticated-panel :is(.quick-grid, .dashboard-quick) a:hover {
+    transform: none !important;
+    border-color: var(--panel-line-strong) !important;
+    color: #76571f !important;
+    background: var(--panel-surface-muted) !important;
+}
+
+body#main-content.authenticated-panel .hero-alerts {
+    grid-template-columns: repeat(3, minmax(92px, 104px)) !important;
+    gap: 8px !important;
+}
+
+body#main-content.authenticated-panel .hero-alerts a {
+    min-height: 80px !important;
+    padding: 10px !important;
+    border: 1px solid var(--panel-line) !important;
+    border-radius: 13px !important;
+    color: var(--panel-muted) !important;
+    background: var(--panel-surface) !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel .hero-alerts a:hover {
+    transform: none !important;
+    border-color: var(--panel-line-strong) !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel .hero-alerts strong {
+    color: var(--panel-ink) !important;
+    font-family: inherit !important;
+    font-size: 1.25rem !important;
+    font-weight: 740 !important;
+}
+
+body#main-content.authenticated-panel .hero-alerts span {
+    color: var(--panel-muted) !important;
+    font-size: .58rem !important;
+}
+
+/* Controls */
+body#main-content.authenticated-panel :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea) {
+    border: 1px solid var(--panel-line) !important;
+    border-radius: 10px !important;
+    color: var(--panel-ink) !important;
+    background: #fffefa !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea):focus {
+    border-color: #b08a47 !important;
+    outline: 0 !important;
+    box-shadow: 0 0 0 3px rgba(167, 122, 45, .11) !important;
+}
+
+body#main-content.authenticated-panel :is(input, select, textarea) {
+    accent-color: var(--panel-accent) !important;
+}
+
+body#main-content.authenticated-panel :is(.field-label, label, .field-label-row) {
+    color: #4f4a42;
+}
+
+body#main-content.authenticated-panel :is(
+    .btn-primary, .btn-secondary, .create-button, .browse-button,
+    .hero-primary, .hero-secondary, .studio-button-primary,
+    .studio-button-submit, .studio-button-ghost, .save-payout-btn,
+    .profile-save-btn, .save-settings-btn, .request-btn,
+    .paid-btn, .verify, .approve-course, .learning-action,
+    .back-btn, .back-sales-btn, .withdraw-btn, .continue-btn,
+    .filter-actions button, .filter-actions a, .details-btn.primary,
+    .details-btn.secondary, .card-action.primary, .card-action.secondary,
+    .recommended-action
+) {
+    min-height: 40px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px !important;
+    padding: 0 13px !important;
+    border-radius: 10px !important;
+    font-size: .68rem !important;
+    font-weight: 760 !important;
+    line-height: 1.1 !important;
+    text-decoration: none !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .btn-primary, .create-button, .browse-button, .hero-primary,
+    .studio-button-primary, .studio-button-submit, .save-payout-btn,
+    .profile-save-btn, .save-settings-btn, .request-btn,
+    .paid-btn, .verify, .approve-course, .learning-action,
+    .filter-actions button, .details-btn.primary, .card-action.primary
+) {
+    border-color: #23211d !important;
+    color: #fffaf1 !important;
+    background: #23211d !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .btn-primary, .create-button, .browse-button, .hero-primary,
+    .studio-button-primary, .studio-button-submit, .save-payout-btn,
+    .profile-save-btn, .save-settings-btn, .request-btn,
+    .paid-btn, .verify, .approve-course, .learning-action,
+    .filter-actions button, .details-btn.primary, .card-action.primary
+):hover {
+    transform: none !important;
+    border-color: #5d461d !important;
+    color: #fffaf1 !important;
+    background: #5d461d !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .btn-secondary, .hero-secondary, .studio-button-ghost,
+    .back-btn, .back-sales-btn, .withdraw-btn, .continue-btn,
+    .filter-actions a, .profile-cancel-link, .details-btn.secondary,
+    .card-action.secondary, .recommended-action
+) {
+    border: 1px solid var(--panel-line) !important;
+    color: var(--panel-ink) !important;
+    background: var(--panel-surface) !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .btn-secondary, .hero-secondary, .studio-button-ghost,
+    .back-btn, .back-sales-btn, .withdraw-btn, .continue-btn,
+    .filter-actions a, .profile-cancel-link, .details-btn.secondary,
+    .card-action.secondary, .recommended-action
+):hover {
+    transform: none !important;
+    border-color: var(--panel-line-strong) !important;
+    color: var(--panel-ink) !important;
+    background: var(--panel-surface-muted) !important;
+}
+
+body#main-content.authenticated-panel :is(.btn, button, a) {
+    -webkit-tap-highlight-color: transparent;
+}
+
+body#main-content.authenticated-panel :is(.reject-btn, .block, .danger, .studio-button.danger) {
+    color: #8b3f39 !important;
+    background: #f5e8e5 !important;
+    box-shadow: none !important;
+}
+
+/* Tabs, filters, tables, and statuses */
+body#main-content.authenticated-panel :is(.status-tabs, .tabs, .filter-tabs) {
+    gap: 4px !important;
+    padding: 4px !important;
+    border: 1px solid var(--panel-line) !important;
+    border-radius: 12px !important;
+    background: var(--panel-surface-strong) !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel .status-tabs {
+    width: fit-content !important;
+    max-width: 100% !important;
+    margin-bottom: 18px !important;
+}
+
+body#main-content.authenticated-panel :is(.status-tabs, .tabs, .filter-tabs) a,
+body#main-content.authenticated-panel :is(.status-tabs, .tabs, .filter-tabs) button {
+    min-height: 34px !important;
+    border: 0 !important;
+    border-radius: 9px !important;
+    color: var(--panel-muted) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    font-size: .66rem !important;
+}
+
+body#main-content.authenticated-panel :is(.status-tabs, .tabs, .filter-tabs) :is(a, button).active,
+body#main-content.authenticated-panel :is(.status-tabs, .tabs, .filter-tabs) :is(a, button).is-active {
+    color: var(--panel-ink) !important;
+    background: var(--panel-surface) !important;
+    box-shadow: 0 1px 3px rgba(36, 34, 30, .08) !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .sales-filter-box, .withdrawal-filter-box, .order-filter-box,
+    .report-filter-box, .user-filter-box, .instructor-filter-box,
+    .notification-filter-box, .filter-box, .filter-form
+) {
+    gap: 12px !important;
+    margin: 0 0 16px !important;
+    padding: 15px !important;
+    border: 1px solid var(--panel-line) !important;
+    border-radius: 15px !important;
+    background: var(--panel-surface) !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel .panel-filter-toggle,
+body#main-content.authenticated-panel .panel-disclosure-toggle {
+    min-height: 34px !important;
+    padding: 0 11px !important;
+    border: 1px solid var(--panel-line) !important;
+    border-radius: 9px !important;
+    color: var(--panel-ink) !important;
+    background: var(--panel-surface) !important;
+    box-shadow: none !important;
+    font-size: .64rem !important;
+    font-weight: 730 !important;
+}
+
+body#main-content.authenticated-panel :is(table, .data-table, .sales-table) {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+    border: 1px solid var(--panel-line) !important;
+    border-radius: 0 !important;
+    background: var(--panel-surface) !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel :is(table, .data-table, .sales-table) th {
+    padding: 11px 13px !important;
+    border-bottom: 1px solid var(--panel-line) !important;
+    color: var(--panel-muted) !important;
+    background: var(--panel-surface-muted) !important;
+    font-size: .59rem !important;
+    font-weight: 800 !important;
+    letter-spacing: .07em !important;
+    text-transform: uppercase !important;
+}
+
+body#main-content.authenticated-panel :is(table, .data-table, .sales-table) td {
+    padding: 12px 13px !important;
+    border-bottom: 1px solid var(--panel-line) !important;
+    color: #4f4a42 !important;
+    background: transparent !important;
+    font-size: .68rem !important;
+}
+
+body#main-content.authenticated-panel :is(table, .data-table, .sales-table) tbody tr:hover {
+    background: var(--panel-surface-muted) !important;
+}
+
+body#main-content.authenticated-panel :is(.status-pill, .course-status, .student-card-status, .student-status, .role-pill, .activity-badge, .course-row-meta span) {
+    min-height: 25px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 0 8px !important;
+    border: 1px solid var(--panel-line) !important;
+    border-radius: 999px !important;
+    color: #5b554c !important;
+    background: var(--panel-surface-muted) !important;
+    box-shadow: none !important;
+    font-size: .57rem !important;
+    font-weight: 760 !important;
+}
+
+body#main-content.authenticated-panel :is(.status-pill, .course-status).paid,
+body#main-content.authenticated-panel :is(.status-pill, .course-status).published,
+body#main-content.authenticated-panel :is(.status-pill, .course-status).active {
+    border-color: #c7dbce !important;
+    color: #366148 !important;
+    background: #e9f1eb !important;
+}
+
+body#main-content.authenticated-panel :is(.status-pill, .course-status).pending {
+    border-color: #e4d2a9 !important;
+    color: #795b22 !important;
+    background: #f5eddc !important;
+}
+
+body#main-content.authenticated-panel :is(.status-pill, .course-status).rejected,
+body#main-content.authenticated-panel :is(.status-pill, .course-status).blocked,
+body#main-content.authenticated-panel :is(.status-pill, .course-status).failed {
+    border-color: #e4c5c0 !important;
+    color: #81443e !important;
+    background: #f5e8e5 !important;
+}
+
+/* Charts and data visuals stay flat. */
+body#main-content.authenticated-panel :is(.sales-bar, .chart-bar, .bar-fill) {
+    border-radius: 4px 4px 1px 1px !important;
+    background: #ad833a !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel :is(.progress-fill, .progress-bar > span, .quality-track > span) {
+    background: #9a742f !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel :is(.progress-bar, .quality-track) {
+    background: #e2ddd3 !important;
+    box-shadow: none !important;
+}
+
+/* Student dashboard cards use the same neutral system. */
+body#main-content.authenticated-panel .learning-cover {
+    background: #dedbd4 !important;
+}
+
+body#main-content.authenticated-panel .learning-body {
+    padding: 14px !important;
+}
+
+body#main-content.authenticated-panel .learning-body small {
+    color: #846326 !important;
+}
+
+body#main-content.authenticated-panel .learning-body h3 {
+    color: var(--panel-ink) !important;
+}
+
+body#main-content.authenticated-panel .learning-body p {
+    color: var(--panel-muted) !important;
+}
+
+/* Course builder: preserve behavior and preview, remove decorative glare. */
+body#main-content.authenticated-panel .course-studio-page {
+    background: var(--panel-canvas) !important;
+}
+
+body#main-content.authenticated-panel .studio-workspace,
+body#main-content.authenticated-panel .review-grid {
+    gap: 16px !important;
+}
+
+body#main-content.authenticated-panel :is(.studio-panel, .rail-card, .review-panel, .quality-card) {
+    overflow: hidden !important;
+}
+
+body#main-content.authenticated-panel :is(.panel-heading, .quality-heading, .outline-heading, .curriculum-heading) {
+    color: var(--panel-ink) !important;
+    background: var(--panel-surface-muted) !important;
+}
+
+body#main-content.authenticated-panel :is(.chapter-card, .lesson-card, .draft-tile) {
+    border-radius: 13px !important;
+    background: #fffefa !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel :is(.thumbnail-dropzone, .curriculum-empty, .empty-library, .empty-learning, .empty-box, .empty-state) {
+    border: 1px dashed var(--panel-line-strong) !important;
+    border-radius: 15px !important;
+    color: var(--panel-muted) !important;
+    background: var(--panel-surface-muted) !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel :is(.studio-submit-bar, .locked-banner, .submission-explainer, .security-note, .preview-disclaimer) {
+    border-color: var(--panel-line) !important;
+    color: #5d574e !important;
+    background: var(--panel-surface-muted) !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel .preview-sticky {
+    top: calc(var(--panel-topbar-height) + 16px) !important;
+}
+
+/* Profile and modal surfaces */
+body#main-content.authenticated-panel :is(.profile-avatar-box, .logo-preview) {
+    border: 1px solid var(--panel-line) !important;
+    border-radius: 15px !important;
+    background: var(--panel-surface-muted) !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel :is(.profile-avatar-box img, .profile-initial, .logo-placeholder) {
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel .profile-initial,
+body#main-content.authenticated-panel .logo-placeholder {
+    color: #fffaf0 !important;
+    background: #292722 !important;
+}
+
+body#main-content.authenticated-panel :is(
+    .modal-card, .order-modal-card, .logout-modal-card,
+    .profile-photo-dialog, dialog
+) {
+    border: 1px solid var(--panel-line) !important;
+    border-radius: 16px !important;
+    background: var(--panel-surface) !important;
+    box-shadow: 0 20px 60px rgba(24, 22, 18, .18) !important;
+}
+
+body#main-content.authenticated-panel :is(.modal-overlay, .order-modal-overlay, .logout-modal-overlay) {
+    background: rgba(24, 22, 18, .5) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+/* Keep the existing premium course-card shell; only calm interaction glare. */
+body#main-content.authenticated-panel :is(.marketplace-card, .course-unit-card, #liveCourseCard):hover {
+    transform: translateY(-1px) !important;
+}
+
+body#main-content.authenticated-panel :is(.marketplace-card, .course-unit-card) :is(.preview-category, .preview-level, .course-unit-chip) {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+/* Authenticated utility pages that live beside the main role views. */
+body#main-content.authenticated-panel .course-removal-row {
+    border-radius: 14px !important;
+    background: var(--panel-surface) !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel .course-removal-status,
+body#main-content.authenticated-panel .course-removal-blocked {
+    border: 1px solid var(--panel-line) !important;
+    color: var(--panel-muted) !important;
+    background: var(--panel-surface-muted) !important;
+    box-shadow: none !important;
+}
+
+body#main-content.authenticated-panel .checkout-success-wrapper {
+    width: min(760px, 100%) !important;
+}
+
+body#main-content.authenticated-panel .success-card {
+    padding: clamp(24px, 5vw, 48px) !important;
+    text-align: center !important;
+}
+
+body#main-content.authenticated-panel .success-card h1 {
+    margin: 16px 0 8px !important;
+    color: var(--panel-ink) !important;
+    background: none !important;
+    -webkit-background-clip: border-box !important;
+    background-clip: border-box !important;
+    -webkit-text-fill-color: currentColor !important;
+    font-family: inherit !important;
+    font-size: clamp(1.75rem, 4vw, 2.5rem) !important;
+    letter-spacing: -.04em !important;
+    line-height: 1.08 !important;
+    text-shadow: none !important;
+}
+
+body#main-content.authenticated-panel .success-card > p {
+    max-width: 570px !important;
+    margin: 0 auto !important;
+    color: var(--panel-muted) !important;
+    font-size: .8rem !important;
+    line-height: 1.7 !important;
+}
+
+body#main-content.authenticated-panel .success-icon,
+body#main-content.authenticated-panel .order-number-box {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border: 1px solid var(--panel-line) !important;
+    border-radius: 999px !important;
+    color: #76571f !important;
+    background: var(--panel-accent-soft) !important;
+    box-shadow: none !important;
+    font-size: .68rem !important;
+    font-weight: 800 !important;
+}
+
+body#main-content.authenticated-panel .success-icon {
+    min-height: 34px !important;
+    padding: 0 12px !important;
+}
+
+body#main-content.authenticated-panel .order-number-box {
+    min-height: 42px !important;
+    margin: 20px auto !important;
+    padding: 0 16px !important;
+}
+
+body#main-content.authenticated-panel .success-actions {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 8px !important;
+}
+
+body#main-content.authenticated-panel .success-actions a {
+    min-height: 40px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 14px !important;
+    border: 1px solid #23211d !important;
+    border-radius: 10px !important;
+    color: #fffaf1 !important;
+    background: #23211d !important;
+    box-shadow: none !important;
+    font-size: .68rem !important;
+    font-weight: 760 !important;
+    text-decoration: none !important;
+}
+
+body#main-content.authenticated-panel .success-actions a.secondary {
+    border-color: var(--panel-line) !important;
+    color: var(--panel-ink) !important;
+    background: var(--panel-surface) !important;
+}
+
+/* Responsive application shell */
+@media (max-width: 1180px) {
+    body#main-content.authenticated-panel :is(.metric-grid, .student-metrics, .instructor-metrics, .report-stats-grid) {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    body#main-content.authenticated-panel :is(.command-grid, .report-grid, .orders-grid) {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+}
+
+@media (max-width: 1024px) {
+    body#main-content.authenticated-panel {
+        padding-left: 0 !important;
+    }
+
+    body#main-content.authenticated-panel .role-navbar {
+        transform: translateX(-102%) !important;
+        transition: transform .22s ease !important;
+    }
+
+    body#main-content.authenticated-panel .role-navbar.menu-open {
+        transform: translateX(0) !important;
+    }
+
+    body#main-content.authenticated-panel .panel-topbar {
+        left: 0 !important;
+        padding-inline: 16px !important;
+    }
+
+    body#main-content.authenticated-panel .panel-menu-toggle {
+        display: block !important;
+    }
+
+    body#main-content.authenticated-panel.panel-nav-open {
+        overflow: hidden !important;
+    }
+
+    body#main-content.authenticated-panel.panel-nav-open .panel-sidebar-scrim {
+        display: block !important;
+    }
+
+    body#main-content.authenticated-panel :is(.settings-layout, .profile-layout, .sales-layout, .withdrawals-layout, .details-layout) {
+        grid-template-columns: 1fr !important;
+    }
+
+    body#main-content.authenticated-panel :is(.settings-preview-card, .preview-sticky, .filter-panel) {
+        position: static !important;
+        top: auto !important;
+    }
+}
+
+@media (max-width: 760px) {
+    body#main-content.authenticated-panel {
+        --panel-topbar-height: 60px;
+    }
+
+    body#main-content.authenticated-panel .panel-topbar {
+        padding-inline: 12px !important;
+    }
+
+    body#main-content.authenticated-panel .panel-user-copy {
+        display: none !important;
+    }
+
+    body#main-content.authenticated-panel :is(
+        .command-page, .review-page, .change-page,
+        .admin-instructors-page, .admin-users-page, .admin-orders-page,
+        .admin-order-details-page, .admin-reports-page, .admin-settings-page,
+        .admin-withdrawals-page, .admin-profile-page, .notifications-page,
+        .instructor-command, .course-library-page, .course-studio-page,
+        .edit-course-page, .instructor-students-page, .instructor-sales-page,
+        .instructor-withdrawals-page, .payout-account-page,
+        .instructor-profile-page, .profile-page-shell,
+        .learning-command, .student-page, .student-browse-page,
+        .student-my-courses-page, .student-learning-page,
+        .cart-page, .checkout-page, .checkout-success-page,
+        .course-removal-page
+    ) {
+        padding: 18px 12px 42px !important;
+    }
+
+    body#main-content.authenticated-panel :is(
+        .command-hero, .review-head, .change-head, .dashboard-header,
+        .admin-dashboard-header, .admin-instructors-header,
+        .admin-users-header, .admin-orders-header, .admin-reports-header,
+        .admin-settings-header, .notifications-header, .courses-header,
+        .library-head, .studio-hero, .instructor-hero, .learning-hero,
+        .my-courses-header, .students-header, .sales-header,
+        .withdrawals-header, .payout-header, .profile-header,
+        .page-header, .edit-course-heading, .courses-hero,
+        .cart-header, .checkout-header, .order-details-header,
+        .course-removal-head
+    ) {
+        align-items: stretch !important;
+        flex-direction: column !important;
+        gap: 14px !important;
+        padding-top: 4px !important;
+    }
+
+    body#main-content.authenticated-panel :is(
+        .command-hero, .review-head, .change-head, .dashboard-header,
+        .admin-dashboard-header, .admin-instructors-header,
+        .admin-users-header, .admin-orders-header, .admin-reports-header,
+        .admin-settings-header, .notifications-header, .courses-header,
+        .library-head, .studio-hero, .instructor-hero, .learning-hero,
+        .my-courses-header, .students-header, .sales-header,
+        .withdrawals-header, .payout-header, .profile-header,
+        .page-header, .edit-course-heading, .courses-hero,
+        .cart-header, .checkout-header, .order-details-header,
+        .course-removal-head
+    ) h1 {
+        font-size: 1.85rem !important;
+    }
+
+    body#main-content.authenticated-panel :is(.hero-actions, .page-actions) {
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    body#main-content.authenticated-panel :is(.hero-actions, .page-actions) > * {
+        width: 100% !important;
+    }
+
+    body#main-content.authenticated-panel :is(
+        .metric-grid, .student-metrics, .instructor-metrics,
+        .report-stats-grid, .command-grid, .report-grid,
+        .orders-grid, .quick-grid, .dashboard-quick,
+        .students-grid, .users-grid
+    ) {
+        grid-template-columns: 1fr !important;
+    }
+
+    body#main-content.authenticated-panel .hero-alerts {
+        width: 100% !important;
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+
+    body#main-content.authenticated-panel :is(
+        .sales-filter-box, .withdrawal-filter-box, .order-filter-box,
+        .report-filter-box, .user-filter-box, .instructor-filter-box,
+        .notification-filter-box, .filter-box, .filter-form,
+        .form-grid, .form-row, .payment-info-box
+    ) {
+        grid-template-columns: 1fr !important;
+    }
+
+    body#main-content.authenticated-panel :is(table, .data-table, .sales-table) {
+        min-width: 700px !important;
+    }
+
+    body#main-content.authenticated-panel :is(.table-scroll, .sales-table-scroll, .table-wrapper) {
+        overflow-x: auto !important;
+    }
+}
+
+@media (max-width: 430px) {
+    body#main-content.authenticated-panel .role-navbar {
+        width: min(86vw, 280px) !important;
+    }
+
+    body#main-content.authenticated-panel .panel-topbar-context span {
+        display: none !important;
+    }
+
+    body#main-content.authenticated-panel .hero-alerts {
+        grid-template-columns: 1fr !important;
+    }
+
+    body#main-content.authenticated-panel :is(.hero-actions, .page-actions) {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body#main-content.authenticated-panel *,
+    body#main-content.authenticated-panel *::before,
+    body#main-content.authenticated-panel *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}

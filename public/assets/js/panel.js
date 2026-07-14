@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadStylesheet("assets/css/panel-navigation.css?v=3", "panel-navigation");
     loadStylesheet("assets/css/panel-sections.css?v=3", "panel-sections");
     loadStylesheet("assets/css/panel-final.css?v=2", "panel-final");
+    loadStylesheet("assets/css/panel-refined.css?v=1", "panel-refined");
 
     initializeNavigation();
     initializeConfirmations();
@@ -38,28 +39,43 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function initializeNavigation() {
         document.querySelectorAll(".role-navbar").forEach((navbar) => {
-            const toggle = navbar.querySelector(".nav-toggle");
             const menu = navbar.querySelector(".role-nav-menu");
             if (!menu) return;
 
+            const toggle = document.querySelector(`[data-panel-menu-toggle][aria-controls="${menu.id}"]`)
+                || navbar.querySelector(".nav-toggle");
+            const scrim = document.querySelector("[data-panel-sidebar-scrim]");
+
+            const setOpen = (open) => {
+                navbar.classList.toggle("menu-open", open);
+                document.body.classList.toggle("panel-nav-open", open);
+                if (toggle) toggle.setAttribute("aria-expanded", open ? "true" : "false");
+            };
+
             if (toggle) {
                 toggle.addEventListener("click", () => {
-                    const open = navbar.classList.toggle("menu-open");
-                    toggle.setAttribute("aria-expanded", open ? "true" : "false");
+                    setOpen(!navbar.classList.contains("menu-open"));
                 });
             }
 
-            menu.querySelectorAll("a").forEach((link) => {
-                link.addEventListener("click", () => {
-                    navbar.classList.remove("menu-open");
-                    if (toggle) toggle.setAttribute("aria-expanded", "false");
-                });
+            if (scrim) scrim.addEventListener("click", () => setOpen(false));
+
+            menu.querySelectorAll("a, button").forEach((control) => {
+                control.addEventListener("click", () => setOpen(false));
+            });
+
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "Escape") setOpen(false);
+            });
+
+            window.addEventListener("resize", () => {
+                if (window.innerWidth > 1024) setOpen(false);
             });
 
             const active = menu.querySelector(".active");
-            if (active && window.innerWidth <= 900) {
+            if (active && window.innerWidth <= 1024) {
                 requestAnimationFrame(() => {
-                    active.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+                    active.scrollIntoView({ behavior: "smooth", block: "center", inline: "nearest" });
                 });
             }
         });
