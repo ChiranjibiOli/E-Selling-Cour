@@ -19,7 +19,7 @@ services:
       context: .
       dockerfile: infrastructure/docker/php-runtime.Dockerfile
     working_dir: /repo/apps/web-platform
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/router.php"]
     volumes:
       - ./:/repo
     ports:
@@ -34,7 +34,7 @@ services:
       context: .
       dockerfile: infrastructure/docker/php-runtime.Dockerfile
     working_dir: /repo/services/api-gateway
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
     volumes:
       - ./:/repo
     ports:
@@ -43,44 +43,52 @@ services:
   identity-service:
     <<: *domain-service
     working_dir: /repo/services/identity-service
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
 
   catalog-service:
     <<: *domain-service
     working_dir: /repo/services/catalog-service
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
+
   learning-service:
     <<: *domain-service
     working_dir: /repo/services/learning-service
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
+
   commerce-service:
     <<: *domain-service
     working_dir: /repo/services/commerce-service
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
+
   payment-service:
     <<: *domain-service
     working_dir: /repo/services/payment-service
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
+
   enrollment-service:
     <<: *domain-service
     working_dir: /repo/services/enrollment-service
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
+
   media-service:
     <<: *domain-service
     working_dir: /repo/services/media-service
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
+
   notification-service:
     <<: *domain-service
     working_dir: /repo/services/notification-service
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
+
   review-service:
     <<: *domain-service
     working_dir: /repo/services/review-service
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
+
   reporting-service:
     <<: *domain-service
     working_dir: /repo/services/reporting-service
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
 
   db:
     image: mysql:8.4
