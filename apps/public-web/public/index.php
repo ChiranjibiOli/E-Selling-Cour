@@ -9,6 +9,7 @@ use CourseHub\PublicWeb\Pages\Contact\ContactPage;
 use CourseHub\PublicWeb\Pages\Landing\LandingPage;
 use CourseHub\PublicWeb\Pages\Login\LoginPage;
 use CourseHub\PublicWeb\Pages\Privacy\PrivacyPage;
+use CourseHub\PublicWeb\Pages\Registration\RegistrationPage;
 use CourseHub\PublicWeb\Pages\Terms\TermsPage;
 
 $path = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/';
@@ -24,6 +25,7 @@ $page = match ($path) {
     '/about' => new AboutPage(),
     '/contact' => new ContactPage(),
     '/login', '/oauth/google' => new LoginPage(),
+    '/register' => new RegistrationPage(),
     '/privacy' => new PrivacyPage(),
     '/terms' => new TermsPage(),
     default => null,
