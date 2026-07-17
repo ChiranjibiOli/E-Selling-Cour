@@ -22,7 +22,12 @@ final class ServiceRegistry
             '/api/v1/payments' => self::env('PAYMENT_SERVICE_URL', 'http://payment-service:8080'),
             '/api/v1/webhooks/payments' => self::env('PAYMENT_SERVICE_URL', 'http://payment-service:8080'),
             '/api/v1/enrollments' => self::env('ENROLLMENT_SERVICE_URL', 'http://enrollment-service:8080'),
+            '/api/v1/media' => self::env('MEDIA_SERVICE_URL', 'http://media-service:8080'),
+            '/api/v1/uploads' => self::env('MEDIA_SERVICE_URL', 'http://media-service:8080'),
             '/api/v1/notifications' => self::env('NOTIFICATION_SERVICE_URL', 'http://notification-service:8080'),
+            '/api/v1/reviews' => self::env('REVIEW_SERVICE_URL', 'http://review-service:8080'),
+            '/api/v1/reports' => self::env('REPORTING_SERVICE_URL', 'http://reporting-service:8080'),
+            '/api/v1/analytics' => self::env('REPORTING_SERVICE_URL', 'http://reporting-service:8080'),
         ];
     }
 
