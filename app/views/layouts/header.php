@@ -60,6 +60,7 @@ $documentTitle = isset($pageTitle) && trim((string) $pageTitle) !== ''
     <link rel="stylesheet" href="assets/css/components/purchase-flow.css?v=1">
     <?php if ($usesPanelLayout): ?>
         <link rel="stylesheet" href="assets/css/panel-refined.css?v=1" data-panel-style="panel-refined">
+        <link rel="stylesheet" href="assets/css/panel-containment.css?v=1" data-panel-style="panel-containment">
     <?php endif; ?>
 
     <style>
