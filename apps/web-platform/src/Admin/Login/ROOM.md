@@ -1,3 +1,3 @@
-# Room
+# Administrator control-room entrance
 
-This room owns its route, controller, middleware, request, validator, service, API client, view-model, page, components, assets, and tests. Its route and service ownership are registered in `apps/web-platform/src/config/rooms.php`.
+The path is configured with `ADMIN_LOGIN_PATH`, the page is omitted from public navigation, and authentication requires both administrator credentials and `ADMIN_ACCESS_CODE`. `ADMIN_ALLOWED_IPS` can add an optional network allowlist.

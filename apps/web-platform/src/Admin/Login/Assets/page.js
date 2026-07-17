@@ -1,1 +1,1 @@
-// Room-owned browser behavior. Keep global behavior in Shared.
+document.querySelector('input[name="control_identity"]')?.focus();

@@ -1,3 +1,1 @@
-# Components
-
-Room-owned UI elements belong here. Create one subfolder for each meaningful component.
+Student-only form, learner benefit copy, error message and recovery link components belong here.

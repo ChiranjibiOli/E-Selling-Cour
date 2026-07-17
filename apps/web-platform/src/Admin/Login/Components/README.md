@@ -1,3 +1,1 @@
-# Components
-
-Room-owned UI elements belong here. Create one subfolder for each meaningful component.
+Restricted-entry status, challenge fields and noindex metadata components belong here.

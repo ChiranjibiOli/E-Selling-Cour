@@ -1,1 +1,1 @@
-// Room-owned browser behavior. Keep global behavior in Shared.
+document.querySelector('input[name="studio_email"]')?.focus();

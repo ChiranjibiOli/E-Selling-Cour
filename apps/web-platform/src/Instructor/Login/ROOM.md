@@ -1,3 +1,3 @@
-# Room
+# Instructor studio entrance
 
-This room owns its route, controller, middleware, request, validator, service, API client, view-model, page, components, assets, and tests. Its route and service ownership are registered in `apps/web-platform/src/config/rooms.php`.
+This room uses studio-specific request fields, filenames, UI and redirect behavior. The identity service accepts only active accounts whose role is exactly `instructor`.

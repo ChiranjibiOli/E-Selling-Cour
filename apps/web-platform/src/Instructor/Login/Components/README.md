@@ -1,3 +1,1 @@
-# Components
-
-Room-owned UI elements belong here. Create one subfolder for each meaningful component.
+Instructor studio branding, approval notice, studio credential form and recovery action components belong here.

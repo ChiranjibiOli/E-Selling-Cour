@@ -1,3 +1,1 @@
-# Tests
-
-Add unit, request, authorization, integration, and browser tests for this room here.
+Test student-only role enforcement, CSRF rejection, invalid credentials, rate limiting and successful dashboard redirect.

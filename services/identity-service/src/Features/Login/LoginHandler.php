@@ -36,10 +36,7 @@ final class LoginHandler
         }
 
         $this->rateLimiter->assertAllowed($email, $ip);
-
-        $statement = $this->database->prepare(
-            'SELECT id, full_name, email, password, role, status FROM users WHERE email = :email LIMIT 1'
-        );
+        $statement = $this->database->prepare('SELECT id, full_name, email, password, role, status FROM users WHERE email = :email LIMIT 1');
         $statement->execute(['email' => $email]);
         $user = $statement->fetch();
 
@@ -47,6 +44,13 @@ final class LoginHandler
             && password_verify($password, (string) ($user['password'] ?? ''))
             && hash_equals($portal, (string) ($user['role'] ?? ''))
             && hash_equals('active', (string) ($user['status'] ?? ''));
+
+        if ($portal === 'admin') {
+            $requiredCode = trim((string) getenv('ADMIN_ACCESS_CODE'));
+            $providedCode = (string) ($input['admin_access_code'] ?? '');
+            // The additional entry code is enforced by the identity service, not only by the frontend form.
+            $valid = $valid && $requiredCode !== '' && hash_equals($requiredCode, $providedCode);
+        }
 
         if (!$valid) {
             $this->rateLimiter->recordFailure($email, $ip);
@@ -58,11 +62,7 @@ final class LoginHandler
         $ttl = max(900, min(86_400, (int) (getenv('IDENTITY_SESSION_TTL') ?: 28_800)));
         $expiresAt = (new DateTimeImmutable())->modify('+' . $ttl . ' seconds');
 
-        $insert = $this->database->prepare(
-            'INSERT INTO identity_sessions '
-            . '(user_id, token_hash, portal, user_agent_hash, ip_hash, expires_at, created_at) '
-            . 'VALUES (:user_id, :token_hash, :portal, :user_agent_hash, :ip_hash, :expires_at, NOW())'
-        );
+        $insert = $this->database->prepare('INSERT INTO identity_sessions (user_id, token_hash, portal, user_agent_hash, ip_hash, expires_at, created_at) VALUES (:user_id, :token_hash, :portal, :user_agent_hash, :ip_hash, :expires_at, NOW())');
         $insert->execute([
             'user_id' => (int) $user['id'],
             'token_hash' => hash('sha256', $token),

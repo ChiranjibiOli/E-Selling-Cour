@@ -1,3 +1,1 @@
-# Tests
-
-Add unit, request, authorization, integration, and browser tests for this room here.
+Test instructor role matching, inactive-account rejection, CSRF handling, rate limiting and studio redirect.

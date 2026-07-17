@@ -10,7 +10,7 @@ foreach (['app', 'public', 'routes'] as $legacy) {
     }
 }
 
-$roomFiles = ['Route.php','Controller.php','Middleware.php','Request.php','Validator.php','Service.php','ApiClient.php','ViewModel.php','Page.php','ROOM.md','Components/README.md','Assets/page.css','Assets/page.js','Tests/README.md'];
+$defaultRoomFiles = ['Route.php','Controller.php','Middleware.php','Request.php','Validator.php','Service.php','ApiClient.php','ViewModel.php','Page.php','ROOM.md','Components/README.md','Assets/page.css','Assets/page.js','Tests/README.md'];
 $rooms = require $root . '/apps/web-platform/src/config/rooms.php';
 $paths = [];
 foreach ($rooms as $key => $metadata) {
@@ -19,9 +19,16 @@ foreach ($rooms as $key => $metadata) {
     }
     $paths[$metadata['path']] = true;
     $directory = $root . '/apps/web-platform/src/' . $key;
-    foreach ($roomFiles as $file) {
+    $requiredFiles = $metadata['room_files'] ?? $defaultRoomFiles;
+    foreach ($requiredFiles as $file) {
         if (!is_file($directory . '/' . $file)) {
             $errors[] = 'Missing frontend room file: ' . $key . '/' . $file;
+        }
+    }
+    foreach (['middleware_file' => 'Middleware.php', 'controller_file' => 'Controller.php'] as $field => $fallback) {
+        $file = (string) ($metadata[$field] ?? $fallback);
+        if (!is_file($directory . '/' . $file)) {
+            $errors[] = 'Missing routed room file: ' . $key . '/' . $file;
         }
     }
 }

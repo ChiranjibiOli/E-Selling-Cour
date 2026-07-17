@@ -2,6 +2,12 @@
 
 declare(strict_types=1);
 
+$adminLoginPath = trim((string) getenv('ADMIN_LOGIN_PATH'));
+if (preg_match('#^/[A-Za-z0-9/_-]{8,120}$#', $adminLoginPath) !== 1) {
+    $adminLoginPath = '/control-room/entry-9d4f';
+}
+$adminLoginPath = rtrim($adminLoginPath, '/');
+
 return [
     'Public/Landing' => ['title'=>'Landing','path'=>'/','methods'=>'GET','role'=>'guest','service'=>'catalog-service','status'=>'implemented'],
     'Public/About' => ['title'=>'About','path'=>'/about','methods'=>'GET','role'=>'guest','service'=>'none','status'=>'implemented'],
@@ -10,7 +16,7 @@ return [
     'Public/Courses' => ['title'=>'Courses','path'=>'/courses','methods'=>'GET','role'=>'guest','service'=>'catalog-service','status'=>'implemented'],
     'Public/CourseDetails' => ['title'=>'Course details','path'=>'/course','methods'=>'GET','role'=>'guest','service'=>'catalog-service','status'=>'implemented'],
     'Public/CourseSearch' => ['title'=>'Course search','path'=>'/search','methods'=>'GET','role'=>'guest','service'=>'catalog-service','status'=>'implemented'],
-    'Public/Login' => ['title'=>'Public login','path'=>'/login','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented'],
+    'Public/Login' => ['title'=>'Choose portal','path'=>'/login','methods'=>'GET','role'=>'guest','service'=>'identity-service','status'=>'implemented'],
     'Public/StudentRegistration' => ['title'=>'Student registration','path'=>'/register/student','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented'],
     'Public/InstructorRegistration' => ['title'=>'Instructor registration','path'=>'/register/instructor','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented'],
     'Public/ForgotPassword' => ['title'=>'Forgot password','path'=>'/forgot-password','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented'],
@@ -20,7 +26,7 @@ return [
     'Public/TermsAndConditions' => ['title'=>'Terms and conditions','path'=>'/terms','methods'=>'GET','role'=>'guest','service'=>'none','status'=>'planned'],
     'Public/OAuth' => ['title'=>'OAuth','path'=>'/oauth','methods'=>'GET','role'=>'guest','service'=>'identity-service','status'=>'planned'],
 
-    'Student/Login' => ['title'=>'Student login','path'=>'/student/login','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented'],
+    'Student/Login' => ['title'=>'Student sign in','path'=>'/learn/sign-in','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented','middleware_file'=>'StudentGuestGate.php','controller_file'=>'StudentLoginAction.php','room_files'=>['StudentEntryRoute.php','StudentGuestGate.php','StudentCredentialPacket.php','StudentIdentityBridge.php','StudentLoginAction.php','StudentLoginScreen.php','ROOM.md','Components/README.md','Assets/page.css','Assets/page.js','Tests/README.md']],
     'Student/Registration' => ['title'=>'Student registration','path'=>'/student/register','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented'],
     'Student/Dashboard' => ['title'=>'Student dashboard','path'=>'/student/dashboard','methods'=>'GET','role'=>'student','service'=>'reporting-service','status'=>'implemented'],
     'Student/Cart' => ['title'=>'Cart','path'=>'/student/cart','methods'=>'GET|POST','role'=>'student','service'=>'commerce-service','status'=>'implemented'],
@@ -35,7 +41,7 @@ return [
     'Student/Unsubscribe' => ['title'=>'Unsubscribe request','path'=>'/student/unsubscribe','methods'=>'GET|POST','role'=>'student','service'=>'enrollment-service','status'=>'implemented'],
     'Student/Reviews' => ['title'=>'Reviews','path'=>'/student/reviews','methods'=>'GET|POST','role'=>'student','service'=>'review-service','status'=>'implemented'],
 
-    'Instructor/Login' => ['title'=>'Instructor login','path'=>'/instructor/login','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented'],
+    'Instructor/Login' => ['title'=>'Instructor studio access','path'=>'/teach/studio-access','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented','middleware_file'=>'StudioGuestCheckpoint.php','controller_file'=>'OpenInstructorStudio.php','room_files'=>['StudioAccessRoute.php','StudioGuestCheckpoint.php','StudioAccessRequest.php','InstructorStudioGateway.php','OpenInstructorStudio.php','StudioAccessScreen.php','ROOM.md','Components/README.md','Assets/page.css','Assets/page.js','Tests/README.md']],
     'Instructor/Registration' => ['title'=>'Instructor registration','path'=>'/instructor/register','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented'],
     'Instructor/VerificationPending' => ['title'=>'Verification pending','path'=>'/instructor/verification-pending','methods'=>'GET','role'=>'instructor','service'=>'identity-service','status'=>'implemented'],
     'Instructor/Dashboard' => ['title'=>'Instructor dashboard','path'=>'/instructor/dashboard','methods'=>'GET','role'=>'instructor','service'=>'reporting-service','status'=>'implemented'],
@@ -56,7 +62,7 @@ return [
     'Instructor/Messaging' => ['title'=>'Messaging','path'=>'/instructor/messaging','methods'=>'GET|POST','role'=>'instructor','service'=>'notification-service','status'=>'planned'],
     'Instructor/Profile' => ['title'=>'Profile','path'=>'/instructor/profile','methods'=>'GET|POST','role'=>'instructor','service'=>'identity-service','status'=>'implemented'],
 
-    'Admin/Login' => ['title'=>'Admin login','path'=>'/admin/login','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented'],
+    'Admin/Login' => ['title'=>'Restricted control entry','path'=>$adminLoginPath,'methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented','middleware_file'=>'AdminEntryGate.php','controller_file'=>'EnterControlRoom.php','room_files'=>['ControlRoomRoute.php','AdminEntryGate.php','AdminChallengeEnvelope.php','AdminIdentityChannel.php','EnterControlRoom.php','ControlRoomScreen.php','ROOM.md','Components/README.md','Assets/page.css','Assets/page.js','Tests/README.md']],
     'Admin/Dashboard' => ['title'=>'Admin dashboard','path'=>'/admin/dashboard','methods'=>'GET','role'=>'admin','service'=>'reporting-service','status'=>'implemented'],
     'Admin/InstructorApprovals' => ['title'=>'Instructor approvals','path'=>'/admin/instructor-approvals','methods'=>'GET|POST','role'=>'admin','service'=>'identity-service','status'=>'implemented'],
     'Admin/CourseApprovals' => ['title'=>'Course approvals','path'=>'/admin/course-approvals','methods'=>'GET|POST','role'=>'admin','service'=>'catalog-service','status'=>'implemented'],
