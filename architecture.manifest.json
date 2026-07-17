@@ -1,34 +1,21 @@
 {
-  "version": 2,
+  "version": 3,
   "repository_strategy": "monorepo",
   "branch_strategy": "main-only",
   "architecture": "house-compound-with-domain-microservices",
+  "legacy_top_level_application_removed": true,
   "frontend": {
     "application": "apps/web-platform",
-    "entrance": "apps/web-platform/public/index.php",
+    "document_root": "apps/web-platform/public",
     "floors": {
       "public": {"path": "apps/web-platform/src/Public", "route_prefix": "/"},
       "student": {"path": "apps/web-platform/src/Student", "route_prefix": "/student"},
       "instructor": {"path": "apps/web-platform/src/Instructor", "route_prefix": "/instructor"},
       "admin": {"path": "apps/web-platform/src/Admin", "route_prefix": "/admin"}
-    }
+    },
+    "room_file_standard": ["Route.php", "Controller.php", "Middleware.php", "Request.php", "Validator.php", "Service.php", "ApiClient.php", "ViewModel.php", "Page.php", "ROOM.md", "Components/README.md", "Assets/page.css", "Assets/page.js", "Tests/README.md"]
   },
-  "backend_services": [
-    "api-gateway",
-    "identity-service",
-    "catalog-service",
-    "learning-service",
-    "commerce-service",
-    "payment-service",
-    "enrollment-service",
-    "media-service",
-    "notification-service",
-    "review-service",
-    "reporting-service"
-  ],
-  "migration": {
-    "strategy": "room-by-room-strangler",
-    "legacy_source": ["app", "public", "routes"],
-    "rule": "A legacy feature is deleted only after its room and backend feature pass parity tests."
-  }
+  "backend_feature_file_standard": ["Route.php", "Controller.php", "Middleware.php", "Request.php", "Validator.php", "Policy.php", "Handler.php", "Repository.php", "Response.php", "Event.php", "FEATURE.md", "Tests/README.md"],
+  "backend_services": ["api-gateway", "identity-service", "catalog-service", "learning-service", "commerce-service", "payment-service", "enrollment-service", "media-service", "notification-service", "review-service", "reporting-service"],
+  "infrastructure_kept": ["database", "storage", "infrastructure", "packages", "docs", "tools"]
 }

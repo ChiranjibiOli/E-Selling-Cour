@@ -1,27 +1,86 @@
+x-domain-service: &domain-service
+  build:
+    context: .
+    dockerfile: infrastructure/docker/php-runtime.Dockerfile
+  volumes:
+    - ./:/repo
+  environment: &database-environment
+    DB_HOST: db
+    DB_PORT: 3307
+    DB_DATABASE: coursehub
+    DB_USERNAME: coursehub_user
+    DB_PASSWORD: local_coursehub_password
+  depends_on:
+    - db
+
 services:
-  app:
-    build: .
-    ports:
-      - "8080:80"
-    environment:
-      APP_NAME: CourseHub
-      APP_ENV: local
-      APP_DEBUG: "true"
-      APP_URL: http://localhost:8080
-      APP_TIMEZONE: Asia/Kathmandu
-
-      DB_HOST: db
-      DB_PORT: 3307
-      DB_DATABASE: coursehub
-      DB_USERNAME: coursehub_user
-      DB_PASSWORD: local_coursehub_password
-      DB_ALLOW_LOCAL_FALLBACK: "false"
-
+  web-platform:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/php-runtime.Dockerfile
+    working_dir: /repo/apps/web-platform
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
     volumes:
-      - ./:/var/www/html
+      - ./:/repo
+    ports:
+      - "9001:8080"
+    environment:
+      API_BASE_URL: http://api-gateway:8080
     depends_on:
-      db:
-        condition: service_healthy
+      - api-gateway
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/php-runtime.Dockerfile
+    working_dir: /repo/services/api-gateway
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+    volumes:
+      - ./:/repo
+    ports:
+      - "9000:8080"
+
+  identity-service:
+    <<: *domain-service
+    working_dir: /repo/services/identity-service
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+
+  catalog-service:
+    <<: *domain-service
+    working_dir: /repo/services/catalog-service
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+  learning-service:
+    <<: *domain-service
+    working_dir: /repo/services/learning-service
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+  commerce-service:
+    <<: *domain-service
+    working_dir: /repo/services/commerce-service
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+  payment-service:
+    <<: *domain-service
+    working_dir: /repo/services/payment-service
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+  enrollment-service:
+    <<: *domain-service
+    working_dir: /repo/services/enrollment-service
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+  media-service:
+    <<: *domain-service
+    working_dir: /repo/services/media-service
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+  notification-service:
+    <<: *domain-service
+    working_dir: /repo/services/notification-service
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+  review-service:
+    <<: *domain-service
+    working_dir: /repo/services/review-service
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
+  reporting-service:
+    <<: *domain-service
+    working_dir: /repo/services/reporting-service
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public"]
 
   db:
     image: mysql:8.4
@@ -37,11 +96,7 @@ services:
       - coursehub_db:/var/lib/mysql
       - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
       - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-P", "3307", "-plocal_root_password"]
-      interval: 5s
-      timeout: 5s
-      retries: 20
+      - ./services/identity-service/database/migrations/001_identity_sessions.sql:/docker-entrypoint-initdb.d/03-identity.sql:ro
 
 volumes:
   coursehub_db:

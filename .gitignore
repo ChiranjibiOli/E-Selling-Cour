@@ -1,32 +1,28 @@
 # Environment secrets
 .env
-.env.local
-.env.microservices
+.env.*
+!.env.example
 
-# Editor / OS files
+# Dependencies and editor files
+node_modules/
+vendor/
 .idea/
 .vscode/
-node_modules/
-Thumbs.db
 .DS_Store
+Thumbs.db
 
-# Zip backups
-*.zip
-
-# Runtime uploads must never be committed
+# Runtime data
 /storage/private_uploads/**
-!/storage/private_uploads/
 !/storage/private_uploads/.gitkeep
-
-/public/assets/uploads/**
-!/public/assets/uploads/
-!/public/assets/uploads/.gitkeep
-
-# Logs and temporary files
 /storage/logs/**
-!/storage/logs/
 !/storage/logs/.gitkeep
-
 /storage/tmp/**
-!/storage/tmp/
 !/storage/tmp/.gitkeep
+/storage/media/**
+!/storage/media/.gitkeep
+
+# Build and backup files
+*.zip
+*.tar
+*.gz
+coverage/
