@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "repository_strategy": "monorepo",
+  "branch_strategy": "main-only",
+  "legacy_application": {
+    "document_root": "public",
+    "status": "active-during-migration"
+  },
+  "applications": [
+    {"name": "public-web", "path": "apps/public-web", "port": 9001},
+    {"name": "student-web", "path": "apps/student-web", "port": 9002},
+    {"name": "instructor-web", "path": "apps/instructor-web", "port": 9003},
+    {"name": "admin-web", "path": "apps/admin-web", "port": 9004},
+    {"name": "mobile-app", "path": "apps/mobile-app", "status": "planned"}
+  ],
+  "services": [
+    {"name": "api-gateway", "path": "services/api-gateway", "port": 9000},
+    {"name": "identity-service", "path": "services/identity-service", "port": 9101, "status": "login-slice-implemented"},
+    {"name": "catalog-service", "path": "services/catalog-service", "status": "boundary-created"},
+    {"name": "learning-service", "path": "services/learning-service", "status": "boundary-created"},
+    {"name": "commerce-service", "path": "services/commerce-service", "status": "boundary-created"},
+    {"name": "payment-service", "path": "services/payment-service", "status": "boundary-created"},
+    {"name": "enrollment-service", "path": "services/enrollment-service", "status": "boundary-created"},
+    {"name": "media-service", "path": "services/media-service", "status": "boundary-created"},
+    {"name": "notification-service", "path": "services/notification-service", "status": "boundary-created"},
+    {"name": "review-service", "path": "services/review-service", "status": "boundary-created"},
+    {"name": "reporting-service", "path": "services/reporting-service", "status": "boundary-created"}
+  ]
+}
