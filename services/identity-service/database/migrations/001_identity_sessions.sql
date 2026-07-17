@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS identity_sessions (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    user_id INT NOT NULL,
+    user_id BIGINT UNSIGNED NOT NULL,
     token_hash CHAR(64) NOT NULL,
     portal ENUM('student', 'instructor', 'admin') NOT NULL,
     user_agent_hash CHAR(64) NOT NULL,
