@@ -34,8 +34,17 @@ final class LoginRateLimiter
         $emailHash = hash('sha256', strtolower(trim($email)));
         $ipHash = hash('sha256', $ip);
         $record = $this->find($email, $ip);
-        $attempts = ((int) ($record['attempts'] ?? 0)) + 1;
-        $lockedUntil = $attempts >= self::MAX_ATTEMPTS
+        $previousAttempts = (int) ($record['attempts'] ?? 0);
+
+        if (!empty($record['locked_until'])) {
+            $lockedUntil = new DateTimeImmutable((string) $record['locked_until']);
+            if ($lockedUntil <= new DateTimeImmutable()) {
+                $previousAttempts = 0;
+            }
+        }
+
+        $attempts = $previousAttempts + 1;
+        $lockedUntilValue = $attempts >= self::MAX_ATTEMPTS
             ? (new DateTimeImmutable())->modify('+' . self::LOCK_MINUTES . ' minutes')->format('Y-m-d H:i:s')
             : null;
 
@@ -48,7 +57,7 @@ final class LoginRateLimiter
             'email_hash' => $emailHash,
             'ip_hash' => $ipHash,
             'attempts' => $attempts,
-            'locked_until' => $lockedUntil,
+            'locked_until' => $lockedUntilValue,
         ]);
     }
 
