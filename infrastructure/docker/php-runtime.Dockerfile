@@ -1,6 +1,7 @@
 FROM php:8.3-cli-alpine
 
-RUN docker-php-ext-install mysqli pdo pdo_mysql
+RUN apk add --no-cache curl-dev \
+    && docker-php-ext-install mysqli pdo pdo_mysql curl
 
 WORKDIR /workspace
 
