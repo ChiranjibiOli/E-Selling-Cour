@@ -111,7 +111,7 @@ foreach ($statQueries as $key => $query) {
                             $description = 'Discover current and upcoming learning experiences organized under ' . $category['name'] . '.';
                         }
                         ?>
-                        <article class="landing-category-card" style="--stack-index:<?php echo (int) $index; ?>;">
+                        <article class="landing-category-card" style="--stack-index:<?php echo (int) $index; ?>">
                             <div class="landing-category-copy">
                                 <span class="landing-category-number">Category <?php echo str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT); ?></span>
                                 <h3><?php echo landing_h($category['name']); ?></h3>
