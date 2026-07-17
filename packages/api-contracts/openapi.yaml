@@ -1,10 +1,16 @@
 openapi: 3.1.0
 info:
   title: CourseHub API
-  version: 0.1.0
+  version: 0.2.0
   description: Initial contract for the monorepo microservices migration.
 servers:
   - url: http://localhost:9000
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque
 paths:
   /health:
     get:
@@ -58,6 +64,22 @@ paths:
         '422': {description: Validation failed}
         '429': {description: Too many login attempts}
         '503': {description: Identity service unavailable}
+  /api/v1/auth/session:
+    get:
+      summary: Verify an opaque bearer session
+      security:
+        - bearerAuth: []
+      responses:
+        '200': {description: Session is valid}
+        '401': {description: Session is invalid or expired}
+  /api/v1/auth/logout:
+    post:
+      summary: Revoke an opaque bearer session
+      security:
+        - bearerAuth: []
+      responses:
+        '200': {description: Session revoked}
+        '401': {description: Bearer token is missing or invalid}
   /api/v1/courses:
     get:
       summary: List published courses
