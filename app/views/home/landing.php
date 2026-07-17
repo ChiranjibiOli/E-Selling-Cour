@@ -69,7 +69,7 @@ foreach ($statQueries as $key => $query) {
 }
 ?>
 <link rel="stylesheet" href="assets/css/navbars/public-navbar.css?v=18">
-<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=30">
+<link rel="stylesheet" href="assets/css/pages/public/landing.css?v=31">
 <link rel="stylesheet" href="assets/css/components/footer.css?v=12">
 
 <main class="landing-page">
@@ -111,7 +111,7 @@ foreach ($statQueries as $key => $query) {
                             $description = 'Discover current and upcoming learning experiences organized under ' . $category['name'] . '.';
                         }
                         ?>
-                        <article class="landing-category-card" style="--stack-index:<?php echo (int) $index; ?>">
+                        <article class="landing-category-card" style="--stack-index:<?php echo (int) $index; ?>;">
                             <div class="landing-category-copy">
                                 <span class="landing-category-number">Category <?php echo str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT); ?></span>
                                 <h3><?php echo landing_h($category['name']); ?></h3>
