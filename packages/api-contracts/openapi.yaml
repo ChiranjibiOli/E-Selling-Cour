@@ -1,0 +1,75 @@
+openapi: 3.1.0
+info:
+  title: CourseHub API
+  version: 0.1.0
+  description: Initial contract for the monorepo microservices migration.
+servers:
+  - url: http://localhost:9000
+paths:
+  /health:
+    get:
+      summary: Check API gateway health
+      responses:
+        '200':
+          description: Gateway is available
+  /api/v1/auth/login:
+    post:
+      summary: Authenticate a user for a specific portal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [portal, email, password]
+              properties:
+                portal:
+                  type: string
+                  enum: [student, instructor, admin]
+                email:
+                  type: string
+                  format: email
+                  maxLength: 150
+                password:
+                  type: string
+                  maxLength: 200
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [message, access_token, token_type, expires_in, user]
+                properties:
+                  message: {type: string}
+                  access_token: {type: string}
+                  token_type: {type: string, const: Bearer}
+                  expires_in: {type: integer}
+                  user:
+                    type: object
+                    required: [id, name, email, role]
+                    properties:
+                      id: {type: integer}
+                      name: {type: string}
+                      email: {type: string, format: email}
+                      role: {type: string, enum: [student, instructor, admin]}
+        '401': {description: Invalid credentials or portal access}
+        '422': {description: Validation failed}
+        '429': {description: Too many login attempts}
+        '503': {description: Identity service unavailable}
+  /api/v1/courses:
+    get:
+      summary: List published courses
+      responses:
+        '501': {description: Catalog migration boundary exists but feature is not migrated}
+  /api/v1/orders:
+    post:
+      summary: Create an order
+      responses:
+        '501': {description: Commerce migration boundary exists but feature is not migrated}
+  /api/v1/payments:
+    post:
+      summary: Start a payment workflow
+      responses:
+        '501': {description: Payment migration boundary exists but feature is not migrated}
