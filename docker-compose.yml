@@ -26,6 +26,9 @@ services:
       - "9001:8080"
     environment:
       API_BASE_URL: http://api-gateway:8080
+      ADMIN_LOGIN_PATH: ${ADMIN_LOGIN_PATH:-/control-room/entry-9d4f}
+      ADMIN_ALLOWED_IPS: ${ADMIN_ALLOWED_IPS:-}
+      SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
     depends_on:
       - api-gateway
 
@@ -39,11 +42,26 @@ services:
       - ./:/repo
     ports:
       - "9000:8080"
+    environment:
+      IDENTITY_SERVICE_URL: http://identity-service:8080
+      CATALOG_SERVICE_URL: http://catalog-service:8080
+      LEARNING_SERVICE_URL: http://learning-service:8080
+      COMMERCE_SERVICE_URL: http://commerce-service:8080
+      PAYMENT_SERVICE_URL: http://payment-service:8080
+      ENROLLMENT_SERVICE_URL: http://enrollment-service:8080
+      MEDIA_SERVICE_URL: http://media-service:8080
+      NOTIFICATION_SERVICE_URL: http://notification-service:8080
+      REVIEW_SERVICE_URL: http://review-service:8080
+      REPORTING_SERVICE_URL: http://reporting-service:8080
 
   identity-service:
     <<: *domain-service
     working_dir: /repo/services/identity-service
     command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
+    environment:
+      <<: *database-environment
+      ADMIN_ACCESS_CODE: ${ADMIN_ACCESS_CODE:-replace-with-a-long-random-admin-entry-code}
+      IDENTITY_SESSION_TTL: ${IDENTITY_SESSION_TTL:-28800}
 
   catalog-service:
     <<: *domain-service
