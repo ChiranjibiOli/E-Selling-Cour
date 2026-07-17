@@ -20,6 +20,7 @@ Thumbs.db
 !/storage/tmp/.gitkeep
 /storage/media/**
 !/storage/media/.gitkeep
+/storage/runtime/**
 
 # Build and backup files
 *.zip
