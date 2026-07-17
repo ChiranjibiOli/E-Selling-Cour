@@ -36,7 +36,9 @@ services:
       - "${PUBLIC_WEB_PORT:-9001}:8080"
     environment:
       PORTAL_NAME: public
-      API_BASE_URL: http://localhost:${GATEWAY_PORT:-9000}
+      API_BASE_URL: http://api-gateway:8080
+      STUDENT_PORTAL_URL: http://localhost:${STUDENT_WEB_PORT:-9002}/register
+      INSTRUCTOR_PORTAL_URL: http://localhost:${INSTRUCTOR_WEB_PORT:-9003}/register
 
   student-web:
     <<: *php-service
@@ -46,7 +48,7 @@ services:
       - "${STUDENT_WEB_PORT:-9002}:8080"
     environment:
       PORTAL_NAME: student
-      API_BASE_URL: http://localhost:${GATEWAY_PORT:-9000}
+      API_BASE_URL: http://api-gateway:8080
 
   instructor-web:
     <<: *php-service
@@ -56,7 +58,7 @@ services:
       - "${INSTRUCTOR_WEB_PORT:-9003}:8080"
     environment:
       PORTAL_NAME: instructor
-      API_BASE_URL: http://localhost:${GATEWAY_PORT:-9000}
+      API_BASE_URL: http://api-gateway:8080
 
   admin-web:
     <<: *php-service
@@ -66,7 +68,7 @@ services:
       - "${ADMIN_WEB_PORT:-9004}:8080"
     environment:
       PORTAL_NAME: admin
-      API_BASE_URL: http://localhost:${GATEWAY_PORT:-9000}
+      API_BASE_URL: http://api-gateway:8080
 
   identity-service:
     <<: *php-service
