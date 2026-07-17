@@ -18,7 +18,7 @@ Every frontend room owns its route, controller, middleware, request, validator, 
 
 ## Honest implementation status
 
-The complete requested folder and file architecture is present. Identity login, rate limiting, bearer sessions, verification, and logout contain working backend logic. Other business-domain feature rooms currently provide defined boundaries and placeholders. Their final business logic must be implemented and tested inside those rooms. The removed legacy code is not secretly acting as a fallback.
+The complete requested folder and file architecture is present. Identity login, rate limiting, bearer sessions, verification, and logout contain working backend logic. Other business-domain feature rooms currently provide defined boundaries and placeholders. Their final business logic must be implemented and tested inside those rooms. The removed legacy code is not acting as a fallback.
 
 ## Validate
 
@@ -28,14 +28,29 @@ The complete requested folder and file architecture is present. Identity login, 
 
 ## Run the frontend house
 
+Use the router script so every unique portal path reaches the web front controller:
+
 ```powershell
-& "C:\xampp\php\php.exe" -S localhost:9001 -t apps\web-platform\public
+& "C:\xampp\php\php.exe" -S localhost:9001 `
+  -t apps\web-platform\public `
+  apps\web-platform\public\router.php
 ```
 
 Open `http://localhost:9001`.
+
+Useful paths:
+
+```text
+/
+/student/login
+/instructor/login
+/admin/login
+```
 
 ## Docker
 
 ```powershell
 docker compose up --build
 ```
+
+Docker exposes the frontend at `http://localhost:9001` and the API gateway at `http://localhost:9000`.
