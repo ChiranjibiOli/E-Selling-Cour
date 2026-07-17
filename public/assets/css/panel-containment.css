@@ -1,0 +1,544 @@
+/*
+ * CourseHub authenticated panel containment layer.
+ *
+ * Loaded only for signed-in Admin, Instructor, and Student pages.
+ * Its job is structural: prevent long titles, tags, form values, tables,
+ * media, and action rows from escaping their cards or page containers.
+ */
+
+body#main-content.authenticated-panel,
+body#main-content.authenticated-panel *,
+body#main-content.authenticated-panel *::before,
+body#main-content.authenticated-panel *::after {
+    box-sizing: border-box;
+}
+
+body#main-content.authenticated-panel :where(
+    main, section, article, aside, header, footer, nav, form, fieldset,
+    div, ul, ol, li, dl, dt, dd, figure, figcaption
+) {
+    min-width: 0;
+}
+
+body#main-content.authenticated-panel > main,
+body#main-content.authenticated-panel > main > *,
+body#main-content.authenticated-panel :where(
+    .command-page, .review-page, .change-page,
+    .admin-instructors-page, .admin-users-page, .admin-orders-page,
+    .admin-order-details-page, .admin-reports-page, .admin-settings-page,
+    .admin-withdrawals-page, .admin-profile-page, .notifications-page,
+    .instructor-command, .course-library-page, .course-studio-page,
+    .edit-course-page, .instructor-students-page, .instructor-sales-page,
+    .instructor-withdrawals-page, .payout-account-page,
+    .instructor-profile-page, .profile-page-shell,
+    .learning-command, .student-page, .student-browse-page,
+    .student-my-courses-page, .student-learning-page,
+    .cart-page, .checkout-page, .checkout-success-page,
+    .course-removal-page
+),
+body#main-content.authenticated-panel :where(
+    .command-shell, .review-shell, .change-shell,
+    .admin-instructors-wrapper, .admin-users-wrapper, .admin-orders-wrapper,
+    .admin-order-details-wrapper, .admin-reports-wrapper,
+    .admin-settings-wrapper, .admin-withdrawals-wrapper, .admin-profile-wrapper,
+    .notifications-wrapper, .instructor-command-shell, .course-library-shell,
+    .course-studio-shell, .edit-course-shell, .instructor-students-wrapper,
+    .instructor-sales-wrapper, .instructor-withdrawals-wrapper,
+    .payout-account-wrapper, .instructor-profile-wrapper,
+    .learning-shell, .student-section, .student-my-courses-wrapper,
+    .student-learning-wrapper, .cart-wrapper, .checkout-wrapper,
+    .checkout-success-wrapper, .course-removal-wrapper
+) {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+
+/* Long human-entered content must wrap instead of widening a panel. */
+body#main-content.authenticated-panel :where(
+    h1, h2, h3, h4, h5, h6, p, small, strong, em, label, legend,
+    dt, dd, li, td, th, figcaption, blockquote, address
+) {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
+
+body#main-content.authenticated-panel :where(a, button) {
+    min-width: 0;
+    max-width: 100%;
+}
+
+body#main-content.authenticated-panel :where(
+    pre, code, samp, kbd, .code-block, .json-output, .log-output
+) {
+    max-width: 100%;
+}
+
+body#main-content.authenticated-panel pre {
+    overflow: auto;
+    white-space: pre;
+    overscroll-behavior: contain;
+}
+
+body#main-content.authenticated-panel :where(
+    img, svg, video, canvas, iframe, object, embed
+) {
+    max-width: 100%;
+}
+
+/* Every card owns its content width. No child gets to negotiate with physics. */
+body#main-content.authenticated-panel :where(
+    .ui-card, .dashboard-card, .stat-card, .metric-card, .summary-card,
+    .command-metric, .student-metric, .instructor-metric,
+    .sales-stat-card, .withdrawal-stat-card, .report-stat-card,
+    .command-panel, .insight-panel, .panel-card, .action-card,
+    .student-card, .user-card, .instructor-request-card, .order-card,
+    .withdrawal-request-card, .withdrawal-form-card, .withdrawal-history-card,
+    .payout-form-card, .profile-card, .profile-form-card,
+    .settings-card, .settings-form-card, .settings-preview-card,
+    .report-card, .report-panel, .table-card, .filter-card,
+    .sales-table-card, .notification-card, .details-card,
+    .order-summary-card, .proof-card, .admin-action-card,
+    .studio-panel, .rail-card, .review-panel, .quality-card,
+    .chapter-card, .lesson-card, .draft-tile, .outline-preview-card,
+    .learning-card, .pending-orders-box, .pending-order-card,
+    .top-course-card, .pending-card, .withdrawal-item, .report-list-item,
+    .course-removal-row, .success-card, .dashboard-panel,
+    .course-card, .course-tile, .enrollment-card, .cart-item,
+    .checkout-card, .profile-panel, .notification-item
+) {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+body#main-content.authenticated-panel :where(
+    .ui-card, .dashboard-card, .stat-card, .metric-card, .summary-card,
+    .command-panel, .insight-panel, .panel-card, .action-card,
+    .student-card, .user-card, .instructor-request-card, .order-card,
+    .withdrawal-request-card, .withdrawal-form-card, .withdrawal-history-card,
+    .payout-form-card, .profile-card, .profile-form-card,
+    .settings-card, .settings-form-card, .settings-preview-card,
+    .report-card, .report-panel, .table-card, .filter-card,
+    .sales-table-card, .notification-card, .details-card,
+    .order-summary-card, .proof-card, .admin-action-card,
+    .studio-panel, .rail-card, .review-panel, .quality-card,
+    .chapter-card, .lesson-card, .draft-tile, .outline-preview-card,
+    .learning-card, .pending-orders-box, .pending-order-card,
+    .top-course-card, .pending-card, .withdrawal-item, .report-list-item,
+    .course-removal-row, .success-card, .dashboard-panel,
+    .course-card, .course-tile, .enrollment-card, .cart-item,
+    .checkout-card, .profile-panel, .notification-item
+) > * {
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* Grid and flex children are allowed to shrink below their content width. */
+body#main-content.authenticated-panel :where(
+    .dashboard-grid, .command-grid, .metrics-grid, .metric-grid,
+    .stats-grid, .stat-grid, .summary-grid, .cards-grid,
+    .course-grid, .courses-grid, .report-grid, .settings-grid,
+    .profile-grid, .student-grid, .instructor-grid, .admin-grid,
+    .learning-grid, .library-grid, .review-grid, .studio-grid,
+    .details-grid, .checkout-grid, .order-grid, .content-grid,
+    .split-layout, .two-column-layout, .three-column-layout
+) {
+    min-width: 0;
+    max-width: 100%;
+}
+
+body#main-content.authenticated-panel :where(
+    .dashboard-grid, .command-grid, .metrics-grid, .metric-grid,
+    .stats-grid, .stat-grid, .summary-grid, .cards-grid,
+    .course-grid, .courses-grid, .report-grid, .settings-grid,
+    .profile-grid, .student-grid, .instructor-grid, .admin-grid,
+    .learning-grid, .library-grid, .review-grid, .studio-grid,
+    .details-grid, .checkout-grid, .order-grid, .content-grid,
+    .split-layout, .two-column-layout, .three-column-layout
+) > * {
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* Tags, status pills, chips and badges wrap inside their own boundary. */
+body#main-content.authenticated-panel :where(
+    .tag, .tags, .badge, .badges, .chip, .chips, .pill, .pills,
+    .status, .status-badge, .status-pill, .role-badge, .course-status,
+    .category-tag, .level-badge, .meta-badge, .filter-chip,
+    .notification-badge, .count-badge, .payment-status, .order-status,
+    .approval-status, .lesson-type, .course-label
+) {
+    min-width: 0;
+    max-width: 100%;
+}
+
+body#main-content.authenticated-panel :where(
+    .tags, .badges, .chips, .pills, .tag-list, .badge-list,
+    .status-list, .course-meta, .card-meta, .meta-row
+) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+body#main-content.authenticated-panel :where(
+    .tag, .badge, .chip, .pill, .status, .status-badge, .status-pill,
+    .role-badge, .course-status, .category-tag, .level-badge,
+    .meta-badge, .filter-chip, .notification-badge, .count-badge,
+    .payment-status, .order-status, .approval-status,
+    .lesson-type, .course-label
+) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    line-height: 1.25;
+    text-align: center;
+}
+
+/* Forms remain usable with long labels, file names and validation messages. */
+body#main-content.authenticated-panel fieldset {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+body#main-content.authenticated-panel :where(
+    .form-grid, .form-row, .field-row, .fields-row, .input-row,
+    .filter-row, .settings-row, .profile-row, .payment-row,
+    .course-form-grid, .lesson-form-grid, .chapter-form-grid
+) {
+    min-width: 0;
+    max-width: 100%;
+}
+
+body#main-content.authenticated-panel :where(
+    .form-grid, .form-row, .field-row, .fields-row, .input-row,
+    .filter-row, .settings-row, .profile-row, .payment-row,
+    .course-form-grid, .lesson-form-grid, .chapter-form-grid
+) > * {
+    min-width: 0;
+    max-width: 100%;
+}
+
+body#main-content.authenticated-panel :where(
+    input:not([type="checkbox"]):not([type="radio"]),
+    select, textarea
+) {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+body#main-content.authenticated-panel input[type="file"] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body#main-content.authenticated-panel textarea {
+    resize: vertical;
+}
+
+body#main-content.authenticated-panel :where(
+    .help-text, .field-help, .form-help, .validation-message,
+    .error-message, .success-message, .input-hint
+) {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+/* Action groups wrap rather than forcing the card wider. */
+body#main-content.authenticated-panel :where(
+    .actions, .card-actions, .page-actions, .header-actions,
+    .form-actions, .table-actions, .toolbar, .filter-actions,
+    .course-actions, .lesson-actions, .chapter-actions,
+    .modal-actions, .pagination, .button-group, .action-group
+) {
+    min-width: 0;
+    max-width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+}
+
+body#main-content.authenticated-panel :where(
+    .actions, .card-actions, .page-actions, .header-actions,
+    .form-actions, .table-actions, .toolbar, .filter-actions,
+    .course-actions, .lesson-actions, .chapter-actions,
+    .modal-actions, .pagination, .button-group, .action-group
+) > * {
+    min-width: 0;
+    max-width: 100%;
+}
+
+body#main-content.authenticated-panel :where(
+    button, .button, .btn, [class*="btn-"], [class$="-btn"]
+) {
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.25;
+}
+
+/* Tables scroll within the table card instead of pushing the full page. */
+body#main-content.authenticated-panel :where(
+    .table-wrapper, .table-responsive, .table-scroll,
+    .data-table-wrapper, .orders-table-wrapper, .users-table-wrapper,
+    .students-table-wrapper, .sales-table-wrapper, .reports-table-wrapper,
+    .withdrawals-table-wrapper
+) {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+body#main-content.authenticated-panel table {
+    width: 100%;
+    max-width: 100%;
+    border-collapse: collapse;
+}
+
+body#main-content.authenticated-panel :where(th, td) {
+    min-width: 0;
+    max-width: 420px;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    vertical-align: top;
+}
+
+body#main-content.authenticated-panel :where(th, td) :where(
+    .actions, .table-actions, .button-group, .action-group
+) {
+    flex-wrap: wrap;
+}
+
+/* Course, order and learning content. */
+body#main-content.authenticated-panel :where(
+    .course-card, .course-tile, .enrollment-card, .top-course-card,
+    .learning-card, .cart-item, .pending-order-card
+) :where(
+    .course-card-body, .course-body, .card-body, .course-content,
+    .course-info, .course-details, .course-copy, .card-content
+) {
+    min-width: 0;
+    max-width: 100%;
+}
+
+body#main-content.authenticated-panel :where(
+    .course-title, .card-title, .course-card-title,
+    .lesson-title, .chapter-title, .order-title
+) {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+}
+
+body#main-content.authenticated-panel :where(
+    .course-card, .course-tile, .enrollment-card, .top-course-card,
+    .learning-card, .cart-item, .pending-order-card
+) :where(img, video) {
+    width: 100%;
+    max-width: 100%;
+    object-fit: cover;
+}
+
+body#main-content.authenticated-panel :where(
+    .course-footer, .card-footer, .course-price-row,
+    .course-meta, .course-progress-row, .order-meta
+) {
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: wrap;
+}
+
+/* Uploaded proof, avatar and thumbnail previews never escape their frame. */
+body#main-content.authenticated-panel :where(
+    .preview, .image-preview, .thumbnail-preview, .avatar-preview,
+    .proof-preview, .media-preview, .upload-preview
+) {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+}
+
+body#main-content.authenticated-panel :where(
+    .preview, .image-preview, .thumbnail-preview, .avatar-preview,
+    .proof-preview, .media-preview, .upload-preview
+) :where(img, video, iframe) {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Dialogs and drawers fit the viewport, including very narrow phones. */
+body#main-content.authenticated-panel :where(
+    .modal, .dialog, .drawer, .modal-card, .modal-content,
+    .dialog-content, .drawer-content, .logout-modal
+) {
+    max-width: min(100% - 24px, 720px);
+    max-height: calc(100dvh - 24px);
+    overflow: auto;
+    overscroll-behavior: contain;
+}
+
+body#main-content.authenticated-panel :where(
+    .breadcrumb, .breadcrumbs, .page-path, .stepper, .steps
+) {
+    min-width: 0;
+    max-width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    overflow-wrap: anywhere;
+}
+
+/* Wide two-column work areas collapse before content begins to squeeze. */
+@media (max-width: 1100px) {
+    body#main-content.authenticated-panel :where(
+        .split-layout, .two-column-layout, .details-grid,
+        .checkout-grid, .profile-grid, .settings-grid,
+        .studio-grid, .review-grid
+    ) {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    body#main-content.authenticated-panel :where(
+        .rail-card, .aside-card, .sidebar-card, .sticky-card,
+        .course-preview-rail, .studio-rail
+    ) {
+        position: static !important;
+        inset: auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+@media (max-width: 760px) {
+    body#main-content.authenticated-panel :where(
+        .command-page, .review-page, .change-page,
+        .admin-instructors-page, .admin-users-page, .admin-orders-page,
+        .admin-order-details-page, .admin-reports-page, .admin-settings-page,
+        .admin-withdrawals-page, .admin-profile-page, .notifications-page,
+        .instructor-command, .course-library-page, .course-studio-page,
+        .edit-course-page, .instructor-students-page, .instructor-sales-page,
+        .instructor-withdrawals-page, .payout-account-page,
+        .instructor-profile-page, .profile-page-shell,
+        .learning-command, .student-page, .student-browse-page,
+        .student-my-courses-page, .student-learning-page,
+        .cart-page, .checkout-page, .checkout-success-page,
+        .course-removal-page
+    ) {
+        padding-right: 16px !important;
+        padding-left: 16px !important;
+    }
+
+    body#main-content.authenticated-panel :where(
+        .command-hero, .review-head, .change-head, .dashboard-header,
+        .admin-dashboard-header, .admin-instructors-header,
+        .admin-users-header, .admin-orders-header, .admin-reports-header,
+        .admin-settings-header, .notifications-header, .courses-header,
+        .library-head, .studio-hero, .instructor-hero, .learning-hero,
+        .my-courses-header, .students-header, .sales-header,
+        .withdrawals-header, .payout-header, .profile-header,
+        .page-header, .edit-course-heading, .courses-hero,
+        .cart-header, .checkout-header, .order-details-header,
+        .course-removal-head
+    ) {
+        align-items: stretch !important;
+        flex-direction: column !important;
+        gap: 14px !important;
+    }
+
+    body#main-content.authenticated-panel :where(
+        .header-actions, .page-actions, .form-actions,
+        .filter-actions, .modal-actions
+    ) {
+        width: 100%;
+    }
+
+    body#main-content.authenticated-panel :where(
+        .header-actions, .page-actions, .form-actions,
+        .filter-actions, .modal-actions
+    ) > :where(button, .button, .btn, a) {
+        flex: 1 1 180px;
+    }
+
+    body#main-content.authenticated-panel :where(
+        .metrics-grid, .metric-grid, .stats-grid, .stat-grid,
+        .summary-grid, .dashboard-grid, .command-grid,
+        .course-grid, .courses-grid, .cards-grid, .report-grid
+    ) {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    body#main-content.authenticated-panel :where(
+        .table-card, .sales-table-card, .report-panel,
+        .withdrawal-history-card
+    ) {
+        overflow: hidden;
+    }
+
+    body#main-content.authenticated-panel :where(
+        .table-card, .sales-table-card, .report-panel,
+        .withdrawal-history-card
+    ) :where(
+        .table-wrapper, .table-responsive, .table-scroll,
+        .data-table-wrapper
+    ) {
+        overflow-x: auto;
+    }
+}
+
+@media (max-width: 480px) {
+    body#main-content.authenticated-panel :where(
+        .command-page, .review-page, .change-page,
+        .admin-instructors-page, .admin-users-page, .admin-orders-page,
+        .admin-order-details-page, .admin-reports-page, .admin-settings-page,
+        .admin-withdrawals-page, .admin-profile-page, .notifications-page,
+        .instructor-command, .course-library-page, .course-studio-page,
+        .edit-course-page, .instructor-students-page, .instructor-sales-page,
+        .instructor-withdrawals-page, .payout-account-page,
+        .instructor-profile-page, .profile-page-shell,
+        .learning-command, .student-page, .student-browse-page,
+        .student-my-courses-page, .student-learning-page,
+        .cart-page, .checkout-page, .checkout-success-page,
+        .course-removal-page
+    ) {
+        padding-right: 12px !important;
+        padding-left: 12px !important;
+    }
+
+    body#main-content.authenticated-panel :where(
+        .header-actions, .page-actions, .form-actions,
+        .filter-actions, .modal-actions
+    ) > :where(button, .button, .btn, a) {
+        width: 100%;
+        flex-basis: 100%;
+    }
+
+    body#main-content.authenticated-panel :where(
+        .tag, .badge, .chip, .pill, .status-badge, .status-pill,
+        .role-badge, .course-status, .category-tag, .level-badge
+    ) {
+        font-size: .68rem;
+    }
+
+    body#main-content.authenticated-panel :where(th, td) {
+        max-width: 280px;
+    }
+}
