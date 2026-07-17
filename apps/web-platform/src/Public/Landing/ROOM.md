@@ -1,3 +1,3 @@
-# Room
+# Landing page
 
-This room owns its route, controller, middleware, request, validator, service, API client, view-model, page, components, assets, and tests. Its route and service ownership are registered in `apps/web-platform/src/config/rooms.php`.
+Real public landing page connected to `catalog-service` through the API gateway. Components own course-card and category rendering. The page never queries MySQL directly.

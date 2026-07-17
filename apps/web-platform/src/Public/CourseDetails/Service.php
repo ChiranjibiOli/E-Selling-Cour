@@ -1,8 +1,5 @@
 <?php
 
 declare(strict_types=1);
-
-use CourseHub\WebPlatform\Shared\Http\Request;
-use CourseHub\WebPlatform\Shared\Room\RoomRuntime;
-
-return static fn (Request $request): array => RoomRuntime::load(__DIR__, $request);
+require_once __DIR__.'/ApiClient.php';
+final class CourseDetailsService{public function load(int $id):array{return (new CourseDetailsApi())->find($id);}}

@@ -1,1 +1,1 @@
-// Room-owned browser behavior. Keep global behavior in Shared.
+document.querySelectorAll('.course-card,.category-pill').forEach((item,index)=>{item.animate([{opacity:0,transform:'translateY(14px)'},{opacity:1,transform:'translateY(0)'}],{duration:420,delay:index*45,fill:'both',easing:'ease-out'});});

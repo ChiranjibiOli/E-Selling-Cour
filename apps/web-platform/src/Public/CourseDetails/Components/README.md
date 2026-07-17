@@ -1,3 +1,1 @@
-# Components
-
-Room-owned UI elements belong here. Create one subfolder for each meaningful component.
+Course purchase card, metadata, curriculum sections and preview lesson components belong here.

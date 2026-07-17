@@ -1,3 +1,1 @@
-# Tests
-
-Add unit, request, authorization, integration, and browser tests for this room here.
+Test search escaping, filter validation, published-only API results, empty state and service failure behavior.

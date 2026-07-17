@@ -1,1 +1,1 @@
-// Room-owned browser behavior. Keep global behavior in Shared.
+document.querySelector('input[name="q"]')?.addEventListener('keydown',event=>{if(event.key==='Escape'){event.currentTarget.value='';}});

@@ -1,1 +1,1 @@
-// Room-owned browser behavior. Keep global behavior in Shared.
+document.querySelectorAll('.curriculum-section').forEach(section=>section.querySelector('header')?.addEventListener('click',()=>section.classList.toggle('collapsed')));

@@ -1,3 +1,1 @@
-# Tests
-
-Add unit, request, authorization, integration, and browser tests for this room here.
+Test numeric ID validation, unpublished-course rejection, HTML escaping, curriculum ordering and safe media URLs.

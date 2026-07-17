@@ -2,4 +2,10 @@
 
 declare(strict_types=1);
 
-return static fn (array $input): array => ['valid' => true, 'errors' => [], 'data' => $input];
+final class LandingValidator
+{
+    public static function validate(LandingRequest $request): void
+    {
+        // Landing currently has no user-controlled business input.
+    }
+}

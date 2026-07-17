@@ -1,3 +1,1 @@
-# Tests
-
-Add unit, request, authorization, integration, and browser tests for this room here.
+Test API success, catalog-offline fallback, HTML escaping, published-only courses and safe thumbnail URLs.

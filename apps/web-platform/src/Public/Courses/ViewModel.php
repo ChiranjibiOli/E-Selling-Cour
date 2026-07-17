@@ -2,4 +2,13 @@
 
 declare(strict_types=1);
 
-return static fn (array $data): array => $data;
+final class CourseCatalogViewModel
+{
+    public function __construct(
+        public readonly CourseCatalogRequest $filters,
+        public readonly array $courses,
+        public readonly array $categories,
+        public readonly bool $available,
+    ) {
+    }
+}

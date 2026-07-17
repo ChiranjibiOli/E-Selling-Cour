@@ -9,22 +9,23 @@ if ($path === '/health') {
     exit;
 }
 
+$serviceUrl = static fn (string $environment, string $fallback): string => rtrim(trim((string) getenv($environment)) ?: $fallback, '/');
 $routes = [
-    '/api/v1/auth' => 'http://identity-service:8080',
-    '/api/v1/users' => 'http://identity-service:8080',
-    '/api/v1/courses' => 'http://catalog-service:8080',
-    '/api/v1/categories' => 'http://catalog-service:8080',
-    '/api/v1/learning' => 'http://learning-service:8080',
-    '/api/v1/progress' => 'http://learning-service:8080',
-    '/api/v1/commerce' => 'http://commerce-service:8080',
-    '/api/v1/cart' => 'http://commerce-service:8080',
-    '/api/v1/orders' => 'http://commerce-service:8080',
-    '/api/v1/payments' => 'http://payment-service:8080',
-    '/api/v1/enrollments' => 'http://enrollment-service:8080',
-    '/api/v1/media' => 'http://media-service:8080',
-    '/api/v1/notifications' => 'http://notification-service:8080',
-    '/api/v1/reviews' => 'http://review-service:8080',
-    '/api/v1/reports' => 'http://reporting-service:8080',
+    '/api/v1/auth' => $serviceUrl('IDENTITY_SERVICE_URL', 'http://identity-service:8080'),
+    '/api/v1/users' => $serviceUrl('IDENTITY_SERVICE_URL', 'http://identity-service:8080'),
+    '/api/v1/courses' => $serviceUrl('CATALOG_SERVICE_URL', 'http://catalog-service:8080'),
+    '/api/v1/categories' => $serviceUrl('CATALOG_SERVICE_URL', 'http://catalog-service:8080'),
+    '/api/v1/learning' => $serviceUrl('LEARNING_SERVICE_URL', 'http://learning-service:8080'),
+    '/api/v1/progress' => $serviceUrl('LEARNING_SERVICE_URL', 'http://learning-service:8080'),
+    '/api/v1/commerce' => $serviceUrl('COMMERCE_SERVICE_URL', 'http://commerce-service:8080'),
+    '/api/v1/cart' => $serviceUrl('COMMERCE_SERVICE_URL', 'http://commerce-service:8080'),
+    '/api/v1/orders' => $serviceUrl('COMMERCE_SERVICE_URL', 'http://commerce-service:8080'),
+    '/api/v1/payments' => $serviceUrl('PAYMENT_SERVICE_URL', 'http://payment-service:8080'),
+    '/api/v1/enrollments' => $serviceUrl('ENROLLMENT_SERVICE_URL', 'http://enrollment-service:8080'),
+    '/api/v1/media' => $serviceUrl('MEDIA_SERVICE_URL', 'http://media-service:8080'),
+    '/api/v1/notifications' => $serviceUrl('NOTIFICATION_SERVICE_URL', 'http://notification-service:8080'),
+    '/api/v1/reviews' => $serviceUrl('REVIEW_SERVICE_URL', 'http://review-service:8080'),
+    '/api/v1/reports' => $serviceUrl('REPORTING_SERVICE_URL', 'http://reporting-service:8080'),
 ];
 $target = null;
 uksort($routes, static fn (string $a, string $b): int => strlen($b) <=> strlen($a));
@@ -44,23 +45,15 @@ $requestId = trim((string) ($_SERVER['HTTP_X_REQUEST_ID'] ?? ''));
 if ($requestId === '' || preg_match('/^[A-Za-z0-9._-]{8,100}$/', $requestId) !== 1) {
     $requestId = bin2hex(random_bytes(16));
 }
-$forwardedFor = trim((string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
 $headers = [
     'Content-Type: ' . ($_SERVER['CONTENT_TYPE'] ?? 'application/json'),
     'Accept: application/json',
     'Authorization: ' . ($_SERVER['HTTP_AUTHORIZATION'] ?? ''),
     'X-Request-ID: ' . $requestId,
-    'X-Forwarded-For: ' . $forwardedFor,
+    'X-Forwarded-For: ' . trim((string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown')),
 ];
-
 $ch = curl_init($target . ($_SERVER['REQUEST_URI'] ?? '/'));
-curl_setopt_array($ch, [
-    CURLOPT_CUSTOMREQUEST => $_SERVER['REQUEST_METHOD'] ?? 'GET',
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_CONNECTTIMEOUT => 3,
-    CURLOPT_TIMEOUT => 15,
-    CURLOPT_HTTPHEADER => $headers,
-]);
+curl_setopt_array($ch, [CURLOPT_CUSTOMREQUEST => $_SERVER['REQUEST_METHOD'] ?? 'GET', CURLOPT_RETURNTRANSFER => true, CURLOPT_CONNECTTIMEOUT => 3, CURLOPT_TIMEOUT => 15, CURLOPT_HTTPHEADER => $headers]);
 $body = file_get_contents('php://input');
 if ($body !== '') {
     curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
