@@ -61,8 +61,9 @@ final class LandingPage
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/app.css">
     <link rel="stylesheet" href="/room-assets/Public/Landing/page.css">
+    <link rel="stylesheet" href="/room-assets/Public/Landing/motion-v2.css?v=20260718-2">
 </head>
-<body class="landing-body">
+<body class="landing-body" data-motion="full">
     <div class="page-noise" aria-hidden="true"></div>
     <div class="moving-word moving-word-one" aria-hidden="true">COURSEHUB</div>
     <div class="moving-word moving-word-two" aria-hidden="true">LEARNING</div>
@@ -245,7 +246,7 @@ final class LandingPage
         <p>© <?= date('Y') ?> CourseHub. Practical learning, arranged with care.</p>
     </footer>
 
-    <script src="/room-assets/Public/Landing/page.js" defer></script>
+    <script src="/room-assets/Public/Landing/page-v2.js?v=20260718-2" defer></script>
 </body>
 </html>
         <?php
