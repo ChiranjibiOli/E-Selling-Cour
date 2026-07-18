@@ -22,17 +22,13 @@
   const header = document.querySelector('.public-header');
   const hero = document.querySelector('[data-hero-scrub]');
   const heroStage = document.querySelector('[data-hero-stage]');
-  const heroImage = heroStage?.querySelector('.hero-media img');
   const finder = hero?.querySelector('.course-finder');
-
   const chapter = document.querySelector('[data-chapter-scroll]');
   const chapterSticky = chapter?.querySelector('.chapter-sticky');
-
   const story = document.querySelector('[data-story-scroll]');
   const storySticky = story?.querySelector('.story-sticky');
   const storyCards = Array.from(document.querySelectorAll('[data-story-card]'));
   const storyIndex = document.querySelector('[data-story-index]');
-
   const scrubSections = Array.from(document.querySelectorAll('[data-scrub-section]'));
   let scrollQueued = false;
 
@@ -111,7 +107,7 @@
       const scale = 1 - Math.min(distance * .11, .2);
       const opacity = clamp(1 - distance * .62, .12, 1);
       const blur = Math.min(distance * 2.2, 4.5);
-      card.style.transform = `translate3d(${x}vw, ${y}vh, 0) rotate(${rotation}deg) scale(${scale})`;
+      card.style.transform = `translate3d(calc(-50% + ${x}vw), ${y}vh, 0) rotate(${rotation}deg) scale(${scale})`;
       card.style.opacity = String(opacity);
       card.style.filter = `blur(${blur}px)`;
       card.style.zIndex = String(20 - Math.round(distance * 5));
