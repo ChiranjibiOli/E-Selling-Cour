@@ -1,105 +1,92 @@
 (() => {
   'use strict';
 
+  const root = document.documentElement;
   const body = document.body;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const revealItems = document.querySelectorAll('.reveal');
 
-  if (reducedMotion) {
+  const revealItems = document.querySelectorAll('.reveal');
+  if (reducedMotion || !('IntersectionObserver' in window)) {
     revealItems.forEach((item) => item.classList.add('is-visible'));
   } else {
     const revealObserver = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          revealObserver.unobserve(entry.target);
-        }
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
       });
-    }, { threshold: 0.13, rootMargin: '0px 0px -45px' });
-
+    }, { threshold: 0.12, rootMargin: '0px 0px -45px' });
     revealItems.forEach((item) => revealObserver.observe(item));
   }
 
   const header = document.querySelector('.public-header');
-  const sky = document.querySelector('.hero-sky');
-  const backMountain = document.querySelector('.mountain-back');
-  const frontMountain = document.querySelector('.mountain-front');
-  const orbit = document.querySelector('.hero-orbit');
+  const hero = document.querySelector('.hero');
+  const heroMedia = document.querySelector('.hero-media img');
+  let scrollQueued = false;
 
-  const updateScrollEffects = () => {
-    const scrollY = window.scrollY;
-    if (header) {
-      header.classList.toggle('is-scrolled', scrollY > 24);
-    }
+  const updateScrollState = () => {
+    const y = window.scrollY;
+    root.style.setProperty('--scroll-y', String(y));
+    header?.classList.toggle('is-scrolled', y > 24);
 
-    if (!reducedMotion) {
-      if (sky) sky.style.transform = `translate3d(0, ${scrollY * 0.08}px, 0)`;
-      if (backMountain) backMountain.style.transform = `translate3d(0, ${scrollY * 0.04}px, 0)`;
-      if (frontMountain) frontMountain.style.transform = `translate3d(0, ${scrollY * 0.075}px, 0)`;
-      if (orbit) orbit.style.translate = `0 ${scrollY * 0.035}px`;
+    if (!reducedMotion && hero && heroMedia) {
+      const bounds = hero.getBoundingClientRect();
+      const progress = Math.max(-1, Math.min(1, -bounds.top / Math.max(bounds.height, 1)));
+      root.style.setProperty('--hero-shift', `${progress * 34}px`);
     }
+    scrollQueued = false;
   };
 
-  let scrollTicking = false;
   window.addEventListener('scroll', () => {
-    if (!scrollTicking) {
-      window.requestAnimationFrame(() => {
-        updateScrollEffects();
-        scrollTicking = false;
-      });
-      scrollTicking = true;
-    }
+    if (scrollQueued) return;
+    scrollQueued = true;
+    window.requestAnimationFrame(updateScrollState);
   }, { passive: true });
-  updateScrollEffects();
+  updateScrollState();
 
-  const finder = document.querySelector('.course-finder');
-  const finderGlow = document.querySelector('.finder-glow');
-
-  if (finder && finderGlow && !reducedMotion) {
-    finder.addEventListener('pointermove', (event) => {
-      const bounds = finder.getBoundingClientRect();
-      const x = event.clientX - bounds.left - 110;
-      const y = event.clientY - bounds.top - 110;
-      finderGlow.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-    });
-
-    finder.addEventListener('pointerleave', () => {
-      finderGlow.style.transform = 'translate3d(0, 0, 0)';
-    });
-  }
-
-  const searchInput = document.querySelector('#course-query');
-  const suggestionLinks = document.querySelectorAll('.intent-options a');
-
-  suggestionLinks.forEach((link) => {
-    link.addEventListener('mouseenter', () => {
-      if (!searchInput || reducedMotion) return;
-      searchInput.closest('.finder-field')?.classList.add('is-suggested');
-    });
-    link.addEventListener('mouseleave', () => {
-      searchInput?.closest('.finder-field')?.classList.remove('is-suggested');
+  const menuButton = document.querySelector('.menu-button');
+  const nav = document.querySelector('.primary-nav');
+  menuButton?.addEventListener('click', () => {
+    const open = menuButton.getAttribute('aria-expanded') === 'true';
+    menuButton.setAttribute('aria-expanded', String(!open));
+    nav?.classList.toggle('is-open', !open);
+    body.classList.toggle('nav-open', !open);
+  });
+  nav?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      menuButton?.setAttribute('aria-expanded', 'false');
+      nav.classList.remove('is-open');
+      body.classList.remove('nav-open');
     });
   });
 
-  const rail = document.querySelector('[data-drag-scroll]');
-  const previousButton = document.querySelector('.rail-prev');
-  const nextButton = document.querySelector('.rail-next');
-
-  const scrollRail = (direction) => {
-    if (!rail) return;
-    rail.scrollBy({ left: direction * Math.min(620, rail.clientWidth * 0.76), behavior: 'smooth' });
+  const finder = document.querySelector('.course-finder');
+  const finderFields = finder?.querySelectorAll('input, select') ?? [];
+  const updateFinderProgress = () => {
+    if (!finder || finderFields.length === 0) return;
+    const completed = Array.from(finderFields).filter((field) => String(field.value).trim() !== '').length;
+    const percentage = Math.max(8, Math.round((completed / finderFields.length) * 100));
+    finder.style.setProperty('--finder-progress', `${percentage}%`);
   };
 
-  previousButton?.addEventListener('click', () => scrollRail(-1));
-  nextButton?.addEventListener('click', () => scrollRail(1));
+  finderFields.forEach((field) => {
+    field.addEventListener('focus', () => finder?.classList.add('is-focused'));
+    field.addEventListener('blur', () => finder?.classList.remove('is-focused'));
+    field.addEventListener('input', updateFinderProgress);
+    field.addEventListener('change', updateFinderProgress);
+  });
+  updateFinderProgress();
 
-  if (rail) {
+  const enableDragScroll = (rail) => {
+    if (!rail) return;
     let dragging = false;
     let startX = 0;
     let startScroll = 0;
+    let moved = false;
 
     rail.addEventListener('pointerdown', (event) => {
       dragging = true;
+      moved = false;
       startX = event.clientX;
       startScroll = rail.scrollLeft;
       rail.setPointerCapture(event.pointerId);
@@ -107,36 +94,53 @@
 
     rail.addEventListener('pointermove', (event) => {
       if (!dragging) return;
-      rail.scrollLeft = startScroll - (event.clientX - startX);
+      const delta = event.clientX - startX;
+      if (Math.abs(delta) > 5) moved = true;
+      rail.scrollLeft = startScroll - delta;
     });
 
-    const stopDragging = (event) => {
+    const stop = (event) => {
       if (!dragging) return;
       dragging = false;
-      if (rail.hasPointerCapture(event.pointerId)) {
-        rail.releasePointerCapture(event.pointerId);
-      }
+      if (rail.hasPointerCapture(event.pointerId)) rail.releasePointerCapture(event.pointerId);
     };
 
-    rail.addEventListener('pointerup', stopDragging);
-    rail.addEventListener('pointercancel', stopDragging);
-  }
+    rail.addEventListener('pointerup', stop);
+    rail.addEventListener('pointercancel', stop);
+    rail.addEventListener('click', (event) => {
+      if (moved) event.preventDefault();
+    }, true);
+  };
 
-  const menuButton = document.querySelector('.menu-button');
-  const glassNav = document.querySelector('.glass-nav');
+  const categoryRail = document.querySelector('[data-drag-scroll]');
+  const categoryPrev = document.querySelector('.rail-prev');
+  const categoryNext = document.querySelector('.rail-next');
+  const moveRail = (rail, direction, factor = 0.78) => {
+    if (!rail) return;
+    rail.scrollBy({ left: direction * Math.max(260, rail.clientWidth * factor), behavior: 'smooth' });
+  };
+  categoryPrev?.addEventListener('click', () => moveRail(categoryRail, -1));
+  categoryNext?.addEventListener('click', () => moveRail(categoryRail, 1));
+  enableDragScroll(categoryRail);
 
-  menuButton?.addEventListener('click', () => {
-    const open = menuButton.getAttribute('aria-expanded') === 'true';
-    menuButton.setAttribute('aria-expanded', String(!open));
-    glassNav?.classList.toggle('is-open', !open);
-    body.classList.toggle('nav-open', !open);
-  });
+  const courseRail = document.querySelector('[data-course-rail]');
+  const coursePrev = document.querySelector('[data-course-prev]');
+  const courseNext = document.querySelector('[data-course-next]');
+  const courseProgress = document.querySelector('.course-rail-controls > span');
 
-  glassNav?.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', () => {
-      menuButton?.setAttribute('aria-expanded', 'false');
-      glassNav.classList.remove('is-open');
-      body.classList.remove('nav-open');
-    });
-  });
+  const updateCourseProgress = () => {
+    if (!courseRail || !courseProgress) return;
+    const maxScroll = Math.max(1, courseRail.scrollWidth - courseRail.clientWidth);
+    const ratio = Math.max(0, Math.min(1, courseRail.scrollLeft / maxScroll));
+    const width = 25 + ratio * 75;
+    courseProgress.style.setProperty('--course-progress', `${width}%`);
+  };
+
+  coursePrev?.addEventListener('click', () => moveRail(courseRail, -1, 0.72));
+  courseNext?.addEventListener('click', () => moveRail(courseRail, 1, 0.72));
+  courseRail?.addEventListener('scroll', updateCourseProgress, { passive: true });
+  enableDragScroll(courseRail);
+  updateCourseProgress();
+
+  window.addEventListener('resize', updateCourseProgress, { passive: true });
 })();
