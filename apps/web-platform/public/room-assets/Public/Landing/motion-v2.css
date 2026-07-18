@@ -1,0 +1,88 @@
+/* CourseHub scroll motion v2: loaded after page.css so it can provide safe defaults. */
+
+@media (min-width: 821px) {
+  .chapter-scroll {
+    height: 230vh;
+  }
+
+  .story-scroll {
+    height: 500vh;
+  }
+
+  .story-sticky {
+    isolation: isolate;
+  }
+
+  .story-stage {
+    perspective: 1600px;
+  }
+
+  .story-card {
+    transition: none !important;
+    backface-visibility: hidden;
+  }
+
+  /* Safe initial positions. Without JavaScript, card 01 remains visible instead of card 03 covering it. */
+  .story-card-one {
+    transform: translate3d(-50%, 0, 0);
+    opacity: 1;
+    z-index: 30;
+  }
+
+  .story-card-two {
+    transform: translate3d(32vw, 7vh, 0) rotate(7deg) scale(.87);
+    opacity: .08;
+    z-index: 20;
+  }
+
+  .story-card-three {
+    transform: translate3d(114vw, 12vh, 0) rotate(14deg) scale(.78);
+    opacity: 0;
+    z-index: 10;
+  }
+
+  .motion-v2 .chapter-copy,
+  .motion-v2 .chapter-rings,
+  .motion-v2 .story-heading,
+  .motion-v2 .hero-stage,
+  .motion-v2 .hero-intro,
+  .motion-v2 .course-finder,
+  .motion-v2 .closing-device {
+    will-change: transform, opacity;
+  }
+
+  .motion-v2 .story-card[aria-hidden="true"] {
+    pointer-events: none;
+  }
+
+  .chapter-progress i,
+  .story-line i {
+    transition: none !important;
+  }
+
+  .story-footer > span::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-right: 9px;
+    border-radius: 50%;
+    background: var(--ice);
+    box-shadow: 0 0 18px rgba(204, 219, 226, .72);
+    animation: motionPulse 1.2s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes motionPulse {
+  from { transform: scale(.7); opacity: .45; }
+  to { transform: scale(1.15); opacity: 1; }
+}
+
+@media (max-width: 820px) {
+  .story-card-one,
+  .story-card-two,
+  .story-card-three {
+    transform: none;
+    opacity: 1;
+  }
+}
