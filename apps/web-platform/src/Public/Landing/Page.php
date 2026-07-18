@@ -25,8 +25,8 @@ final class LandingPage
         $categoryOptions = '<option value="">Every category</option>';
         foreach ($model->categories as $category) {
             $categoryPills .= LandingCategoryPill::render($category);
-            $slug = rawurlencode((string) ($category['slug'] ?? ''));
-            $categoryOptions .= '<option value="' . $slug . '">' . $escape($category['name'] ?? 'Category') . '</option>';
+            $slug = (string) ($category['slug'] ?? '');
+            $categoryOptions .= '<option value="' . $escape($slug) . '">' . $escape($category['name'] ?? 'Category') . '</option>';
         }
         if ($categoryPills === '') {
             $categoryPills = '<a class="category-pill" href="/courses"><strong>All courses</strong><span>Open the complete catalog</span></a>';
@@ -58,7 +58,7 @@ final class LandingPage
     <title>CourseHub | Build skills with direction</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,ital,wght@6..96,400;6..96,500;6..96,600;6..96,700;6..96,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;0,6..96,700;1,6..96,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/app.css">
     <link rel="stylesheet" href="/room-assets/Public/Landing/page.css">
 </head>
