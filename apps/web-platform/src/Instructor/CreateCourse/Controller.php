@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use CourseHub\WebPlatform\Shared\Http\ApiClient;
 use CourseHub\WebPlatform\Shared\Http\Request;
+use CourseHub\WebPlatform\Shared\Http\Response;
 use CourseHub\WebPlatform\Shared\Room\RoomRuntime;
 use CourseHub\WebPlatform\Shared\Security\Csrf;
 
@@ -19,12 +20,14 @@ return static function (Request $request) {
         }
         Csrf::assertValid((string) ($request->body['_token'] ?? ''));
         $created = $client->post('/api/v1/courses', $request->body);
-        $message = (string) ($created['message'] ?? 'Course saved.');
-        if (($request->body['intent'] ?? 'draft') === 'submit') {
-            $submitted = $client->post('/api/v1/courses/' . (int) ($created['id'] ?? 0) . '/submit', []);
-            $message = (string) ($submitted['message'] ?? 'Course submitted for approval.');
+        $courseId = (int) ($created['id'] ?? 0);
+        if ($courseId < 1) {
+            throw new DomainException('The catalog service did not return the new course identifier.');
         }
-        return CreateCoursePage::render($categories, [], $message, true);
+        if (($request->body['intent'] ?? 'draft') === 'curriculum') {
+            return Response::redirect('/instructor/lessons?course=' . $courseId);
+        }
+        return CreateCoursePage::render($categories, [], (string) ($created['message'] ?? 'Course saved as a private draft.'), true);
     } catch (DomainException $exception) {
         return CreateCoursePage::render($categories ?? [], $request->body, $exception->getMessage(), false);
     }
