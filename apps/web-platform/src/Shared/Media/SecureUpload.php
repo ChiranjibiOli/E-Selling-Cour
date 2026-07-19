@@ -25,7 +25,7 @@ final class SecureUpload
         if ($temporaryPath === '' || !is_uploaded_file($temporaryPath) || $size < 1 || $size > $maxBytes) {
             throw new DomainException('The uploaded file is invalid or exceeds the allowed size.');
         }
-        if (preg_match('/^[a-z0-9-]{3,80}$/', $bucket) !== 1) {
+        if (preg_match('#^[a-z0-9-]+(?:/[a-z0-9-]+)*$#', $bucket) !== 1) {
             throw new DomainException('Invalid upload destination.');
         }
 
@@ -34,7 +34,7 @@ final class SecureUpload
             throw new DomainException('This file type is not allowed.');
         }
 
-        $storageRoot = rtrim((string) (getenv('COURSEHUB_STORAGE_PATH') ?: COURSEHUB_REPOSITORY_ROOT . '/storage'), '/\\');
+        $storageRoot = self::storageRoot();
         $directory = $storageRoot . '/' . $bucket;
         if (!is_dir($directory) && !mkdir($directory, 0750, true) && !is_dir($directory)) {
             throw new DomainException('The private upload directory is unavailable.');
@@ -48,5 +48,28 @@ final class SecureUpload
         chmod($destination, 0640);
 
         return $bucket . '/' . $filename;
+    }
+
+    public static function delete(?string $storedPath): void
+    {
+        $storedPath = trim((string) $storedPath);
+        if ($storedPath === '' || preg_match('#^[a-z0-9-]+(?:/[a-z0-9-]+)*/[a-f0-9]{40}\.[a-z0-9]{2,5}$#', $storedPath) !== 1) {
+            return;
+        }
+        $root = self::storageRoot();
+        $candidate = $root . '/' . $storedPath;
+        $realRoot = realpath($root);
+        $realFile = realpath($candidate);
+        if ($realRoot === false || $realFile === false || !str_starts_with($realFile, $realRoot . DIRECTORY_SEPARATOR)) {
+            return;
+        }
+        if (is_file($realFile)) {
+            unlink($realFile);
+        }
+    }
+
+    private static function storageRoot(): string
+    {
+        return rtrim((string) (getenv('COURSEHUB_STORAGE_PATH') ?: COURSEHUB_REPOSITORY_ROOT . '/storage'), '/\\');
     }
 }
