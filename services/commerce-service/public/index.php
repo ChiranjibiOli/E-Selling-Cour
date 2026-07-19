@@ -37,12 +37,12 @@ $jsonInput = static function (): array {
 
 $cartSummary = static function (PDO $database, int $studentId): array {
     $statement = $database->prepare(
-        'SELECT c.id AS course_id, c.title, c.short_description, c.thumbnail, c.price, c.level, c.language, '
-        . 'u.full_name AS instructor_name, cat.name AS category_name '
-        . 'FROM cart ca INNER JOIN courses c ON c.id = ca.course_id '
-        . 'INNER JOIN users u ON u.id = c.instructor_id LEFT JOIN categories cat ON cat.id = c.category_id '
-        . 'WHERE ca.student_id = :student_id AND c.status = \'published\' '
-        . 'AND NOT EXISTS (SELECT 1 FROM enrollments e WHERE e.student_id = :student_id_enrollment AND e.course_id = c.id AND e.status = \'active\') '
+        'SELECT c.id AS course_id,c.title,c.short_description,c.thumbnail,c.price AS original_price,c.discount_price,'
+        . 'COALESCE(c.discount_price,c.price) AS price,c.level,c.language,u.full_name AS instructor_name,cat.name AS category_name '
+        . 'FROM cart ca INNER JOIN courses c ON c.id=ca.course_id '
+        . 'INNER JOIN users u ON u.id=c.instructor_id LEFT JOIN categories cat ON cat.id=c.category_id '
+        . 'WHERE ca.student_id=:student_id AND c.status=\'published\' '
+        . 'AND NOT EXISTS (SELECT 1 FROM enrollments e WHERE e.student_id=:student_id_enrollment AND e.course_id=c.id AND e.status=\'active\') '
         . 'ORDER BY ca.created_at DESC'
     );
     $statement->execute(['student_id' => $studentId, 'student_id_enrollment' => $studentId]);
@@ -68,9 +68,9 @@ $loadCoupon = static function (PDO $database, string $code, array $courseIds, fl
         throw new InvalidArgumentException('Enter a valid coupon code.');
     }
     $statement = $database->prepare(
-        'SELECT * FROM coupons WHERE code = :code AND status = \'active\' '
-        . 'AND (valid_from IS NULL OR valid_from <= NOW()) AND (valid_until IS NULL OR valid_until >= NOW()) '
-        . 'AND (usage_limit IS NULL OR used_count < usage_limit) LIMIT 1'
+        'SELECT * FROM coupons WHERE code=:code AND status=\'active\' '
+        . 'AND (valid_from IS NULL OR valid_from<=NOW()) AND (valid_until IS NULL OR valid_until>=NOW()) '
+        . 'AND (usage_limit IS NULL OR used_count<usage_limit) LIMIT 1'
     );
     $statement->execute(['code' => $code]);
     $coupon = $statement->fetch();
@@ -80,12 +80,14 @@ $loadCoupon = static function (PDO $database, string $code, array $courseIds, fl
     if ($subtotal < (float) $coupon['min_order_amount']) {
         throw new InvalidArgumentException('This order does not meet the coupon minimum.');
     }
-    $scope = $database->prepare('SELECT course_id FROM coupon_courses WHERE coupon_id = :coupon_id');
+    $scope = $database->prepare('SELECT course_id FROM coupon_courses WHERE coupon_id=:coupon_id');
     $scope->execute(['coupon_id' => (int) $coupon['id']]);
-    $eligibleCourseIds = array_map('intval', array_column($scope->fetchAll(), 'course_id'));
-    if ($eligibleCourseIds !== [] && array_intersect($courseIds, $eligibleCourseIds) === []) {
+    $configuredCourseIds = array_map('intval', array_column($scope->fetchAll(), 'course_id'));
+    $eligibleCourseIds = $configuredCourseIds === [] ? $courseIds : array_values(array_intersect($courseIds, $configuredCourseIds));
+    if ($eligibleCourseIds === []) {
         throw new InvalidArgumentException('This coupon does not apply to the selected courses.');
     }
+    $coupon['eligible_course_ids'] = $eligibleCourseIds;
     return $coupon;
 };
 
@@ -109,24 +111,24 @@ try {
         if ($courseId < 1) {
             throw new InvalidArgumentException('Choose a valid course.');
         }
-        $course = $database->prepare('SELECT id FROM courses WHERE id = :id AND status = \'published\' LIMIT 1');
+        $course = $database->prepare('SELECT id FROM courses WHERE id=:id AND status=\'published\' LIMIT 1');
         $course->execute(['id' => $courseId]);
         if ($course->fetch() === false) {
             throw new InvalidArgumentException('The selected course is not available for purchase.');
         }
-        $owned = $database->prepare('SELECT id FROM enrollments WHERE student_id = :student_id AND course_id = :course_id AND status = \'active\' LIMIT 1');
+        $owned = $database->prepare('SELECT id FROM enrollments WHERE student_id=:student_id AND course_id=:course_id AND status=\'active\' LIMIT 1');
         $owned->execute(['student_id' => $student['id'], 'course_id' => $courseId]);
         if ($owned->fetch() !== false) {
             throw new ServiceAuthorizationException('You already have lifetime access to this course.');
         }
-        $insert = $database->prepare('INSERT IGNORE INTO cart (student_id, course_id) VALUES (:student_id, :course_id)');
+        $insert = $database->prepare('INSERT IGNORE INTO cart (student_id,course_id) VALUES (:student_id,:course_id)');
         $insert->execute(['student_id' => $student['id'], 'course_id' => $courseId]);
         $respond(['message' => $insert->rowCount() === 1 ? 'Course added to cart.' : 'Course is already in your cart.', 'data' => $cartSummary($database, $student['id'])], 201);
     }
 
     if (preg_match('#^/api/v1/cart/(\d+)$#', $path, $matches) === 1 && $method === 'DELETE') {
         $student = ServiceAuth::requireUser($database, $authorization, 'student');
-        $delete = $database->prepare('DELETE FROM cart WHERE student_id = :student_id AND course_id = :course_id');
+        $delete = $database->prepare('DELETE FROM cart WHERE student_id=:student_id AND course_id=:course_id');
         $delete->execute(['student_id' => $student['id'], 'course_id' => (int) $matches[1]]);
         $respond(['message' => 'Cart updated.', 'data' => $cartSummary($database, $student['id'])]);
     }
@@ -138,9 +140,10 @@ try {
         $database->beginTransaction();
 
         $statement = $database->prepare(
-            'SELECT c.id, c.instructor_id, c.price FROM cart ca INNER JOIN courses c ON c.id = ca.course_id '
-            . 'WHERE ca.student_id = :student_id AND c.status = \'published\' '
-            . 'AND NOT EXISTS (SELECT 1 FROM enrollments e WHERE e.student_id = :student_id_enrollment AND e.course_id = c.id AND e.status = \'active\') '
+            'SELECT c.id,c.instructor_id,c.price AS original_price,c.discount_price,COALESCE(c.discount_price,c.price) AS price '
+            . 'FROM cart ca INNER JOIN courses c ON c.id=ca.course_id '
+            . 'WHERE ca.student_id=:student_id AND c.status=\'published\' '
+            . 'AND NOT EXISTS (SELECT 1 FROM enrollments e WHERE e.student_id=:student_id_enrollment AND e.course_id=c.id AND e.status=\'active\') '
             . 'ORDER BY c.id FOR UPDATE'
         );
         $statement->execute(['student_id' => $student['id'], 'student_id_enrollment' => $student['id']]);
@@ -152,21 +155,25 @@ try {
         $subtotal = array_reduce($courses, static fn (float $sum, array $course): float => $sum + (float) $course['price'], 0.0);
         $courseIds = array_map('intval', array_column($courses, 'id'));
         $coupon = $loadCoupon($database, $couponCode, $courseIds, $subtotal);
+        $eligibleCourseIds = is_array($coupon) ? array_map('intval', (array) $coupon['eligible_course_ids']) : [];
+        $eligibleSubtotal = is_array($coupon)
+            ? array_reduce($courses, static fn (float $sum, array $course): float => in_array((int) $course['id'], $eligibleCourseIds, true) ? $sum + (float) $course['price'] : $sum, 0.0)
+            : 0.0;
         $discount = 0.0;
         if (is_array($coupon)) {
             $discount = $coupon['discount_type'] === 'percent'
-                ? $subtotal * min(100.0, (float) $coupon['discount_value']) / 100
-                : min($subtotal, (float) $coupon['discount_value']);
+                ? $eligibleSubtotal * min(100.0, (float) $coupon['discount_value']) / 100
+                : min($eligibleSubtotal, (float) $coupon['discount_value']);
             if ($coupon['max_discount'] !== null) {
                 $discount = min($discount, (float) $coupon['max_discount']);
             }
         }
-        $discount = round(max(0, min($subtotal, $discount)), 2);
+        $discount = round(max(0, min($eligibleSubtotal, $discount)), 2);
         $finalAmount = round($subtotal - $discount, 2);
 
         $order = $database->prepare(
-            'INSERT INTO orders (student_id, coupon_id, original_amount, discount_amount, final_amount, order_status) '
-            . 'VALUES (:student_id, :coupon_id, :original_amount, :discount_amount, :final_amount, \'pending\')'
+            'INSERT INTO orders (student_id,coupon_id,original_amount,discount_amount,final_amount,order_status) '
+            . 'VALUES (:student_id,:coupon_id,:original_amount,:discount_amount,:final_amount,\'pending\')'
         );
         $order->execute([
             'student_id' => $student['id'],
@@ -177,17 +184,28 @@ try {
         ]);
         $orderId = (int) $database->lastInsertId();
         $itemInsert = $database->prepare(
-            'INSERT INTO order_items (order_id, course_id, instructor_id, course_price, discount_amount, final_price) '
-            . 'VALUES (:order_id, :course_id, :instructor_id, :course_price, :discount_amount, :final_price)'
+            'INSERT INTO order_items (order_id,course_id,instructor_id,course_price,discount_amount,final_price) '
+            . 'VALUES (:order_id,:course_id,:instructor_id,:course_price,:discount_amount,:final_price)'
         );
         $remainingDiscount = $discount;
+        $eligibleIndexes = [];
+        foreach ($courses as $index => $course) {
+            if (in_array((int) $course['id'], $eligibleCourseIds, true)) {
+                $eligibleIndexes[] = $index;
+            }
+        }
+        $lastEligibleIndex = $eligibleIndexes !== [] ? $eligibleIndexes[array_key_last($eligibleIndexes)] : null;
         foreach ($courses as $index => $course) {
             $coursePrice = (float) $course['price'];
-            $itemDiscount = $index === array_key_last($courses)
-                ? $remainingDiscount
-                : round($subtotal > 0 ? $discount * ($coursePrice / $subtotal) : 0, 2);
-            $itemDiscount = min($coursePrice, max(0, $itemDiscount));
-            $remainingDiscount = round($remainingDiscount - $itemDiscount, 2);
+            $isEligible = in_array((int) $course['id'], $eligibleCourseIds, true);
+            $itemDiscount = 0.0;
+            if ($isEligible && $discount > 0) {
+                $itemDiscount = $index === $lastEligibleIndex
+                    ? $remainingDiscount
+                    : round($eligibleSubtotal > 0 ? $discount * ($coursePrice / $eligibleSubtotal) : 0, 2);
+                $itemDiscount = min($coursePrice, max(0, $itemDiscount));
+                $remainingDiscount = round($remainingDiscount - $itemDiscount, 2);
+            }
             $itemInsert->execute([
                 'order_id' => $orderId,
                 'course_id' => (int) $course['id'],
@@ -197,7 +215,7 @@ try {
                 'final_price' => number_format($coursePrice - $itemDiscount, 2, '.', ''),
             ]);
         }
-        $clear = $database->prepare('DELETE FROM cart WHERE student_id = :student_id');
+        $clear = $database->prepare('DELETE FROM cart WHERE student_id=:student_id');
         $clear->execute(['student_id' => $student['id']]);
         $database->commit();
         $respond([
@@ -215,10 +233,10 @@ try {
     if ($path === '/api/v1/orders/mine' && $method === 'GET') {
         $student = ServiceAuth::requireUser($database, $authorization, 'student');
         $statement = $database->prepare(
-            'SELECT o.id, o.original_amount, o.discount_amount, o.final_amount, o.order_status, o.created_at, '
-            . 'COUNT(oi.id) AS item_count, p.id AS payment_id, p.payment_method, p.payment_status '
-            . 'FROM orders o LEFT JOIN order_items oi ON oi.order_id = o.id LEFT JOIN payments p ON p.order_id = o.id '
-            . 'WHERE o.student_id = :student_id GROUP BY o.id, p.id ORDER BY o.created_at DESC'
+            'SELECT o.id,o.original_amount,o.discount_amount,o.final_amount,o.order_status,o.created_at,'
+            . 'COUNT(oi.id) AS item_count,p.id AS payment_id,p.payment_method,p.payment_status '
+            . 'FROM orders o LEFT JOIN order_items oi ON oi.order_id=o.id LEFT JOIN payments p ON p.order_id=o.id '
+            . 'WHERE o.student_id=:student_id GROUP BY o.id,p.id ORDER BY o.created_at DESC'
         );
         $statement->execute(['student_id' => $student['id']]);
         $respond(['data' => $statement->fetchAll()]);
@@ -226,7 +244,7 @@ try {
 
     if (preg_match('#^/api/v1/orders/(\d+)$#', $path, $matches) === 1 && $method === 'GET') {
         $user = ServiceAuth::requireUser($database, $authorization);
-        $conditions = $user['role'] === 'admin' ? 'o.id = :id' : 'o.id = :id AND o.student_id = :student_id';
+        $conditions = $user['role'] === 'admin' ? 'o.id=:id' : 'o.id=:id AND o.student_id=:student_id';
         $parameters = ['id' => (int) $matches[1]];
         if ($user['role'] !== 'admin') {
             if ($user['role'] !== 'student') {
@@ -241,9 +259,9 @@ try {
             $respond(['error' => 'Order not found.'], 404);
         }
         $items = $database->prepare(
-            'SELECT oi.*, c.title, c.thumbnail, u.full_name AS instructor_name FROM order_items oi '
-            . 'INNER JOIN courses c ON c.id = oi.course_id INNER JOIN users u ON u.id = oi.instructor_id '
-            . 'WHERE oi.order_id = :order_id ORDER BY oi.id'
+            'SELECT oi.*,c.title,c.thumbnail,u.full_name AS instructor_name FROM order_items oi '
+            . 'INNER JOIN courses c ON c.id=oi.course_id INNER JOIN users u ON u.id=oi.instructor_id '
+            . 'WHERE oi.order_id=:order_id ORDER BY oi.id'
         );
         $items->execute(['order_id' => (int) $record['id']]);
         $record['items'] = $items->fetchAll();
@@ -254,24 +272,20 @@ try {
 } catch (ServiceAuthenticationException $exception) {
     $respond(['error' => $exception->getMessage()], 401);
 } catch (ServiceAuthorizationException $exception) {
+    if (isset($database) && $database instanceof PDO && $database->inTransaction()) { $database->rollBack(); }
     $respond(['error' => $exception->getMessage()], 403);
 } catch (InvalidArgumentException $exception) {
-    if (isset($database) && $database instanceof PDO && $database->inTransaction()) {
-        $database->rollBack();
-    }
+    if (isset($database) && $database instanceof PDO && $database->inTransaction()) { $database->rollBack(); }
     $respond(['error' => $exception->getMessage()], 422);
 } catch (JsonException) {
+    if (isset($database) && $database instanceof PDO && $database->inTransaction()) { $database->rollBack(); }
     $respond(['error' => 'Malformed JSON request.'], 400);
 } catch (PDOException $exception) {
-    if (isset($database) && $database instanceof PDO && $database->inTransaction()) {
-        $database->rollBack();
-    }
+    if (isset($database) && $database instanceof PDO && $database->inTransaction()) { $database->rollBack(); }
     error_log('Commerce database failure: ' . $exception->getMessage());
     $respond(['error' => 'Commerce request could not be completed.'], 409);
 } catch (Throwable $exception) {
-    if (isset($database) && $database instanceof PDO && $database->inTransaction()) {
-        $database->rollBack();
-    }
+    if (isset($database) && $database instanceof PDO && $database->inTransaction()) { $database->rollBack(); }
     error_log('Commerce service failure: ' . $exception->getMessage());
     $respond(['error' => 'Commerce service is unavailable.'], 503);
 }
