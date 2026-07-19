@@ -18,7 +18,7 @@ Every frontend room owns its route, controller, middleware, request, validator, 
 
 ## Honest implementation status
 
-The complete requested folder and file architecture is present. Identity login, rate limiting, bearer sessions, verification, and logout contain working backend logic. Other business-domain feature rooms currently provide defined boundaries and placeholders. Their final business logic must be implemented and tested inside those rooms. The removed legacy code is not acting as a fallback.
+The first complete business vertical slice is implemented: role-aware authentication, student and instructor registration, instructor approval, instructor-owned course creation/editing, Draft → Pending → Published/Rejected review, and published-only public catalog access. Learning, checkout, payments, enrollments, media, reviews, notifications, and reporting still have defined service boundaries but remain later milestones. See `docs/architecture/IMPLEMENTATION_STATUS.md`.
 
 ## Validate
 
@@ -54,3 +54,16 @@ docker compose up --build
 ```
 
 Docker exposes the frontend at `http://localhost:9001` and the API gateway at `http://localhost:9000`.
+
+## Create the first administrator
+
+After the database is running, create an administrator without committing a password:
+
+```powershell
+$env:COURSEHUB_ADMIN_EMAIL="admin@example.com"
+$env:COURSEHUB_ADMIN_PASSWORD="replace-with-a-long-private-password"
+$env:COURSEHUB_ADMIN_NAME="Platform Administrator"
+& "C:\xampp\php\php.exe" tools\create_admin.php
+```
+
+Use the private admin path and entry code configured in `.env` to open the control room. Do not use the example secrets in production.

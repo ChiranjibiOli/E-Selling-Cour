@@ -37,6 +37,31 @@ paths:
         '401': {description: Invalid credentials or portal}
         '422': {description: Validation failed}
         '429': {description: Login rate limit reached}
+  /api/v1/auth/register/{role}:
+    post:
+      summary: Register a student or submit an instructor application
+      parameters:
+        - in: path
+          name: role
+          required: true
+          schema: {type: string, enum: [student, instructor]}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [full_name, email, password, password_confirmation]
+              properties:
+                full_name: {type: string, maxLength: 100}
+                email: {type: string, format: email, maxLength: 150}
+                phone: {type: string, maxLength: 20}
+                bio: {type: string, maxLength: 3000}
+                password: {type: string, format: password, minLength: 8}
+                password_confirmation: {type: string, format: password, minLength: 8}
+      responses:
+        '201': {description: Account or application created}
+        '422': {description: Validation failed}
   /api/v1/auth/session:
     get:
       summary: Verify a bearer session
@@ -52,7 +77,56 @@ paths:
     get:
       summary: List published courses
       responses:
-        '501': {description: Feature room exists but domain logic is pending}
+        '200': {description: Published courses returned}
+    post:
+      summary: Create an instructor-owned draft course
+      security: [{bearerAuth: []}]
+      responses:
+        '201': {description: Draft created}
+        '401': {description: Session required}
+        '403': {description: Instructor role required}
+        '422': {description: Validation failed}
+  /api/v1/courses/mine:
+    get:
+      summary: List courses owned by the current instructor
+      security: [{bearerAuth: []}]
+      responses:
+        '200': {description: Instructor courses returned}
+  /api/v1/courses/pending:
+    get:
+      summary: List courses awaiting admin review
+      security: [{bearerAuth: []}]
+      responses:
+        '200': {description: Pending course queue returned}
+        '403': {description: Admin role required}
+  /api/v1/courses/{courseId}/submit:
+    post:
+      summary: Submit an owned draft or rejected course for approval
+      security: [{bearerAuth: []}]
+      parameters:
+        - in: path
+          name: courseId
+          required: true
+          schema: {type: integer, minimum: 1}
+      responses:
+        '200': {description: Course moved to pending}
+        '403': {description: Ownership or state check failed}
+  /api/v1/courses/{courseId}/{decision}:
+    post:
+      summary: Approve or reject a pending course
+      security: [{bearerAuth: []}]
+      parameters:
+        - in: path
+          name: courseId
+          required: true
+          schema: {type: integer, minimum: 1}
+        - in: path
+          name: decision
+          required: true
+          schema: {type: string, enum: [approve, reject]}
+      responses:
+        '200': {description: Course reviewed}
+        '403': {description: Admin role or state check failed}
   /api/v1/orders:
     post:
       summary: Create an order
@@ -63,3 +137,9 @@ paths:
       summary: Start a payment workflow
       responses:
         '501': {description: Feature room exists but domain logic is pending}
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque

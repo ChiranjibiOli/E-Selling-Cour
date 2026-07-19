@@ -45,7 +45,7 @@ return [
     'Instructor/Registration' => ['title'=>'Instructor registration','path'=>'/instructor/register','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented'],
     'Instructor/VerificationPending' => ['title'=>'Verification pending','path'=>'/instructor/verification-pending','methods'=>'GET','role'=>'instructor','service'=>'identity-service','status'=>'implemented'],
     'Instructor/Dashboard' => ['title'=>'Instructor dashboard','path'=>'/instructor/dashboard','methods'=>'GET','role'=>'instructor','service'=>'reporting-service','status'=>'implemented'],
-    'Instructor/MyCourses' => ['title'=>'My courses','path'=>'/instructor/courses','methods'=>'GET','role'=>'instructor','service'=>'catalog-service','status'=>'implemented'],
+    'Instructor/MyCourses' => ['title'=>'My courses','path'=>'/instructor/courses','methods'=>'GET|POST','role'=>'instructor','service'=>'catalog-service','status'=>'implemented'],
     'Instructor/CreateCourse' => ['title'=>'Create course','path'=>'/instructor/courses/create','methods'=>'GET|POST','role'=>'instructor','service'=>'catalog-service','status'=>'implemented'],
     'Instructor/EditCourse' => ['title'=>'Edit course','path'=>'/instructor/courses/edit','methods'=>'GET|POST','role'=>'instructor','service'=>'catalog-service','status'=>'implemented'],
     'Instructor/CurriculumBuilder' => ['title'=>'Curriculum builder','path'=>'/instructor/curriculum','methods'=>'GET|POST','role'=>'instructor','service'=>'learning-service','status'=>'planned'],

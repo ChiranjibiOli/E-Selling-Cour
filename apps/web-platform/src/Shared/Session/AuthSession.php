@@ -36,6 +36,12 @@ final class AuthSession
         return (string) ($_SESSION['access_token'] ?? '');
     }
 
+    /** @return array<string, mixed> */
+    public static function user(): array
+    {
+        return is_array($_SESSION['user'] ?? null) ? $_SESSION['user'] : [];
+    }
+
     public static function clear(): void
     {
         $_SESSION = [];
