@@ -23,7 +23,7 @@ final class CreateCoursePage
             $levelOptions .= '<option value="' . $value . '"' . $selected . '>' . $label . '</option>';
         }
         $alert = $message !== '' ? '<div class="form-alert ' . ($success ? 'success' : 'error') . '">' . $e($message) . '</div>' : '';
-        $form = $alert . '<section class="panel-intro"><div><span>COURSE AUTHORING</span><h2>Describe the complete learning promise before building lessons.</h2><p>You may save an incomplete private draft. Submission requires a subtitle, outcomes, requirements, audience, and at least one curriculum lesson.</p></div><div class="panel-intro-orb"><i></i><strong>01</strong></div></section>'
+        $form = $alert . '<section class="panel-intro"><div><span>COURSE AUTHORING</span><h2>Describe the complete learning promise before building lessons.</h2><p>You may save an incomplete private draft. Submission becomes available after you add the required details and at least one curriculum lesson.</p></div><div class="panel-intro-orb"><i></i><strong>01</strong></div></section>'
             . '<form class="portal-form course-authoring-form" method="post" action="/instructor/courses/create">' . Csrf::field()
             . '<section class="data-card"><div class="data-card-head"><div><span>COURSE IDENTITY</span><h3>Public title and positioning</h3></div></div>'
             . '<label>Course title<input name="title" maxlength="180" value="' . $e($values['title'] ?? '') . '" placeholder="Complete Web Application Security" required></label>'
@@ -41,7 +41,7 @@ final class CreateCoursePage
             . '<div class="form-columns"><label>Language<input name="language" maxlength="60" value="' . $e($values['language'] ?? 'English') . '" required></label><label>Estimated duration<input name="duration" maxlength="80" value="' . $e($values['duration'] ?? '') . '" placeholder="12 hours"></label></div>'
             . '<label>Introduction video URL<input type="url" name="intro_video_url" maxlength="500" value="' . $e($values['intro_video_url'] ?? '') . '" placeholder="https://..."><small>Use only an instructor-owned or authorized introduction video.</small></label>'
             . '<label>Thumbnail filename<input name="thumbnail" maxlength="255" value="' . $e($values['thumbnail'] ?? '') . '" placeholder="course-cover.jpg"><small>Binary course-media upload still belongs to the protected media service.</small></label></section>'
-            . '<div class="actions course-authoring-actions"><button class="portal-button secondary" name="intent" value="draft" type="submit">Save private draft</button><button class="portal-button" name="intent" value="submit" type="submit">Save and submit for approval</button></div></form>';
+            . '<div class="actions course-authoring-actions"><button class="portal-button secondary" name="intent" value="draft" type="submit">Save private draft</button><button class="portal-button" name="intent" value="curriculum" type="submit">Save and build curriculum</button></div></form>';
 
         return PortalPage::render('instructor', 'Create a course', $form, '<a class="portal-link" href="/instructor/courses">View my courses →</a>');
     }
