@@ -123,6 +123,7 @@ services:
       - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
       - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
       - ./services/identity-service/database/migrations/001_identity_sessions.sql:/docker-entrypoint-initdb.d/03-identity.sql:ro
+      - ./database/migrations/002_learning_progress.sql:/docker-entrypoint-initdb.d/04-learning-progress.sql:ro
 
 volumes:
   coursehub_db:
