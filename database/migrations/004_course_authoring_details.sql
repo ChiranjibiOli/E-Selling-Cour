@@ -1,0 +1,10 @@
+USE coursehub;
+
+ALTER TABLE courses
+    ADD COLUMN IF NOT EXISTS subtitle VARCHAR(240) DEFAULT NULL AFTER title,
+    ADD COLUMN IF NOT EXISTS discount_price DECIMAL(12,2) UNSIGNED DEFAULT NULL AFTER price,
+    ADD COLUMN IF NOT EXISTS learning_outcomes JSON DEFAULT NULL AFTER full_description,
+    ADD COLUMN IF NOT EXISTS requirements JSON DEFAULT NULL AFTER learning_outcomes,
+    ADD COLUMN IF NOT EXISTS target_audience JSON DEFAULT NULL AFTER requirements,
+    ADD COLUMN IF NOT EXISTS tags VARCHAR(500) DEFAULT NULL AFTER target_audience,
+    ADD COLUMN IF NOT EXISTS intro_video_url VARCHAR(500) DEFAULT NULL AFTER thumbnail;
