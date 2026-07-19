@@ -31,6 +31,43 @@ try {
         $respond(['status' => 'ok', 'service' => 'enrollment-service']);
     }
 
+    if (preg_match('#^/api/v1/enrollments/free-order/(\d+)$#', $path, $matches) === 1 && $method === 'POST') {
+        $student = ServiceAuth::requireUser($database, $authorization, 'student');
+        $orderId = (int) $matches[1];
+        $database->beginTransaction();
+        $order = $database->prepare('SELECT id, coupon_id, final_amount, order_status FROM orders WHERE id=:id AND student_id=:student_id FOR UPDATE');
+        $order->execute(['id' => $orderId, 'student_id' => $student['id']]);
+        $record = $order->fetch();
+        if (!is_array($record)) {
+            throw new ServiceAuthorizationException('That order is not available in your account.');
+        }
+        if ((float) $record['final_amount'] !== 0.0 || $record['order_status'] !== 'pending') {
+            throw new ServiceAuthorizationException('Only a pending zero-total order can be activated without payment.');
+        }
+        $paymentInsert = $database->prepare("INSERT INTO payments (order_id,student_id,payment_method,payment_type,transaction_id,paid_amount,payment_status,verified_at) VALUES (:order_id,:student_id,'free','automatic',:transaction_id,0,'paid',NOW())");
+        $paymentInsert->execute(['order_id' => $orderId, 'student_id' => $student['id'], 'transaction_id' => 'FREE-' . $orderId . '-' . $student['id']]);
+        $paymentId = (int) $database->lastInsertId();
+        $items = $database->prepare('SELECT id,course_id,instructor_id FROM order_items WHERE order_id=:order_id FOR UPDATE');
+        $items->execute(['order_id' => $orderId]);
+        $orderItems = $items->fetchAll();
+        if ($orderItems === []) {
+            throw new RuntimeException('The order does not contain any courses.');
+        }
+        $enrollment = $database->prepare("INSERT INTO enrollments (student_id,course_id,order_id,payment_id,access_type,status,granted_at) VALUES (:student_id,:course_id,:order_id,:payment_id,'lifetime','active',NOW()) ON DUPLICATE KEY UPDATE order_id=VALUES(order_id),payment_id=VALUES(payment_id),status='active',granted_at=NOW(),revoked_by_admin=NULL,revoked_at=NULL");
+        $notification = $database->prepare('INSERT INTO notifications (user_id,title,message,notification_type) VALUES (:user_id,:title,:message,:type)');
+        foreach ($orderItems as $item) {
+            $enrollment->execute(['student_id' => $student['id'], 'course_id' => (int) $item['course_id'], 'order_id' => $orderId, 'payment_id' => $paymentId]);
+            $notification->execute(['user_id' => (int) $item['instructor_id'], 'title' => 'New free enrollment', 'message' => 'A student enrolled in your free or fully discounted course.', 'type' => 'new_enrollment']);
+        }
+        $database->prepare("UPDATE orders SET order_status='paid' WHERE id=:id AND order_status='pending'")->execute(['id' => $orderId]);
+        if ($record['coupon_id'] !== null) {
+            $database->prepare('UPDATE coupons SET used_count=used_count+1 WHERE id=:id AND (usage_limit IS NULL OR used_count<usage_limit)')->execute(['id' => (int) $record['coupon_id']]);
+        }
+        $notification->execute(['user_id' => $student['id'], 'title' => 'Course access activated', 'message' => 'Your zero-total order #' . $orderId . ' is complete. Lifetime access is active.', 'type' => 'enrollment_granted']);
+        $database->commit();
+        $respond(['message' => 'Lifetime access activated for the zero-total order.', 'data' => ['order_id' => $orderId, 'payment_id' => $paymentId]], 201);
+    }
+
     if ($path === '/api/v1/enrollments/mine' && $method === 'GET') {
         $student = ServiceAuth::requireUser($database, $authorization, 'student');
         $statement = $database->prepare(
@@ -78,11 +115,14 @@ try {
 } catch (ServiceAuthenticationException $exception) {
     $respond(['error' => $exception->getMessage()], 401);
 } catch (ServiceAuthorizationException $exception) {
+    if (isset($database) && $database instanceof PDO && $database->inTransaction()) { $database->rollBack(); }
     $respond(['error' => $exception->getMessage()], 403);
 } catch (PDOException $exception) {
+    if (isset($database) && $database instanceof PDO && $database->inTransaction()) { $database->rollBack(); }
     error_log('Enrollment database failure: ' . $exception->getMessage());
     $respond(['error' => 'Enrollment request could not be completed.'], 409);
 } catch (Throwable $exception) {
+    if (isset($database) && $database instanceof PDO && $database->inTransaction()) { $database->rollBack(); }
     error_log('Enrollment service failure: ' . $exception->getMessage());
     $respond(['error' => 'Enrollment service is unavailable.'], 503);
 }
