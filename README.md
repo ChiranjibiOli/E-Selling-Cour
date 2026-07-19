@@ -18,12 +18,32 @@ Every frontend room owns its route, controller, middleware, request, validator, 
 
 ## Honest implementation status
 
-The first complete business vertical slice is implemented: role-aware authentication, student and instructor registration, instructor approval, instructor-owned course creation/editing, Draft → Pending → Published/Rejected review, and published-only public catalog access. Learning, checkout, payments, enrollments, media, reviews, notifications, and reporting still have defined service boundaries but remain later milestones. See `docs/architecture/IMPLEMENTATION_STATUS.md`.
+Working vertical slices now include:
+
+- role-aware student, instructor, and admin authentication
+- student and instructor registration plus instructor approval
+- instructor-owned course creation and Draft → Pending → Published/Rejected review
+- published-only public catalog, search, and course details
+- student cart, server-priced checkout, order history, and zero-total enrollment
+- manual payment submission and administrator verification
+- atomic lifetime enrollment, instructor earning, and notification creation
+- instructor curriculum sections and lessons
+- enrolled-only course player and lesson progress
+- verified student course reviews
+- public contact support queue and student notifications
+- live admin and instructor business dashboards
+- instructor payout details, earning reservation, withdrawals, and administrator payout recording
+
+Media upload/storage, eSewa/Khalti gateways, refunds, access-removal decisions, messaging/Q&A, OAuth/MFA delivery, audit operations, and the course-scoped AI assistant still require further implementation or external credentials. See:
+
+- `docs/architecture/IMPLEMENTATION_STATUS.md`
+- `docs/operations/PRODUCTION_HANDOFF.md`
 
 ## Validate
 
 ```powershell
 & "C:\xampp\php\php.exe" tools\check_microservices.php
+& "C:\xampp\php\php.exe" tools\check_course_lifecycle.php
 ```
 
 ## Run the frontend house
@@ -42,18 +62,23 @@ Useful paths:
 
 ```text
 /
-/student/login
-/instructor/login
-/admin/login
+/learn/sign-in
+/teach/studio-access
+/private admin path from .env
 ```
 
 ## Docker
 
+Docker Desktop must be running first.
+
 ```powershell
-docker compose up --build
+docker compose up --build -d
+docker compose ps
 ```
 
 Docker exposes the frontend at `http://localhost:9001` and the API gateway at `http://localhost:9000`.
+
+For an existing database volume, apply the learning-progress migration as described in `docs/operations/PRODUCTION_HANDOFF.md`.
 
 ## Create the first administrator
 
