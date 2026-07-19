@@ -1,12 +1,12 @@
 USE coursehub;
 
 ALTER TABLE instructor_applications
-    ADD COLUMN IF NOT EXISTS professional_headline VARCHAR(160) DEFAULT NULL AFTER application_note,
-    ADD COLUMN IF NOT EXISTS expertise VARCHAR(1000) DEFAULT NULL AFTER professional_headline,
-    ADD COLUMN IF NOT EXISTS teaching_experience VARCHAR(2000) DEFAULT NULL AFTER expertise,
-    ADD COLUMN IF NOT EXISTS social_profile_url VARCHAR(500) DEFAULT NULL AFTER teaching_experience,
-    ADD COLUMN IF NOT EXISTS course_subjects VARCHAR(1000) DEFAULT NULL AFTER social_profile_url,
-    ADD COLUMN IF NOT EXISTS agreed_rules_at DATETIME DEFAULT NULL AFTER course_subjects;
+    ADD COLUMN professional_headline VARCHAR(160) DEFAULT NULL AFTER application_note,
+    ADD COLUMN expertise VARCHAR(1000) DEFAULT NULL AFTER professional_headline,
+    ADD COLUMN teaching_experience VARCHAR(2000) DEFAULT NULL AFTER expertise,
+    ADD COLUMN social_profile_url VARCHAR(500) DEFAULT NULL AFTER teaching_experience,
+    ADD COLUMN course_subjects VARCHAR(1000) DEFAULT NULL AFTER social_profile_url,
+    ADD COLUMN agreed_rules_at DATETIME DEFAULT NULL AFTER course_subjects;
 
 CREATE TABLE IF NOT EXISTS password_reset_tokens (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
