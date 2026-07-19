@@ -19,12 +19,13 @@ $authorization = (string) ($_SERVER['HTTP_AUTHORIZATION'] ?? '');
 
 $respond = static function (array $payload, int $status = 200): never {
     http_response_code($status);
-    echo json_encode($payload, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+    echo json_encode($payload, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     exit;
 };
 
 $jsonInput = static function (): array {
-    $decoded = json_decode((string) file_get_contents('php://input'), true, 32, JSON_THROW_ON_ERROR);
+    $raw = (string) file_get_contents('php://input');
+    $decoded = json_decode($raw !== '' ? $raw : '{}', true, 32, JSON_THROW_ON_ERROR);
     if (!is_array($decoded)) {
         throw new InvalidArgumentException('Request body must be a JSON object.');
     }
@@ -36,19 +37,65 @@ $thumbnailUrl = static function (?string $storedPath): string {
     return $name !== '' ? '/media/course-thumbnails/' . rawurlencode($name) : '';
 };
 
-$coursePayload = static function (array $input): array {
+$listField = static function (mixed $value, string $label): array {
+    $items = is_array($value) ? $value : preg_split('/\r\n|\r|\n/', (string) $value);
+    $clean = [];
+    foreach (is_array($items) ? $items : [] as $item) {
+        $text = trim((string) $item);
+        if ($text === '') {
+            continue;
+        }
+        if (mb_strlen($text) > 300) {
+            throw new InvalidArgumentException($label . ' items must be 300 characters or fewer.');
+        }
+        $clean[$text] = true;
+    }
+    if (count($clean) > 30) {
+        throw new InvalidArgumentException($label . ' may contain at most 30 items.');
+    }
+    return array_keys($clean);
+};
+
+$decodeCourseLists = static function (array &$course): void {
+    foreach (['learning_outcomes', 'requirements', 'target_audience'] as $field) {
+        $value = $course[$field] ?? null;
+        if (is_string($value) && $value !== '') {
+            try {
+                $decoded = json_decode($value, true, 32, JSON_THROW_ON_ERROR);
+                $course[$field] = is_array($decoded) ? array_values($decoded) : [];
+            } catch (JsonException) {
+                $course[$field] = [];
+            }
+        } elseif (!is_array($value)) {
+            $course[$field] = [];
+        }
+    }
+};
+
+$coursePayload = static function (array $input) use ($listField): array {
     $title = trim((string) ($input['title'] ?? ''));
+    $subtitle = trim((string) ($input['subtitle'] ?? ''));
     $shortDescription = trim((string) ($input['short_description'] ?? ''));
     $fullDescription = trim((string) ($input['full_description'] ?? ''));
     $categoryId = (int) ($input['category_id'] ?? 0);
     $price = filter_var($input['price'] ?? null, FILTER_VALIDATE_FLOAT);
+    $rawDiscount = trim((string) ($input['discount_price'] ?? ''));
+    $discountPrice = $rawDiscount === '' ? null : filter_var($rawDiscount, FILTER_VALIDATE_FLOAT);
     $level = strtolower(trim((string) ($input['level'] ?? 'beginner')));
     $language = trim((string) ($input['language'] ?? 'English'));
     $duration = trim((string) ($input['duration'] ?? ''));
     $thumbnail = trim((string) ($input['thumbnail'] ?? ''));
+    $introVideoUrl = trim((string) ($input['intro_video_url'] ?? ''));
+    $tags = trim((string) ($input['tags'] ?? ''));
+    $learningOutcomes = $listField($input['learning_outcomes'] ?? '', 'Learning outcomes');
+    $requirements = $listField($input['requirements'] ?? '', 'Requirements');
+    $targetAudience = $listField($input['target_audience'] ?? '', 'Target audience');
 
     if ($title === '' || mb_strlen($title) > 180) {
         throw new InvalidArgumentException('Course title is required and must be 180 characters or fewer.');
+    }
+    if (mb_strlen($subtitle) > 240) {
+        throw new InvalidArgumentException('Course subtitle must be 240 characters or fewer.');
     }
     if ($shortDescription === '' || mb_strlen($shortDescription) > 500) {
         throw new InvalidArgumentException('A short description of 500 characters or fewer is required.');
@@ -62,23 +109,36 @@ $coursePayload = static function (array $input): array {
     if ($price === false || $price < 0 || $price > 10_000_000) {
         throw new InvalidArgumentException('Enter a valid non-negative price.');
     }
+    if ($discountPrice === false || ($discountPrice !== null && ($discountPrice < 0 || $discountPrice >= (float) $price))) {
+        throw new InvalidArgumentException('Discount price must be non-negative and lower than the standard price.');
+    }
     if (!in_array($level, ['beginner', 'intermediate', 'advanced'], true)) {
         throw new InvalidArgumentException('Choose a valid course level.');
     }
-    if ($language === '' || mb_strlen($language) > 60 || mb_strlen($duration) > 80 || mb_strlen($thumbnail) > 255) {
-        throw new InvalidArgumentException('Language, duration, or thumbnail value is invalid.');
+    if ($language === '' || mb_strlen($language) > 60 || mb_strlen($duration) > 80 || mb_strlen($thumbnail) > 255 || mb_strlen($tags) > 500) {
+        throw new InvalidArgumentException('Language, duration, thumbnail, or tags value is invalid.');
+    }
+    if ($introVideoUrl !== '' && (!filter_var($introVideoUrl, FILTER_VALIDATE_URL) || mb_strlen($introVideoUrl) > 500)) {
+        throw new InvalidArgumentException('Enter a valid introduction video URL.');
     }
 
     return [
         'title' => $title,
+        'subtitle' => $subtitle !== '' ? $subtitle : null,
         'category_id' => $categoryId,
         'short_description' => $shortDescription,
         'full_description' => $fullDescription,
+        'learning_outcomes' => json_encode($learningOutcomes, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
+        'requirements' => json_encode($requirements, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
+        'target_audience' => json_encode($targetAudience, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE),
+        'tags' => $tags !== '' ? $tags : null,
+        'thumbnail' => $thumbnail !== '' ? basename($thumbnail) : null,
+        'intro_video_url' => $introVideoUrl !== '' ? $introVideoUrl : null,
         'price' => number_format((float) $price, 2, '.', ''),
+        'discount_price' => $discountPrice !== null ? number_format((float) $discountPrice, 2, '.', '') : null,
         'level' => $level,
         'language' => $language,
         'duration' => $duration !== '' ? $duration : null,
-        'thumbnail' => $thumbnail !== '' ? basename($thumbnail) : null,
     ];
 };
 
@@ -130,9 +190,9 @@ try {
             $parameters['status'] = $status;
         }
         $statement = $database->prepare(
-            'SELECT c.id, c.title, c.slug, c.short_description, c.price, c.level, c.language, c.duration, c.status, c.review_note, '
-            . 'c.submitted_at, c.reviewed_at, c.updated_at, cat.name AS category_name FROM courses c '
-            . 'LEFT JOIN categories cat ON cat.id = c.category_id WHERE ' . implode(' AND ', $conditions) . ' ORDER BY c.updated_at DESC'
+            'SELECT c.id,c.title,c.subtitle,c.slug,c.short_description,c.price,c.discount_price,c.level,c.language,c.duration,c.status,c.review_note,'
+            . 'c.submitted_at,c.reviewed_at,c.updated_at,cat.name AS category_name FROM courses c '
+            . 'LEFT JOIN categories cat ON cat.id=c.category_id WHERE ' . implode(' AND ', $conditions) . ' ORDER BY c.updated_at DESC'
         );
         $statement->execute($parameters);
         $respond(['data' => $statement->fetchAll()]);
@@ -141,18 +201,23 @@ try {
     if ($path === '/api/v1/courses/pending' && $method === 'GET') {
         ServiceAuth::requireUser($database, $authorization, 'admin');
         $statement = $database->query(
-            'SELECT c.id, c.title, c.slug, c.short_description, c.full_description, c.price, c.level, c.language, c.duration, '
-            . 'c.submitted_at, u.full_name AS instructor_name, u.email AS instructor_email, cat.name AS category_name '
-            . 'FROM courses c INNER JOIN users u ON u.id = c.instructor_id LEFT JOIN categories cat ON cat.id = c.category_id '
-            . 'WHERE c.status = \'pending\' ORDER BY c.submitted_at ASC, c.id ASC'
+            'SELECT c.id,c.title,c.subtitle,c.slug,c.short_description,c.full_description,c.learning_outcomes,c.requirements,c.target_audience,c.tags,c.intro_video_url,'
+            . 'c.price,c.discount_price,c.level,c.language,c.duration,c.submitted_at,u.full_name AS instructor_name,u.email AS instructor_email,cat.name AS category_name '
+            . 'FROM courses c INNER JOIN users u ON u.id=c.instructor_id LEFT JOIN categories cat ON cat.id=c.category_id '
+            . 'WHERE c.status=\'pending\' ORDER BY c.submitted_at ASC,c.id ASC'
         );
-        $respond(['data' => $statement->fetchAll()]);
+        $courses = $statement->fetchAll();
+        foreach ($courses as &$course) {
+            $decodeCourseLists($course);
+        }
+        unset($course);
+        $respond(['data' => $courses]);
     }
 
     if ($path === '/api/v1/courses' && $method === 'POST') {
         $instructor = ServiceAuth::requireUser($database, $authorization, 'instructor');
         $input = $coursePayload($jsonInput());
-        $category = $database->prepare('SELECT id FROM categories WHERE id = :id AND status = \'active\' LIMIT 1');
+        $category = $database->prepare('SELECT id FROM categories WHERE id=:id AND status=\'active\' LIMIT 1');
         $category->execute(['id' => $input['category_id']]);
         if ($category->fetch() === false) {
             throw new InvalidArgumentException('The selected category is unavailable.');
@@ -160,7 +225,7 @@ try {
         $baseSlug = $slugify($input['title']);
         $slug = $baseSlug;
         for ($attempt = 0; $attempt < 20; $attempt++) {
-            $exists = $database->prepare('SELECT id FROM courses WHERE slug = :slug LIMIT 1');
+            $exists = $database->prepare('SELECT id FROM courses WHERE slug=:slug LIMIT 1');
             $exists->execute(['slug' => $slug]);
             if ($exists->fetch() === false) {
                 break;
@@ -168,8 +233,8 @@ try {
             $slug = $baseSlug . '-' . bin2hex(random_bytes(2));
         }
         $statement = $database->prepare(
-            'INSERT INTO courses (instructor_id, category_id, title, slug, short_description, full_description, thumbnail, price, level, language, duration, status) '
-            . 'VALUES (:instructor_id, :category_id, :title, :slug, :short_description, :full_description, :thumbnail, :price, :level, :language, :duration, \'draft\')'
+            'INSERT INTO courses (instructor_id,category_id,title,subtitle,slug,short_description,full_description,learning_outcomes,requirements,target_audience,tags,thumbnail,intro_video_url,price,discount_price,level,language,duration,status) '
+            . 'VALUES (:instructor_id,:category_id,:title,:subtitle,:slug,:short_description,:full_description,:learning_outcomes,:requirements,:target_audience,:tags,:thumbnail,:intro_video_url,:price,:discount_price,:level,:language,:duration,\'draft\')'
         );
         $statement->execute($input + ['instructor_id' => $instructor['id'], 'slug' => $slug]);
         $respond(['message' => 'Course saved as draft.', 'id' => (int) $database->lastInsertId(), 'status' => 'draft'], 201);
@@ -185,7 +250,7 @@ try {
         $limit = max(1, min(48, (int) ($_GET['limit'] ?? 24)));
 
         if ($query !== '') {
-            $conditions[] = '(c.title LIKE :search OR c.short_description LIKE :search)';
+            $conditions[] = '(c.title LIKE :search OR c.subtitle LIKE :search OR c.short_description LIKE :search OR c.tags LIKE :search OR u.full_name LIKE :search)';
             $parameters['search'] = '%' . mb_substr($query, 0, 120) . '%';
         }
         if ($category !== '') {
@@ -200,11 +265,11 @@ try {
             $conditions[] = 'c.is_featured = 1';
         }
 
-        $sql = 'SELECT c.id, c.title, c.slug, c.short_description, c.thumbnail, c.price, c.level, c.language, c.duration, c.is_featured, '
-            . 'u.full_name AS instructor_name, cat.name AS category_name, cat.slug AS category_slug '
-            . 'FROM courses c INNER JOIN users u ON u.id = c.instructor_id '
-            . 'LEFT JOIN categories cat ON cat.id = c.category_id WHERE ' . implode(' AND ', $conditions)
-            . ' ORDER BY c.is_featured DESC, c.updated_at DESC LIMIT :limit';
+        $sql = 'SELECT c.id,c.title,c.subtitle,c.slug,c.short_description,c.thumbnail,c.price AS original_price,c.discount_price,'
+            . 'COALESCE(c.discount_price,c.price) AS price,c.level,c.language,c.duration,c.tags,c.is_featured,'
+            . 'u.full_name AS instructor_name,cat.name AS category_name,cat.slug AS category_slug '
+            . 'FROM courses c INNER JOIN users u ON u.id=c.instructor_id LEFT JOIN categories cat ON cat.id=c.category_id WHERE ' . implode(' AND ', $conditions)
+            . ' ORDER BY c.is_featured DESC,c.updated_at DESC LIMIT :limit';
         $statement = $database->prepare($sql);
         foreach ($parameters as $name => $value) {
             $statement->bindValue($name, $value);
@@ -222,22 +287,24 @@ try {
 
     if (preg_match('#^/api/v1/courses/(\d+)$#', $path, $matches) === 1 && $method === 'GET') {
         $statement = $database->prepare(
-            'SELECT c.id, c.title, c.slug, c.short_description, c.full_description, c.thumbnail, c.price, c.level, c.language, c.duration, '
-            . 'u.full_name AS instructor_name, cat.name AS category_name, cat.slug AS category_slug '
-            . 'FROM courses c INNER JOIN users u ON u.id = c.instructor_id LEFT JOIN categories cat ON cat.id = c.category_id '
-            . 'WHERE c.id = :id AND c.status = \'published\' LIMIT 1'
+            'SELECT c.id,c.title,c.subtitle,c.slug,c.short_description,c.full_description,c.learning_outcomes,c.requirements,c.target_audience,c.tags,c.thumbnail,c.intro_video_url,'
+            . 'c.price AS original_price,c.discount_price,COALESCE(c.discount_price,c.price) AS price,c.level,c.language,c.duration,'
+            . 'u.full_name AS instructor_name,cat.name AS category_name,cat.slug AS category_slug '
+            . 'FROM courses c INNER JOIN users u ON u.id=c.instructor_id LEFT JOIN categories cat ON cat.id=c.category_id '
+            . 'WHERE c.id=:id AND c.status=\'published\' LIMIT 1'
         );
         $statement->execute(['id' => (int) $matches[1]]);
         $course = $statement->fetch();
         if (!is_array($course)) {
             $respond(['error' => 'Published course not found.'], 404);
         }
+        $decodeCourseLists($course);
         $course['thumbnail_url'] = $thumbnailUrl($course['thumbnail'] ?? null);
         unset($course['thumbnail']);
-        $sectionsStatement = $database->prepare('SELECT id, title, sort_order FROM course_sections WHERE course_id = :course_id ORDER BY sort_order, id');
+        $sectionsStatement = $database->prepare('SELECT id,title,sort_order FROM course_sections WHERE course_id=:course_id ORDER BY sort_order,id');
         $sectionsStatement->execute(['course_id' => (int) $course['id']]);
         $sections = $sectionsStatement->fetchAll();
-        $lessonStatement = $database->prepare('SELECT id, title, content_type, duration_minutes, is_preview, sort_order FROM course_lessons WHERE section_id = :section_id ORDER BY sort_order, id');
+        $lessonStatement = $database->prepare('SELECT id,title,content_type,duration_minutes,is_preview,sort_order FROM course_lessons WHERE section_id=:section_id ORDER BY sort_order,id');
         foreach ($sections as &$section) {
             $lessonStatement->execute(['section_id' => (int) $section['id']]);
             $section['lessons'] = $lessonStatement->fetchAll();
@@ -249,24 +316,25 @@ try {
 
     if (preg_match('#^/api/v1/courses/(\d+)/edit$#', $path, $matches) === 1 && $method === 'GET') {
         $instructor = ServiceAuth::requireUser($database, $authorization, 'instructor');
-        $statement = $database->prepare('SELECT * FROM courses WHERE id = :id AND instructor_id = :instructor_id LIMIT 1');
+        $statement = $database->prepare('SELECT * FROM courses WHERE id=:id AND instructor_id=:instructor_id LIMIT 1');
         $statement->execute(['id' => (int) $matches[1], 'instructor_id' => $instructor['id']]);
         $course = $statement->fetch();
         if (!is_array($course)) {
             $respond(['error' => 'Course not found.'], 404);
         }
+        $decodeCourseLists($course);
         $respond(['data' => $course]);
     }
 
     if (preg_match('#^/api/v1/courses/(\d+)$#', $path, $matches) === 1 && in_array($method, ['PUT', 'PATCH'], true)) {
         $instructor = ServiceAuth::requireUser($database, $authorization, 'instructor');
         $input = $coursePayload($jsonInput());
-        $category = $database->prepare('SELECT id FROM categories WHERE id = :id AND status = \'active\' LIMIT 1');
+        $category = $database->prepare('SELECT id FROM categories WHERE id=:id AND status=\'active\' LIMIT 1');
         $category->execute(['id' => $input['category_id']]);
         if ($category->fetch() === false) {
             throw new InvalidArgumentException('The selected category is unavailable.');
         }
-        $owned = $database->prepare('SELECT id, status FROM courses WHERE id = :id AND instructor_id = :instructor_id LIMIT 1');
+        $owned = $database->prepare('SELECT id,status FROM courses WHERE id=:id AND instructor_id=:instructor_id LIMIT 1');
         $owned->execute(['id' => (int) $matches[1], 'instructor_id' => $instructor['id']]);
         $course = $owned->fetch();
         if (!is_array($course)) {
@@ -277,9 +345,11 @@ try {
         }
         $newStatus = $course['status'] === 'published' ? 'pending' : 'draft';
         $statement = $database->prepare(
-            'UPDATE courses SET category_id=:category_id, title=:title, short_description=:short_description, full_description=:full_description, '
-            . 'thumbnail=:thumbnail, price=:price, level=:level, language=:language, duration=:duration, status=:status, '
-            . 'submitted_at=IF(:submitted_status = \'pending\', NOW(), NULL), reviewed_at=NULL, reviewed_by=NULL, review_note=NULL WHERE id=:id AND instructor_id=:instructor_id'
+            'UPDATE courses SET category_id=:category_id,title=:title,subtitle=:subtitle,short_description=:short_description,full_description=:full_description,'
+            . 'learning_outcomes=:learning_outcomes,requirements=:requirements,target_audience=:target_audience,tags=:tags,thumbnail=:thumbnail,intro_video_url=:intro_video_url,'
+            . 'price=:price,discount_price=:discount_price,level=:level,language=:language,duration=:duration,status=:status,'
+            . 'submitted_at=IF(:submitted_status=\'pending\',NOW(),NULL),reviewed_at=NULL,reviewed_by=NULL,review_note=NULL '
+            . 'WHERE id=:id AND instructor_id=:instructor_id'
         );
         $statement->execute($input + ['status' => $newStatus, 'submitted_status' => $newStatus, 'id' => (int) $matches[1], 'instructor_id' => $instructor['id']]);
         $respond(['message' => $newStatus === 'pending' ? 'Changes submitted for renewed approval.' : 'Draft updated.', 'status' => $newStatus]);
@@ -287,14 +357,39 @@ try {
 
     if (preg_match('#^/api/v1/courses/(\d+)/submit$#', $path, $matches) === 1 && $method === 'POST') {
         $instructor = ServiceAuth::requireUser($database, $authorization, 'instructor');
+        $database->beginTransaction();
         $statement = $database->prepare(
-            'UPDATE courses SET status=\'pending\', submitted_at=NOW(), reviewed_at=NULL, reviewed_by=NULL, review_note=NULL '
-            . 'WHERE id=:id AND instructor_id=:instructor_id AND status IN (\'draft\',\'rejected\')'
+            'SELECT c.id,c.subtitle,c.learning_outcomes,c.requirements,c.target_audience,c.intro_video_url,c.status,'
+            . 'COUNT(DISTINCT cs.id) AS section_count,COUNT(cl.id) AS lesson_count '
+            . 'FROM courses c LEFT JOIN course_sections cs ON cs.course_id=c.id LEFT JOIN course_lessons cl ON cl.section_id=cs.id '
+            . 'WHERE c.id=:id AND c.instructor_id=:instructor_id AND c.status IN (\'draft\',\'rejected\') GROUP BY c.id FOR UPDATE'
         );
         $statement->execute(['id' => (int) $matches[1], 'instructor_id' => $instructor['id']]);
-        if ($statement->rowCount() !== 1) {
+        $course = $statement->fetch();
+        if (!is_array($course)) {
             throw new ServiceAuthorizationException('Only your draft or rejected course can be submitted.');
         }
+        foreach (['learning_outcomes' => 'learning outcome', 'requirements' => 'requirement', 'target_audience' => 'target audience'] as $field => $label) {
+            $items = json_decode((string) ($course[$field] ?? '[]'), true);
+            if (!is_array($items) || $items === []) {
+                throw new InvalidArgumentException('Add at least one ' . $label . ' before submission.');
+            }
+        }
+        if (trim((string) ($course['subtitle'] ?? '')) === '') {
+            throw new InvalidArgumentException('Add a course subtitle before submission.');
+        }
+        if ((int) ($course['section_count'] ?? 0) < 1 || (int) ($course['lesson_count'] ?? 0) < 1) {
+            throw new InvalidArgumentException('Add at least one curriculum section and lesson before submission.');
+        }
+        $update = $database->prepare(
+            'UPDATE courses SET status=\'pending\',submitted_at=NOW(),reviewed_at=NULL,reviewed_by=NULL,review_note=NULL '
+            . 'WHERE id=:id AND instructor_id=:instructor_id AND status IN (\'draft\',\'rejected\')'
+        );
+        $update->execute(['id' => (int) $matches[1], 'instructor_id' => $instructor['id']]);
+        if ($update->rowCount() !== 1) {
+            throw new ServiceAuthorizationException('The course state changed before submission.');
+        }
+        $database->commit();
         $respond(['message' => 'Course submitted for approval.', 'status' => 'pending']);
     }
 
@@ -311,23 +406,18 @@ try {
         }
         $status = $action === 'approve' ? 'published' : 'rejected';
         $database->beginTransaction();
-        $courseStatement = $database->prepare('SELECT id, instructor_id, title FROM courses WHERE id=:id AND status=\'pending\' FOR UPDATE');
+        $courseStatement = $database->prepare('SELECT id,instructor_id,title FROM courses WHERE id=:id AND status=\'pending\' FOR UPDATE');
         $courseStatement->execute(['id' => (int) $matches[1]]);
         $pendingCourse = $courseStatement->fetch();
         if (!is_array($pendingCourse)) {
-            $database->rollBack();
             throw new ServiceAuthorizationException('Only a pending course can be reviewed.');
         }
-        $statement = $database->prepare(
-            'UPDATE courses SET status=:status, reviewed_by=:reviewed_by, reviewed_at=NOW(), review_note=:review_note '
-            . 'WHERE id=:id AND status=\'pending\''
-        );
+        $statement = $database->prepare('UPDATE courses SET status=:status,reviewed_by=:reviewed_by,reviewed_at=NOW(),review_note=:review_note WHERE id=:id AND status=\'pending\'');
         $statement->execute(['status' => $status, 'reviewed_by' => $admin['id'], 'review_note' => $note !== '' ? $note : null, 'id' => (int) $matches[1]]);
         if ($statement->rowCount() !== 1) {
-            $database->rollBack();
             throw new ServiceAuthorizationException('Only a pending course can be reviewed.');
         }
-        $notification = $database->prepare('INSERT INTO notifications (user_id, title, message, notification_type) VALUES (:user_id, :title, :message, \'course_review\')');
+        $notification = $database->prepare('INSERT INTO notifications (user_id,title,message,notification_type) VALUES (:user_id,:title,:message,\'course_review\')');
         $notification->execute([
             'user_id' => (int) $pendingCourse['instructor_id'],
             'title' => $action === 'approve' ? 'Course published' : 'Course needs changes',
@@ -343,21 +433,20 @@ try {
 } catch (ServiceAuthenticationException $exception) {
     $respond(['error' => $exception->getMessage()], 401);
 } catch (ServiceAuthorizationException $exception) {
+    if (isset($database) && $database instanceof PDO && $database->inTransaction()) { $database->rollBack(); }
     $respond(['error' => $exception->getMessage()], 403);
 } catch (InvalidArgumentException $exception) {
+    if (isset($database) && $database instanceof PDO && $database->inTransaction()) { $database->rollBack(); }
     $respond(['error' => $exception->getMessage()], 422);
 } catch (JsonException) {
+    if (isset($database) && $database instanceof PDO && $database->inTransaction()) { $database->rollBack(); }
     $respond(['error' => 'Malformed JSON request.'], 400);
 } catch (PDOException $exception) {
-    if (isset($database) && $database instanceof PDO && $database->inTransaction()) {
-        $database->rollBack();
-    }
+    if (isset($database) && $database instanceof PDO && $database->inTransaction()) { $database->rollBack(); }
     error_log('Catalog database failure: ' . $exception->getMessage());
     $respond(['error' => $exception->getCode() === '23000' ? 'That value is already in use.' : 'Catalog request could not be completed.'], 409);
 } catch (Throwable $exception) {
-    if (isset($database) && $database instanceof PDO && $database->inTransaction()) {
-        $database->rollBack();
-    }
+    if (isset($database) && $database instanceof PDO && $database->inTransaction()) { $database->rollBack(); }
     error_log('Catalog service failure: ' . $exception->getMessage());
     $respond(['error' => 'Catalog service is unavailable.'], 503);
 }
