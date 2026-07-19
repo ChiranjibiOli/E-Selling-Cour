@@ -24,8 +24,8 @@ return [
     'Public/ForgotPassword' => ['title'=>'Forgot password','path'=>'/forgot-password','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented'],
     'Public/ResetPassword' => ['title'=>'Reset password','path'=>'/reset-password','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented'],
     'Public/VerifyOtp' => ['title'=>'Verify OTP','path'=>'/verify-otp','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented'],
-    'Public/PrivacyPolicy' => ['title'=>'Privacy policy','path'=>'/privacy','methods'=>'GET','role'=>'guest','service'=>'none','status'=>'planned'],
-    'Public/TermsAndConditions' => ['title'=>'Terms and conditions','path'=>'/terms','methods'=>'GET','role'=>'guest','service'=>'none','status'=>'planned'],
+    'Public/PrivacyPolicy' => ['title'=>'Privacy policy','path'=>'/privacy','methods'=>'GET','role'=>'guest','service'=>'none','status'=>'implemented'],
+    'Public/TermsAndConditions' => ['title'=>'Terms and conditions','path'=>'/terms','methods'=>'GET','role'=>'guest','service'=>'none','status'=>'implemented'],
     'Public/OAuth' => ['title'=>'OAuth','path'=>'/oauth','methods'=>'GET','role'=>'guest','service'=>'identity-service','status'=>'planned'],
     'Public/Logout' => ['title'=>'Sign out','path'=>'/logout','methods'=>'POST','role'=>'guest','service'=>'identity-service','status'=>'implemented','room_files'=>['Middleware.php','Controller.php']],
 
