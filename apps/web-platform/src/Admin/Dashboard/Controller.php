@@ -11,11 +11,9 @@ require_once __DIR__ . '/Page.php';
 return static function (Request $request) {
     RoomRuntime::authorize(__DIR__, $request);
     try {
-        $client = new ApiClient();
-        $instructors = $client->get('/api/v1/users/instructor-applications')['data'] ?? [];
-        $courses = $client->get('/api/v1/courses/pending')['data'] ?? [];
-        return AdminDashboardPage::render(count($instructors), count($courses));
+        $data = (new ApiClient())->get('/api/v1/reports/admin-dashboard')['data'] ?? [];
+        return AdminDashboardPage::render($data);
     } catch (DomainException $exception) {
-        return AdminDashboardPage::render(0, 0, $exception->getMessage());
+        return AdminDashboardPage::render([], $exception->getMessage());
     }
 };
