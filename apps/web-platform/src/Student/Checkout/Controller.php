@@ -25,6 +25,10 @@ return static function (Request $request) {
         if ($orderId < 1) {
             throw new DomainException('The checkout service did not return a valid order.');
         }
+        if ((float) ($result['data']['final_amount'] ?? 0) <= 0) {
+            $client->post('/api/v1/enrollments/free-order/' . $orderId, []);
+            return Response::redirect('/student/my-courses');
+        }
         return Response::redirect('/student/payment?order=' . $orderId);
     } catch (DomainException $exception) {
         return StudentCheckoutPage::render($cart ?? ['items' => [], 'count' => 0, 'subtotal' => '0.00'], $exception->getMessage(), false, $request->body);
