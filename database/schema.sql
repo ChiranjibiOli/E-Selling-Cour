@@ -30,6 +30,7 @@ DROP TABLE IF EXISTS course_lessons;
 DROP TABLE IF EXISTS course_sections;
 DROP TABLE IF EXISTS courses;
 DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS instructor_applications;
 DROP TABLE IF EXISTS users;
 
 SET FOREIGN_KEY_CHECKS = 1;
@@ -50,6 +51,24 @@ CREATE TABLE users (
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE KEY users_email_unique (email),
     KEY users_role_status_index (role, status)
+) ENGINE=InnoDB;
+
+CREATE TABLE instructor_applications (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    instructor_id BIGINT UNSIGNED NOT NULL,
+    application_status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+    application_note TEXT NOT NULL,
+    review_note VARCHAR(1000) DEFAULT NULL,
+    reviewed_by BIGINT UNSIGNED DEFAULT NULL,
+    reviewed_at DATETIME DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY instructor_applications_instructor_unique (instructor_id),
+    KEY instructor_applications_status_index (application_status, created_at),
+    CONSTRAINT instructor_applications_instructor_fk
+        FOREIGN KEY (instructor_id) REFERENCES users(id) ON DELETE CASCADE,
+    CONSTRAINT instructor_applications_reviewer_fk
+        FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 CREATE TABLE categories (

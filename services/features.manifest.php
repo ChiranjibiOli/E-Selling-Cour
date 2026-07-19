@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 return [
-'identity-service'=>['route'=>'/api/v1/auth','implemented'=>['StudentLogin','InstructorLogin','AdminLogin','SessionManagement'],'features'=>['StudentLogin','InstructorLogin','AdminLogin','StudentRegistration','InstructorRegistration','GoogleOAuth','ForgotPassword','ResetPassword','VerifyOtp','SessionManagement','AdminMfa','InstructorApprovalStatus']],
-'catalog-service'=>['route'=>'/api/v1/courses','implemented'=>[],'features'=>['Categories','ListCourses','CourseDetails','SearchCourses','CreateCourse','UpdateCourse','SubmitCourse','ApproveCourse','RejectCourse','PublishCourse','ArchiveCourse','InstructorCourses']],
+'identity-service'=>['route'=>'/api/v1/auth','implemented'=>['StudentLogin','InstructorLogin','AdminLogin','StudentRegistration','InstructorRegistration','SessionManagement','InstructorApprovalStatus'],'features'=>['StudentLogin','InstructorLogin','AdminLogin','StudentRegistration','InstructorRegistration','GoogleOAuth','ForgotPassword','ResetPassword','VerifyOtp','SessionManagement','AdminMfa','InstructorApprovalStatus']],
+'catalog-service'=>['route'=>'/api/v1/courses','implemented'=>['Categories','ListCourses','CourseDetails','SearchCourses','CreateCourse','UpdateCourse','SubmitCourse','ApproveCourse','RejectCourse','PublishCourse','InstructorCourses'],'features'=>['Categories','ListCourses','CourseDetails','SearchCourses','CreateCourse','UpdateCourse','SubmitCourse','ApproveCourse','RejectCourse','PublishCourse','ArchiveCourse','InstructorCourses']],
 'learning-service'=>['route'=>'/api/v1/learning','implemented'=>[],'features'=>['ManageSections','ManageLessons','CoursePlayer','PreviewLesson','TrackProgress','CourseCompletion']],
 'commerce-service'=>['route'=>'/api/v1/commerce','implemented'=>[],'features'=>['Cart','Checkout','CreateOrder','OrderHistory','Coupons','PriceCalculation']],
 'payment-service'=>['route'=>'/api/v1/payments','implemented'=>[],'features'=>['ManualPayment','UploadProof','VerifyPayment','KhaltiPayment','EsewaPayment','PaymentHistory','RefundPayment','WebhookValidation']],
