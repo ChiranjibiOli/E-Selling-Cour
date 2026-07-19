@@ -18,8 +18,22 @@ final class InstructorApprovalsPage
             $content .= '<section class="portal-grid">';
             foreach ($applications as $application) {
                 $id = (int) ($application['id'] ?? 0);
-                $content .= '<article class="portal-card"><span class="status-badge pending">Awaiting review</span><h2>' . $e($application['full_name'] ?? '') . '</h2>'
-                    . '<p>' . $e($application['email'] ?? '') . '<br>' . $e($application['phone'] ?? '') . '</p><p>' . nl2br($e($application['bio'] ?? '')) . '</p>'
+                $social = trim((string) ($application['social_profile_url'] ?? ''));
+                $socialLink = $social !== '' ? '<a class="portal-link" href="' . $e($social) . '" target="_blank" rel="noopener noreferrer">Open professional profile ↗</a>' : '<span class="muted-copy">No profile link supplied</span>';
+                $profileStored = trim((string) ($application['profile_image'] ?? '')) !== '' ? 'Received securely' : 'Missing';
+                $identityStored = trim((string) ($application['identity_document'] ?? '')) !== '' ? 'Received securely' : 'Missing';
+
+                $content .= '<article class="portal-card instructor-review-card"><span class="status-badge pending">Awaiting review</span><h2>' . $e($application['full_name'] ?? '') . '</h2>'
+                    . '<p>' . $e($application['email'] ?? '') . '<br>' . $e($application['phone'] ?? '') . '</p>'
+                    . '<div class="payment-review-facts"><span><small>Professional headline</small><strong>' . $e($application['professional_headline'] ?? '') . '</strong></span>'
+                    . '<span><small>Application submitted</small><strong>' . $e($application['created_at'] ?? '') . '</strong></span>'
+                    . '<span><small>Personal photo</small><strong>' . $e($profileStored) . '</strong></span>'
+                    . '<span><small>Identity document</small><strong>' . $e($identityStored) . '</strong></span></div>'
+                    . '<details open><summary>Biography and teaching plan</summary><h3>Biography</h3><p>' . nl2br($e($application['bio'] ?? '')) . '</p>'
+                    . '<h3>Expertise</h3><p>' . nl2br($e($application['expertise'] ?? '')) . '</p>'
+                    . '<h3>Teaching experience</h3><p>' . nl2br($e($application['teaching_experience'] ?? '')) . '</p>'
+                    . '<h3>Planned course subjects</h3><p>' . nl2br($e($application['course_subjects'] ?? '')) . '</p>' . $socialLink . '</details>'
+                    . '<p class="muted-copy">Identity documents remain outside the public web root. A protected admin media viewer is still required before production verification.</p>'
                     . '<form class="portal-form" method="post" action="/admin/instructor-approvals">' . Csrf::field() . '<input type="hidden" name="instructor_id" value="' . $id . '">'
                     . '<label>Decision note<textarea name="note" rows="3" maxlength="1000" placeholder="Required when rejecting"></textarea></label>'
                     . '<div class="actions"><button class="portal-button" name="decision" value="approve" type="submit">Approve instructor</button><button class="portal-button danger" name="decision" value="reject" type="submit">Reject application</button></div></form></article>';
