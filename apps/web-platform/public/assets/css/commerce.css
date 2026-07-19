@@ -1,3 +1,5 @@
+@import url('/assets/css/learning.css');
+
 .cart-course-list,
 .learning-course-grid {
   display: grid;
