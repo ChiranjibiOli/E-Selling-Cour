@@ -25,6 +25,7 @@ return [
     'Public/PrivacyPolicy' => ['title'=>'Privacy policy','path'=>'/privacy','methods'=>'GET','role'=>'guest','service'=>'none','status'=>'planned'],
     'Public/TermsAndConditions' => ['title'=>'Terms and conditions','path'=>'/terms','methods'=>'GET','role'=>'guest','service'=>'none','status'=>'planned'],
     'Public/OAuth' => ['title'=>'OAuth','path'=>'/oauth','methods'=>'GET','role'=>'guest','service'=>'identity-service','status'=>'planned'],
+    'Public/Logout' => ['title'=>'Sign out','path'=>'/logout','methods'=>'POST','role'=>'guest','service'=>'identity-service','status'=>'implemented','room_files'=>['Middleware.php','Controller.php']],
 
     'Student/Login' => ['title'=>'Student sign in','path'=>'/learn/sign-in','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented','middleware_file'=>'StudentGuestGate.php','controller_file'=>'StudentLoginAction.php','room_files'=>['StudentEntryRoute.php','StudentGuestGate.php','StudentCredentialPacket.php','StudentIdentityBridge.php','StudentLoginAction.php','StudentLoginScreen.php','ROOM.md','Components/README.md','Assets/page.css','Assets/page.js','Tests/README.md']],
     'Student/Registration' => ['title'=>'Student registration','path'=>'/student/register','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented'],
