@@ -13,6 +13,8 @@ return static function (Request $request) {
         return RegistrationPage::render('instructor');
     }
 
+    $profileImage = null;
+    $identityDocument = null;
     try {
         Csrf::assertValid((string) ($request->body['_token'] ?? ''));
         if (($request->body['agree_instructor_rules'] ?? '') !== '1') {
@@ -21,13 +23,13 @@ return static function (Request $request) {
 
         $profileImage = SecureUpload::store(
             is_array($_FILES['profile_photo'] ?? null) ? $_FILES['profile_photo'] : [],
-            'media/instructor-profiles',
+            'private/instructor-profiles',
             ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'],
             3 * 1024 * 1024,
         );
         $identityDocument = SecureUpload::store(
             is_array($_FILES['identity_document'] ?? null) ? $_FILES['identity_document'] : [],
-            'private_uploads/instructor-identity',
+            'private/instructor-identity',
             ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp', 'application/pdf' => 'pdf'],
             6 * 1024 * 1024,
         );
@@ -43,6 +45,8 @@ return static function (Request $request) {
 
         return RegistrationPage::render('instructor', [], (string) ($result['message'] ?? 'Application submitted.'), true, 201);
     } catch (DomainException $exception) {
+        SecureUpload::delete($profileImage);
+        SecureUpload::delete($identityDocument);
         return RegistrationPage::render('instructor', $request->body, $exception->getMessage(), false, 422);
     }
 };
