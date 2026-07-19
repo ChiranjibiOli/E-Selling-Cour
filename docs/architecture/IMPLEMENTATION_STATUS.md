@@ -5,10 +5,21 @@
 ### Identity and portal access
 
 - Student, instructor, and admin portal-aware login
-- Password verification, role checks, login throttling, opaque bearer sessions, verification, and logout
+- Password verification, role checks, login throttling, opaque bearer sessions, verification, and server-side logout
+- Visible CSRF-protected logout control in every protected portal
+- Authenticated users are redirected from the public landing page to their own dashboard
 - Student self-registration with an immediately active student account
+- Complete instructor application fields: personal photo, identity document, headline, expertise, experience, biography, course subjects, professional profile, and rules agreement
+- Instructor uploads are MIME-validated, randomly named, size-limited, and stored outside the public web root
 - Instructor application with a pending account and durable review record
-- Administrator instructor approval and rejection queue
+- Administrator instructor approval and rejection queue with complete application details
+- Single-use, expiring password-reset tokens with existing-session revocation after a successful reset
+
+### Public website
+
+- Full landing page, live published-course catalog, course detail page, About page, and Contact page
+- Functional Forgot password and Reset password screens
+- Public search and published-only access rules
 
 ### Course catalog and approval lifecycle
 
@@ -40,33 +51,39 @@
 - Verified reviews restricted to students with active enrollment
 - Student review create/update/delete and administrator moderation API
 
-### Support, reporting, earnings, and payouts
+### Support, access policy, reporting, earnings, and payouts
 
 - Public contact form stored in the administrator support queue
 - Student in-app notification inbox with read controls
+- Twelve-hour student access-removal request window
+- Administrator approval or rejection of access-removal requests with historical enrollment retention
 - Live administrator dashboard metrics and recent orders
 - Live instructor course, student, revenue, commission, and earnings metrics
 - Private instructor bank/eSewa/Khalti payout details
 - Withdrawal requests reserve available earning records to prevent double withdrawal
 - Administrator approval, rejection, and paid payout workflow with transaction reference
+- Repeatable migration runner executes required schema changes automatically during Docker startup
 
 ## Implemented with an external dependency still required
 
+- Instructor application binaries are stored privately, but a protected administrator document viewer still needs to be completed before production identity verification.
 - Manual payment flow stores the validated proof filename, but binary proof upload requires the media service and private storage configuration.
 - Lesson video/file URLs work, but secure media upload, signed delivery URLs, streaming/CDN protection, and watermarking require storage infrastructure.
 - eSewa and Khalti buttons remain disabled until merchant credentials, callback URLs, signature checks, and webhook verification are configured.
+- Password reset records and pages work; email delivery requires SMTP or a transactional email provider. A local development reset link can be enabled explicitly.
 - Email and OTP delivery require an SMTP or transactional email provider.
 
 ## Structurally present but not yet complete
 
-- Google OAuth, admin MFA, and full password-recovery delivery
+- Google OAuth and admin MFA
 - Media upload service and protected download/streaming service
 - eSewa and Khalti automatic payment gateways and refund webhooks
-- Refund processing and enrollment revocation
-- Student access-removal request decisions
+- Refund processing and financial reversal workflow
 - Instructor announcements, course Q&A, and direct messaging
 - Coupon creation/editing panels and advanced category-scoped discount allocation
 - Full admin user actions, audit logs, security settings persistence, and exportable reports
+- Public instructor directory, dedicated pricing page, wishlist, and certificates
+- Superadmin separation from the standard admin role
 - Course-scoped OpenAI assistant and retrieval index
 
 The repository does not claim that a rendered room or placeholder button is completed business logic. Production readiness still requires the deployment, secrets, storage, gateway, email, legal-policy, and security steps in `docs/operations/PRODUCTION_HANDOFF.md`.
