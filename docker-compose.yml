@@ -11,9 +11,25 @@ x-domain-service: &domain-service
     DB_USERNAME: coursehub_user
     DB_PASSWORD: local_coursehub_password
   depends_on:
-    - db
+    migrate:
+      condition: service_completed_successfully
 
 services:
+  migrate:
+    build:
+      context: .
+      dockerfile: infrastructure/docker/php-runtime.Dockerfile
+    working_dir: /repo
+    command: ["php", "tools/run_migrations.php"]
+    volumes:
+      - ./:/repo
+    environment:
+      <<: *database-environment
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
   web-platform:
     build:
       context: .
@@ -121,6 +137,12 @@ services:
       MYSQL_ROOT_PASSWORD: local_root_password
     ports:
       - "3307:3307"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -P3307 -uroot -plocal_root_password --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
     volumes:
       - coursehub_db:/var/lib/mysql
       - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
