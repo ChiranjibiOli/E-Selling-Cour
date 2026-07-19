@@ -17,17 +17,21 @@
 
 ### Public website
 
-- Full landing page, live published-course catalog, course detail page, About page, and Contact page
-- Functional Forgot password and Reset password screens
-- Public search and published-only access rules
+- Full landing page, live published-course catalog, complete course-detail page, About page, Contact page, Pricing page, and published-instructor directory
+- Functional FAQ, Privacy, Terms, Forgot password, and Reset password screens
+- Public search includes course title, subtitle, tags, description, and instructor name
+- Published-only public course and instructor visibility
 
 ### Course catalog and approval lifecycle
 
 - Public category, search, course-list, and published-course detail APIs
 - Instructor-owned course creation, update, listing, and state filtering
+- Complete course authoring fields: title, subtitle, descriptions, outcomes, requirements, audience, tags, standard price, discount price, language, level, duration, thumbnail reference, and introduction video
+- Drafts may remain incomplete and private; submission requires a subtitle, learning promise, and at least one curriculum lesson
 - Draft courses remain private and absent from the admin queue
 - Draft or rejected courses can move to pending approval
 - Pending courses are locked from instructor editing
+- Admin review shows the complete commercial and learning promise
 - Admin approval publishes a course; rejection records a review note
 - Editing a published course returns it to pending review
 - Working instructor create/edit/list pages and admin approval pages
@@ -35,7 +39,8 @@
 ### Commerce, payment, and lifetime access
 
 - Student cart add, remove, list, ownership checks, and published-course checks
-- Server-side checkout pricing, coupon validation, order creation, and historical order-item pricing
+- Checkout uses the same effective standard/discount price displayed publicly
+- Server-side coupon validation, course-scope enforcement, eligible-item discount allocation, order creation, and historical order-item pricing
 - Zero-total orders create a recorded free payment and lifetime enrollment without fake payment proof
 - Manual payment submission with transaction reference and proof metadata
 - Admin payment verification and rejection queue
@@ -67,22 +72,24 @@
 ## Implemented with an external dependency still required
 
 - Instructor application binaries are stored privately, but a protected administrator document viewer still needs to be completed before production identity verification.
+- Course thumbnail and lesson binary upload still require the media service; current course authoring stores validated text fields and media references.
 - Manual payment flow stores the validated proof filename, but binary proof upload requires the media service and private storage configuration.
 - Lesson video/file URLs work, but secure media upload, signed delivery URLs, streaming/CDN protection, and watermarking require storage infrastructure.
 - eSewa and Khalti buttons remain disabled until merchant credentials, callback URLs, signature checks, and webhook verification are configured.
 - Password reset records and pages work; email delivery requires SMTP or a transactional email provider. A local development reset link can be enabled explicitly.
 - Email and OTP delivery require an SMTP or transactional email provider.
+- Privacy and Terms pages are operational drafts and require qualified legal review before commercial launch.
 
 ## Structurally present but not yet complete
 
 - Google OAuth and admin MFA
-- Media upload service and protected download/streaming service
+- Media upload service, protected admin document viewer, and protected download/streaming service
 - eSewa and Khalti automatic payment gateways and refund webhooks
 - Refund processing and financial reversal workflow
 - Instructor announcements, course Q&A, and direct messaging
-- Coupon creation/editing panels and advanced category-scoped discount allocation
+- Coupon creation/editing panels, despite secure coupon validation already existing in checkout
 - Full admin user actions, audit logs, security settings persistence, and exportable reports
-- Public instructor directory, dedicated pricing page, wishlist, and certificates
+- Wishlist and certificates
 - Superadmin separation from the standard admin role
 - Course-scoped OpenAI assistant and retrieval index
 
