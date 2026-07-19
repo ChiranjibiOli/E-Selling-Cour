@@ -11,6 +11,8 @@ $adminLoginPath = rtrim($adminLoginPath, '/');
 return [
     'Public/Landing' => ['title'=>'Landing','path'=>'/','methods'=>'GET','role'=>'guest','service'=>'catalog-service','status'=>'implemented'],
     'Public/About' => ['title'=>'About','path'=>'/about','methods'=>'GET','role'=>'guest','service'=>'none','status'=>'implemented'],
+    'Public/Pricing' => ['title'=>'Pricing','path'=>'/pricing','methods'=>'GET','role'=>'guest','service'=>'none','status'=>'implemented','room_files'=>['Middleware.php','Controller.php','Page.php']],
+    'Public/Instructors' => ['title'=>'Instructors','path'=>'/instructors','methods'=>'GET','role'=>'guest','service'=>'catalog-service','status'=>'implemented','room_files'=>['Middleware.php','Controller.php','Page.php']],
     'Public/Contact' => ['title'=>'Contact','path'=>'/contact','methods'=>'GET|POST','role'=>'guest','service'=>'notification-service','status'=>'implemented'],
     'Public/Faq' => ['title'=>'FAQ','path'=>'/faq','methods'=>'GET','role'=>'guest','service'=>'none','status'=>'implemented'],
     'Public/Courses' => ['title'=>'Courses','path'=>'/courses','methods'=>'GET','role'=>'guest','service'=>'catalog-service','status'=>'implemented'],
