@@ -1,0 +1,244 @@
+.cart-course-list,
+.learning-course-grid {
+  display: grid;
+  gap: 16px;
+}
+
+.cart-course-row {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr) auto auto;
+  gap: 18px;
+  align-items: center;
+  padding: 16px 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.cart-course-row:last-child {
+  border-bottom: 0;
+}
+
+.cart-course-media,
+.learning-course-media {
+  overflow: hidden;
+  min-height: 82px;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #182554, #7857ff);
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 800;
+}
+
+.cart-course-media img,
+.learning-course-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cart-course-copy,
+.learning-course-copy {
+  min-width: 0;
+}
+
+.cart-course-copy > span,
+.learning-course-copy > span {
+  display: block;
+  margin-bottom: 6px;
+  color: #7367f0;
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cart-course-copy h3,
+.learning-course-copy h3 {
+  margin: 0 0 7px;
+  overflow-wrap: anywhere;
+}
+
+.cart-course-copy p,
+.learning-course-copy p,
+.learning-course-copy small {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.danger-text {
+  color: #c13d55 !important;
+}
+
+.order-mini {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px 0;
+}
+
+.order-mini i {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  background: #131d44;
+  color: #fff;
+  font-style: normal;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.order-mini div,
+.order-mini strong,
+.order-mini small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.learning-course-grid {
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+}
+
+.learning-course-card {
+  overflow: hidden;
+  border-radius: 22px;
+  background: #fff;
+  box-shadow: 0 18px 45px rgba(20, 30, 70, 0.08);
+}
+
+.learning-course-media {
+  position: relative;
+  min-height: 176px;
+  border-radius: 0;
+}
+
+.learning-course-media .status-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+}
+
+.learning-course-copy {
+  padding: 20px;
+}
+
+.learning-course-copy footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.learning-progress {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  margin-top: 18px;
+}
+
+.learning-progress > span {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e8ebf6;
+}
+
+.learning-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #5b5ce2, #8268ff);
+}
+
+.payment-review-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.payment-review-facts span {
+  min-width: 0;
+  padding: 12px;
+  border-radius: 14px;
+  background: #f4f5fb;
+}
+
+.payment-review-facts small,
+.payment-review-facts strong {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+.notification-card.unread {
+  box-shadow: inset 4px 0 #6a5be7, 0 18px 45px rgba(20, 30, 70, 0.07);
+}
+
+.notification-card form {
+  margin-top: 16px;
+}
+
+.contact-shell {
+  align-items: start;
+}
+
+.contact-points {
+  display: grid;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.contact-points article {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.contact-points p {
+  margin: 6px 0 0;
+}
+
+@media (max-width: 860px) {
+  .cart-course-row {
+    grid-template-columns: 84px minmax(0, 1fr);
+  }
+
+  .cart-course-row > strong,
+  .cart-course-row > form {
+    grid-column: 2;
+  }
+
+  .payment-review-facts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .cart-course-row {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-course-row > strong,
+  .cart-course-row > form {
+    grid-column: 1;
+  }
+
+  .cart-course-media {
+    min-height: 150px;
+  }
+
+  .learning-course-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .order-mini {
+    grid-template-columns: 42px minmax(0, 1fr);
+  }
+
+  .order-mini > b {
+    grid-column: 2;
+  }
+}
