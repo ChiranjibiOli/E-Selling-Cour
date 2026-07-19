@@ -17,3 +17,4 @@ jobs:
           php-version: '8.3'
       - run: php tools/check_microservices.php
       - run: php tools/check_course_lifecycle.php
+      - run: php tools/check_panel_coverage.php

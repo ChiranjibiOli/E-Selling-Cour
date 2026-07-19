@@ -6,6 +6,8 @@ namespace CourseHub\WebPlatform\Shared\Room;
 
 use CourseHub\WebPlatform\Shared\Http\Request;
 use CourseHub\WebPlatform\Shared\Http\Response;
+use CourseHub\WebPlatform\Shared\Ui\PanelFactory;
+use CourseHub\WebPlatform\Shared\Ui\PortalPage;
 
 final class RoomRuntime
 {
@@ -34,6 +36,17 @@ final class RoomRuntime
     public static function render(string $directory, array $model): Response
     {
         $metadata = self::metadata($directory);
+        $role = (string) ($metadata['role'] ?? 'guest');
+        if (in_array($role, ['student', 'instructor', 'admin'], true)) {
+            $panel = PanelFactory::build($metadata, $model);
+            return PortalPage::render(
+                $role,
+                (string) ($metadata['title'] ?? $metadata['room']),
+                $panel['content'],
+                $panel['action'],
+            );
+        }
+
         $escape = static fn (mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         $title = $escape($metadata['title'] ?? $metadata['room']);
         $floor = $escape($metadata['floor']);

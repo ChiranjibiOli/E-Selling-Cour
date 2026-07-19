@@ -1,7 +1,7 @@
 FROM php:8.3-cli-alpine
 
-RUN apk add --no-cache curl-dev \
-    && docker-php-ext-install curl mysqli pdo pdo_mysql
+RUN apk add --no-cache curl-dev oniguruma-dev \
+    && docker-php-ext-install curl mbstring mysqli pdo pdo_mysql
 
 WORKDIR /workspace
 
