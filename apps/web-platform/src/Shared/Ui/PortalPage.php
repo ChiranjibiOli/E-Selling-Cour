@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-
 namespace CourseHub\WebPlatform\Shared\Ui;
 
 use CourseHub\WebPlatform\Shared\Http\Response;
@@ -41,7 +40,7 @@ final class PortalPage
         };
 
         $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            . '<meta name="theme-color" content="#07122d"><title>' . $e($title) . ' | CourseHub</title><link rel="stylesheet" href="/assets/css/app.css"></head>'
+            . '<meta name="theme-color" content="#07122d"><title>' . $e($title) . ' | CourseHub</title><link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/assets/css/commerce.css"></head>'
             . '<body class="portal-shell portal-role-' . $e($role) . '"><button class="portal-mobile-toggle" type="button" data-portal-toggle aria-label="Open navigation" aria-expanded="false"><span></span><span></span><span></span></button>'
             . '<div class="portal-overlay" data-portal-overlay></div><aside class="portal-sidebar" data-portal-sidebar><a class="portal-brand" href="/"><span>CH</span><strong>CourseHub</strong></a>'
             . '<div class="portal-workspace"><span>' . $e(ucfirst($role)) . '</span><strong>' . $e($roleName) . '</strong></div><nav class="portal-sidebar-nav">' . $nav . '</nav>'
