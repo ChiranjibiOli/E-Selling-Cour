@@ -8,6 +8,7 @@ use CourseHub\WebPlatform\Shared\Media\PrivateMedia;
 use CourseHub\WebPlatform\Shared\Media\SecureUpload;
 use CourseHub\WebPlatform\Shared\Room\RoomRuntime;
 use CourseHub\WebPlatform\Shared\Security\Csrf;
+use CourseHub\WebPlatform\Shared\Session\AuthSession;
 
 require_once __DIR__ . '/Page.php';
 
@@ -69,6 +70,16 @@ return static function (Request $request) {
         }
 
         $profile = $client->get('/api/v1/users/instructor-profile')['data'] ?? [];
+        if (is_array($profile) && $profile !== []) {
+            $current = AuthSession::user();
+            AuthSession::synchronizeUser([
+                'id' => (int) ($current['id'] ?? 0),
+                'name' => (string) ($profile['full_name'] ?? $current['name'] ?? ''),
+                'email' => (string) ($profile['email'] ?? $current['email'] ?? ''),
+                'role' => 'instructor',
+                'profile_image' => (string) ($profile['profile_image'] ?? ''),
+            ]);
+        }
     } catch (DomainException $exception) {
         SecureUpload::delete($newProfileImage);
         $message = $exception->getMessage();
