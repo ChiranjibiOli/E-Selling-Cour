@@ -14,6 +14,7 @@
 .portal-role-instructor .status-overview-grid span{margin-top:9px;color:#645a4f;font-weight:750}
 .portal-role-instructor .accent-card{background:linear-gradient(145deg,#102557 0%,#202c77 62%,#35266d 100%)!important}
 .portal-role-instructor .portal-nav-link.active{background:linear-gradient(90deg,rgba(224,170,63,.2),rgba(224,170,63,.06))!important;box-shadow:inset 3px 0 0 #e0aa3f,0 8px 22px rgba(19,25,52,.08)!important}
+.portal-nav-link:hover{color:#fffaf3!important;background:linear-gradient(90deg,rgba(224,170,63,.2),rgba(224,170,63,.06))!important;box-shadow:inset 3px 0 0 #e0aa3f,0 8px 22px rgba(19,25,52,.08)!important}
 
 .instructor-course-list{border:0!important;background:transparent!important;box-shadow:none!important}
 .instructor-course-list>header{margin-bottom:20px;padding:24px 26px;border:1px solid rgba(57,46,34,.09);border-radius:24px;background:rgba(255,252,247,.82);box-shadow:0 16px 36px rgba(53,41,24,.07)}
