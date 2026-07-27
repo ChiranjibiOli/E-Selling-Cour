@@ -48,6 +48,7 @@ $migrations = [
     '002_learning_progress' => $repositoryRoot . '/database/migrations/002_learning_progress.sql',
     '003_instructor_application_and_password_reset' => $repositoryRoot . '/database/migrations/003_instructor_application_and_password_reset.sql',
     '004_course_authoring_details' => $repositoryRoot . '/database/migrations/004_course_authoring_details.sql',
+    '005_normalize_commission_setting' => $repositoryRoot . '/database/migrations/005_normalize_commission_setting.sql',
 ];
 
 $exists = $pdo->prepare('SELECT version FROM schema_migrations WHERE version = :version LIMIT 1');
