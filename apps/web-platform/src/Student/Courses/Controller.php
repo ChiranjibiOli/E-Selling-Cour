@@ -27,6 +27,10 @@ return static function (Request $request) {
     $selectedCourse = [];
     $messages = [];
 
+    if ((string) ($request->query['access'] ?? '') === 'required') {
+        $messages[] = 'This published course is not active in your learning library yet. Add it to your cart and complete enrollment before opening the course player.';
+    }
+
     try {
         $parameters = array_filter([
             'q' => $query,
