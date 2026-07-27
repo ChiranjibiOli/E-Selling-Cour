@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use CourseHub\WebPlatform\Shared\Http\ApiClient;
 use CourseHub\WebPlatform\Shared\Http\Request;
+use CourseHub\WebPlatform\Shared\Http\Response;
 use CourseHub\WebPlatform\Shared\Security\Csrf;
 
 require_once __DIR__ . '/Page.php';
@@ -15,14 +16,14 @@ return static function (Request $request) {
 
     try {
         Csrf::assertValid((string) ($request->body['_token'] ?? ''));
-        $email = trim((string) ($request->body['email'] ?? ''));
+        $email = strtolower(trim((string) ($request->body['email'] ?? '')));
         $result = (new ApiClient())->post('/api/v1/auth/forgot-password', ['email' => $email]);
-        return ForgotPasswordPage::render(
-            ['email' => $email],
-            (string) ($result['message'] ?? 'Password-reset instructions were created.'),
-            true,
-            (string) ($result['development_reset_url'] ?? ''),
-        );
+        $query = http_build_query([
+            'purpose' => 'password_reset',
+            'email' => $email,
+            'development_code' => (string) ($result['development_code'] ?? ''),
+        ]);
+        return Response::redirect('/verify-otp?' . $query);
     } catch (DomainException $exception) {
         return ForgotPasswordPage::render($request->body, $exception->getMessage(), false);
     }
