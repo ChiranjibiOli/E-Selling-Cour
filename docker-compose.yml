@@ -109,6 +109,18 @@ services:
     <<: *domain-service
     working_dir: /repo/services/payment-service
     command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/router.php"]
+    environment:
+      <<: *database-environment
+      APP_URL: "${APP_URL:-http://localhost:9001}"
+      ESEWA_ENV: "${ESEWA_ENV:-sandbox}"
+      ESEWA_PRODUCT_CODE: "${ESEWA_PRODUCT_CODE:-EPAYTEST}"
+      ESEWA_SECRET_KEY: "${ESEWA_SECRET_KEY:-}"
+      ESEWA_PAYMENT_URL: "${ESEWA_PAYMENT_URL:-https://rc-epay.esewa.com.np/api/epay/main/v2/form}"
+      ESEWA_STATUS_URL: "${ESEWA_STATUS_URL:-https://rc.esewa.com.np/api/epay/transaction/status/}"
+      KHALTI_ENV: "${KHALTI_ENV:-sandbox}"
+      KHALTI_SECRET_KEY: "${KHALTI_SECRET_KEY:-}"
+      KHALTI_API_URL: "${KHALTI_API_URL:-https://dev.khalti.com/api/v2}"
+      KHALTI_WEBSITE_URL: "${KHALTI_WEBSITE_URL:-http://localhost:9001}"
 
   enrollment-service:
     <<: *domain-service
