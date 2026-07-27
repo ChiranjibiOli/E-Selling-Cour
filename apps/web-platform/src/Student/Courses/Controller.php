@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use CourseHub\WebPlatform\Shared\Http\ApiClient;
 use CourseHub\WebPlatform\Shared\Http\Request;
+use CourseHub\WebPlatform\Shared\Http\Response;
 use CourseHub\WebPlatform\Shared\Room\RoomRuntime;
 
 require_once __DIR__ . '/Page.php';
@@ -28,7 +29,7 @@ return static function (Request $request) {
     $messages = [];
 
     if ((string) ($request->query['access'] ?? '') === 'required') {
-        $messages[] = 'This published course is not active in your learning library yet. Add it to your cart and complete enrollment before opening the course player.';
+        $messages[] = 'This published course is not active in your learning library yet. Add it to your cart and complete manual payment verification before opening the course player.';
     }
 
     try {
@@ -67,8 +68,19 @@ return static function (Request $request) {
                 $ownedCourseIds[$courseId] = true;
             }
         }
-    } catch (DomainException) {
-        // Published courses must still be visible if enrollment history is temporarily unavailable.
+    } catch (DomainException $exception) {
+        $messages[] = 'Your purchased-course list could not be checked. Refresh before adding a course to the cart. ' . $exception->getMessage();
+    }
+
+    if ($ownedCourseIds !== []) {
+        $courses = array_values(array_filter(
+            $courses,
+            static fn (array $course): bool => !isset($ownedCourseIds[(int) ($course['id'] ?? 0)]),
+        ));
+    }
+
+    if ($selectedCourseId > 0 && isset($ownedCourseIds[$selectedCourseId])) {
+        return Response::redirect('/student/my-courses');
     }
 
     if ($selectedCourseId > 0) {
