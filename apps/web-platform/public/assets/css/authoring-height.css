@@ -1,48 +1,53 @@
-/* Let the complete Instructor course editor use the full page instead of a short nested scroll box. */
+/* Final layout override for the complete Instructor authoring page. Loaded last by PortalPage. */
 .portal-role-instructor .complete-authoring-layout{
-  min-height:calc(100vh - 112px);
-  align-items:start;
+  min-height:calc(100vh - 96px)!important;
+  align-items:start!important;
 }
 .portal-role-instructor .complete-authoring-form{
   max-height:none!important;
-  min-height:calc(100vh - 150px);
+  height:auto!important;
+  min-height:1240px!important;
   overflow:visible!important;
   padding-right:0!important;
-  padding-bottom:44px;
+  padding-bottom:72px!important;
 }
 .portal-role-instructor .authoring-sheet{
-  min-height:1180px;
-  overflow:visible;
+  height:auto!important;
+  min-height:1240px!important;
+  max-height:none!important;
+  overflow:visible!important;
 }
 .portal-role-instructor .authoring-sheet-head{
-  min-height:270px;
+  min-height:290px!important;
 }
 .portal-role-instructor .authoring-block{
-  min-height:230px;
+  min-height:250px!important;
 }
 .portal-role-instructor .curriculum-authoring-block{
-  min-height:520px;
+  min-height:600px!important;
 }
 .portal-role-instructor .course-design-preview{
-  position:sticky;
-  top:92px;
-  max-height:calc(100vh - 112px);
-  overflow:auto;
+  position:sticky!important;
+  top:92px!important;
+  max-height:calc(100vh - 112px)!important;
+  overflow:auto!important;
 }
 .portal-role-instructor .complete-authoring-actions{
-  position:sticky;
-  bottom:14px;
-  z-index:30;
-  margin:0 14px 14px;
-  border-radius:18px;
+  position:sticky!important;
+  bottom:14px!important;
+  z-index:30!important;
+  margin:0 14px 14px!important;
+  border-radius:18px!important;
 }
 @media(max-width:1180px){
-  .portal-role-instructor .complete-authoring-layout{grid-template-columns:1fr}
-  .portal-role-instructor .course-design-preview{position:static;max-height:none}
-  .portal-role-instructor .authoring-sheet{min-height:auto}
+  .portal-role-instructor .complete-authoring-layout{grid-template-columns:1fr!important}
+  .portal-role-instructor .complete-authoring-form{min-height:auto!important}
+  .portal-role-instructor .course-design-preview{position:static!important;max-height:none!important}
+  .portal-role-instructor .authoring-sheet{min-height:auto!important}
 }
 @media(max-width:760px){
-  .portal-role-instructor .authoring-sheet-head{min-height:220px}
-  .portal-role-instructor .authoring-block{min-height:auto}
-  .portal-role-instructor .complete-authoring-actions{position:static;margin:0;border-radius:0 0 24px 24px}
+  .portal-role-instructor .authoring-sheet-head{min-height:220px!important}
+  .portal-role-instructor .authoring-block{min-height:auto!important}
+  .portal-role-instructor .curriculum-authoring-block{min-height:auto!important}
+  .portal-role-instructor .complete-authoring-actions{position:static!important;margin:0!important;border-radius:0 0 24px 24px!important}
 }
