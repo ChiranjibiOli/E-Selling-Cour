@@ -33,7 +33,9 @@ final class ApiClient
             throw new DomainException('Unable to initialize the API connection.');
         }
 
-        $headers = ['Accept: application/json', 'X-Request-ID: ' . bin2hex(random_bytes(16))];
+        $requestId = bin2hex(random_bytes(16));
+        $responseRequestId = '';
+        $headers = ['Accept: application/json', 'X-Request-ID: ' . $requestId];
         $token = AuthSession::token();
         if ($token !== '') {
             $headers[] = 'Authorization: Bearer ' . $token;
@@ -46,8 +48,14 @@ final class ApiClient
             CURLOPT_CUSTOMREQUEST => strtoupper($method),
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_CONNECTTIMEOUT => 3,
-            CURLOPT_TIMEOUT => 15,
+            CURLOPT_TIMEOUT => 20,
             CURLOPT_HTTPHEADER => $headers,
+            CURLOPT_HEADERFUNCTION => static function ($curl, string $header) use (&$responseRequestId): int {
+                if (str_starts_with(strtolower($header), 'x-request-id:')) {
+                    $responseRequestId = trim(substr($header, strlen('x-request-id:')));
+                }
+                return strlen($header);
+            },
         ]);
         if ($payload !== null) {
             curl_setopt($handle, CURLOPT_POSTFIELDS, json_encode($payload, JSON_THROW_ON_ERROR));
@@ -59,18 +67,26 @@ final class ApiClient
         curl_close($handle);
 
         if (!is_string($raw)) {
-            throw new DomainException('The API gateway is unavailable. ' . ($error !== '' ? 'Check the local services.' : ''));
+            throw new DomainException('The API gateway is unavailable. ' . ($error !== '' ? 'Check that every local service is running.' : ''));
         }
 
         try {
             $decoded = json_decode($raw, true, 64, JSON_THROW_ON_ERROR);
         } catch (JsonException) {
-            throw new DomainException('The API gateway returned an unreadable response.');
+            $reference = $responseRequestId !== '' ? ' Reference: ' . $responseRequestId . '.' : '';
+            throw new DomainException('A backend service returned invalid data.' . $reference . ' Restart the local platform and inspect its service logs.');
         }
 
         if (!is_array($decoded) || $status < 200 || $status >= 300) {
-            $message = is_array($decoded) ? (string) ($decoded['error'] ?? '') : '';
-            throw new DomainException($message !== '' ? $message : 'The API request failed.');
+            $message = is_array($decoded) ? trim((string) ($decoded['error'] ?? '')) : '';
+            $reference = is_array($decoded) ? trim((string) ($decoded['request_id'] ?? $responseRequestId)) : $responseRequestId;
+            if ($message === '') {
+                $message = 'The API request failed.';
+            }
+            if ($reference !== '' && !str_contains($message, $reference)) {
+                $message .= ' Reference: ' . $reference . '.';
+            }
+            throw new DomainException($message);
         }
 
         return $decoded;
