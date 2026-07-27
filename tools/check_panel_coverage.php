@@ -58,7 +58,7 @@ $contracts = [
         'data-portal-nav',
         'data-logout-dialog',
         'Yes, log out',
-        "$role === 'admin'",
+        '$role === \'admin\'',
     ],
     'apps/web-platform/public/assets/js/app.js' => [
         'navigationScrollKey',
@@ -81,15 +81,15 @@ $contracts = [
         'Csrf::field()',
     ],
     'services/reporting-service/public/admin-console.php' => [
-        "ServiceAuth::requireUser($database, $authorization, 'admin')",
+        'ServiceAuth::requireUser($database, $authorization, \'admin\')',
         "'notifications', 'students', 'instructors', 'users', 'categories', 'refunds'",
         "'coupons', 'reports', 'audit-logs', 'security', 'settings'",
         "payment_status='refunded'",
-        "UPDATE identity_sessions SET revoked_at",
+        'UPDATE identity_sessions SET revoked_at',
         'ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',
     ],
     'docker-compose.yml' => [
-        'services/reporting-service',
+        '/repo/services/reporting-service',
         'public/router.php',
     ],
 ];
