@@ -42,6 +42,7 @@ services:
       - "9001:8080"
     environment:
       API_BASE_URL: http://api-gateway:8080
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       ADMIN_LOGIN_PATH: ${ADMIN_LOGIN_PATH:-/control-room/entry-9d4f}
       ADMIN_ALLOWED_IPS: ${ADMIN_ALLOWED_IPS:-}
       SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
@@ -77,6 +78,7 @@ services:
     command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/router.php"]
     environment:
       <<: *database-environment
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
       ADMIN_ACCESS_CODE: ${ADMIN_ACCESS_CODE:-replace-with-a-long-random-admin-entry-code}
       IDENTITY_SESSION_TTL: ${IDENTITY_SESSION_TTL:-28800}
       APP_ENV: ${APP_ENV:-local}
