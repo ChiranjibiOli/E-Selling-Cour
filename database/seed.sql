@@ -16,7 +16,7 @@ INSERT INTO site_settings (setting_key, setting_value) VALUES
     ('site_email', 'support@example.com'),
     ('site_phone', '+977-9800000000'),
     ('site_address', 'Kathmandu, Nepal'),
-    ('admin_commission_rate', '20'),
+    ('platform_commission_rate', '20'),
     ('esewa_id', ''),
     ('khalti_id', ''),
     ('bank_name', ''),
