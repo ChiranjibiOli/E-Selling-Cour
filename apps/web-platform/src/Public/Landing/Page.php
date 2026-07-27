@@ -58,6 +58,8 @@ final class LandingPage
     <link rel="stylesheet" href="/room-assets/Public/Landing/page.css?v=20260728-5">
     <link rel="stylesheet" href="/room-assets/Public/Landing/hero-photo.css?v=20260728-4">
     <link rel="stylesheet" href="/assets/css/public-site-fixes.css?v=20260728-2">
+    <link rel="stylesheet" href="/assets/css/course-card-theme.css">
+    <link rel="stylesheet" href="/assets/css/course-human-system.css?v=20260728-1">
 </head>
 <body class="landing-body">
     <header class="landing-nav" data-landing-nav>
@@ -154,6 +156,7 @@ final class LandingPage
     </footer>
 
     <script src="/room-assets/Public/Landing/page.js?v=20260728-5" defer></script>
+    <script src="/assets/js/course-card-theme.js" defer></script>
 </body>
 </html>
         <?php
