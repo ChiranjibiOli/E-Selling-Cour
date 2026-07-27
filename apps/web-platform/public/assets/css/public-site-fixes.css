@@ -1,7 +1,96 @@
-/* Final shared-public fixes, loaded after public-site.css. */
-.public-site-links a{isolation:isolate}
-.public-site-links a::before{z-index:-1}
-.public-site-account a,.catalog-toolbar button,.catalog-toolbar>a,.info-closing>a,.student-login-card button,.student-login-copy>a:last-child,.form-card button,.buy-button,.intro-video-link,.detail-copy>a:first-child,.recovery-card button,.recovery-button,.portal-button{isolation:isolate}
+/* Final shared-public fixes, loaded after page-specific styles. */
+.public-site-links a,
+.landing-links a{
+  position:relative;
+  z-index:0;
+  isolation:isolate;
+  overflow:hidden;
+  background:transparent!important;
+  transition:color .28s ease,transform .28s cubic-bezier(.22,1,.36,1),box-shadow .28s ease!important;
+}
+.public-site-links a::before,
+.landing-links a::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  border-radius:inherit;
+  background:#f0e8dc;
+  opacity:0;
+  transform:scale(.72);
+  transition:opacity .25s ease,transform .34s cubic-bezier(.22,1,.36,1),background .25s ease;
+}
+.public-site-links a:hover::before,
+.landing-links a:hover::before{
+  opacity:1;
+  transform:scale(1);
+}
+.public-site-links a.active,
+.landing-links a.active{
+  color:#fffaf3!important;
+  background:transparent!important;
+  transform:translateY(-1px);
+  box-shadow:0 8px 20px rgba(23,22,17,.16);
+}
+.public-site-links a.active::before,
+.landing-links a.active::before{
+  opacity:1;
+  transform:scale(1);
+  background:#171611;
+}
+.public-site-links a.active:hover,
+.landing-links a.active:hover{color:#fffaf3!important}
+
+.public-site-nav,
+.landing-nav{
+  transition-property:min-height,width,top,border-radius,box-shadow,background,transform!important;
+  transition-duration:.36s!important;
+  transition-timing-function:cubic-bezier(.22,1,.36,1)!important;
+}
+.public-site-nav.is-compact{
+  transform:translateY(-3px) scale(.992);
+}
+.landing-nav.is-compact{
+  transform:translateX(-50%) translateY(-3px) scale(.992);
+}
+.public-site-nav.nav-active-shift,
+.landing-nav.nav-active-shift{
+  animation:publicNavNudge .3s cubic-bezier(.22,1,.36,1);
+}
+@keyframes publicNavNudge{
+  0%{filter:saturate(.96);box-shadow:0 12px 34px rgba(53,39,24,.09)}
+  48%{filter:saturate(1.08);box-shadow:0 18px 44px rgba(53,39,24,.15)}
+  100%{filter:saturate(1);}
+}
+
+.public-site-account .public-login{
+  border-color:transparent!important;
+  background:transparent!important;
+}
+.public-site-account .public-create{
+  border-color:#171611!important;
+  background:#171611!important;
+  color:#fffaf3!important;
+}
+.public-site-account .public-create::before{
+  background:#ff7043!important;
+  transform-origin:right;
+}
+.public-site-account .public-create:hover{border-color:#ff7043!important}
+
+.public-site-account a,
+.catalog-toolbar button,
+.catalog-toolbar>a,
+.info-closing>a,
+.student-login-card button,
+.student-login-copy>a:last-child,
+.form-card button,
+.buy-button,
+.intro-video-link,
+.detail-copy>a:first-child,
+.recovery-card button,
+.recovery-button,
+.portal-button{isolation:isolate}
 
 .catalog-footer,.detail-footer,.info-footer{
   box-sizing:border-box;
@@ -26,11 +115,14 @@
 .info-footer>div{display:flex;gap:16px;flex-wrap:wrap}
 .info-footer>div a{font-family:"DM Sans",Inter,system-ui,sans-serif;font-size:.82rem}
 
-.public-site-account a:focus-visible,.public-site-links a:focus-visible,.catalog-toolbar button:focus-visible,.catalog-toolbar>a:focus-visible,.student-login-card button:focus-visible,.form-card button:focus-visible,.buy-button:focus-visible{
+.public-site-account a:focus-visible,.public-site-links a:focus-visible,.landing-links a:focus-visible,.catalog-toolbar button:focus-visible,.catalog-toolbar>a:focus-visible,.student-login-card button:focus-visible,.form-card button:focus-visible,.buy-button:focus-visible{
   outline:3px solid rgba(255,112,67,.32);
   outline-offset:3px;
 }
 
 @media(max-width:620px){
   .catalog-footer,.detail-footer,.info-footer{align-items:flex-start;flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce){
+  .public-site-nav,.landing-nav,.public-site-links a,.landing-links a,.public-site-links a::before,.landing-links a::before{animation:none!important;transition:none!important}
 }
