@@ -14,4 +14,9 @@ final class StudentIdentityBridge
             $credentials->password,
         );
     }
+
+    public function authenticateWithGoogle(string $credential): array
+    {
+        return (new IdentityClient())->googleLogin($credential);
+    }
 }
