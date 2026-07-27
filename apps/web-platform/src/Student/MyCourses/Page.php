@@ -43,11 +43,11 @@ final class StudentMyCoursesPage
                 . '<div class="learning-course-copy"><span>' . $e(ucfirst((string) ($course['level'] ?? 'beginner'))) . ' · ' . $e($course['language'] ?? 'English') . '</span><h3>' . $e($course['title'] ?? 'Course') . '</h3>'
                 . '<p>' . $e($course['short_description'] ?? '') . '</p><small>By ' . $e($course['instructor_name'] ?? 'Instructor') . ' · ' . $e($lessonSummary) . ' · Lifetime access</small>'
                 . '<div class="learning-progress" aria-label="' . $progressPercent . '% complete"><span><i style="width:' . $progressPercent . '%"></i></span><b>' . $progressPercent . '%</b></div><footer><a class="portal-button" href="/student/course-player?course=' . $courseId . '">' . $e($learningAction) . '</a>'
-                . '<a class="portal-button secondary" href="/course?id=' . $courseId . '">Course details</a></footer></div></article>';
+                . '<a class="portal-button secondary" href="/student/courses?course=' . $courseId . '">Course details</a></footer></div></article>';
         }
 
         if ($cards === '') {
-            $cards = '<div class="rich-empty"><div class="empty-art"><i></i><i></i><span>CH</span></div><h3>Your course library is waiting</h3><p>Approved payments create lifetime enrollments here automatically.</p><a class="portal-button" href="/courses">Explore published courses</a></div>';
+            $cards = '<div class="rich-empty"><div class="empty-art"><i></i><i></i><span>CH</span></div><h3>Your course library is waiting</h3><p>Approved payments create lifetime enrollments here automatically.</p><a class="portal-button" href="/student/courses">Explore published courses</a></div>';
         }
 
         $alert = $error !== '' ? '<div class="form-alert error">' . $e($error) . '</div>' : '';
@@ -55,7 +55,7 @@ final class StudentMyCoursesPage
             . '<article class="metric-card violet"><div class="metric-top"><span>Active access</span><i></i></div><strong>' . $active . '</strong><small>Ready for learning</small></article>'
             . '<article class="metric-card teal"><div class="metric-top"><span>Completed</span><i></i></div><strong>' . $completedCourses . '</strong><small>Courses with every lesson complete</small></article>'
             . '<article class="metric-card orange"><div class="metric-top"><span>Ownership</span><i></i></div><strong>Verified</strong><small>Order and payment linked</small></article></section>'
-            . '<section class="data-card"><div class="data-card-head"><div><span>MY COURSES</span><h3>Your lifetime learning library</h3></div><a class="portal-button secondary" href="/courses">Find another course</a></div><div class="learning-course-grid">' . $cards . '</div></section>';
+            . '<section class="data-card"><div class="data-card-head"><div><span>MY COURSES</span><h3>Your lifetime learning library</h3></div><a class="portal-button secondary" href="/student/courses">Find another course</a></div><div class="learning-course-grid">' . $cards . '</div></section>';
 
         return PortalPage::render('student', 'My courses', $content);
     }
