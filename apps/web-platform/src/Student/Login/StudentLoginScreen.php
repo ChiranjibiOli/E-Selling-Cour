@@ -47,7 +47,7 @@ final class StudentLoginScreen
             . '<button type="submit">Enter learning space</button></form>'
             . $googleHtml
             . '<a class="student-help" href="/forgot-password">Forgot your password?</a></section></main>'
-            . '<script src="/assets/js/public-site.js?v=20260728-1" defer></script><script src="/room-assets/Student/Login/page.js" defer></script></body></html>';
+            . '<script src="/assets/js/public-site.js?v=20260728-2" defer></script><script src="/room-assets/Student/Login/page.js" defer></script></body></html>';
 
         return Response::html($html, $status);
     }
