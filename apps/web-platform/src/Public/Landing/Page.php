@@ -55,8 +55,9 @@ final class LandingPage
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/app.css">
-    <link rel="stylesheet" href="/room-assets/Public/Landing/page.css?v=20260728-4">
+    <link rel="stylesheet" href="/room-assets/Public/Landing/page.css?v=20260728-5">
     <link rel="stylesheet" href="/room-assets/Public/Landing/hero-photo.css?v=20260728-4">
+    <link rel="stylesheet" href="/assets/css/public-site-fixes.css?v=20260728-2">
 </head>
 <body class="landing-body">
     <header class="landing-nav" data-landing-nav>
@@ -66,14 +67,14 @@ final class LandingPage
         </a>
         <button class="landing-menu" type="button" aria-label="Open navigation" aria-expanded="false" data-landing-menu><span></span><span></span></button>
         <nav class="landing-links" aria-label="Primary navigation" data-landing-links>
-            <a class="active" href="#top">Home</a>
-            <a href="/courses">Courses</a>
-            <a href="#categories">Categories</a>
-            <a href="#promise">About</a>
-            <a href="/contact">Contact</a>
+            <a class="active" data-nav-section="top" href="#top" aria-current="page">Home</a>
+            <a data-nav-section="courses" href="/courses">Courses</a>
+            <a data-nav-section="categories" href="#categories">Categories</a>
+            <a data-nav-section="promise" href="#promise">About</a>
+            <a data-nav-section="contact" href="/contact">Contact</a>
         </nav>
         <div class="landing-account">
-            <a href="/learn/sign-in">Log in</a>
+            <a class="landing-login" href="/learn/sign-in">Log in</a>
             <a class="landing-create" href="/register/student">Create account</a>
         </div>
     </header>
@@ -81,7 +82,7 @@ final class LandingPage
     <?= $serviceNotice ?>
 
     <main>
-        <section class="landing-hero" id="top">
+        <section class="landing-hero" id="top" data-public-section="top">
             <div class="hero-copy" data-reveal>
                 <span class="hero-kicker"><i></i> LEARN FROM THE BEST</span>
                 <h1>Education<br>that <em>transforms</em><br>your life.</h1>
@@ -101,7 +102,7 @@ final class LandingPage
             </div>
         </section>
 
-        <section class="promise-section" id="promise">
+        <section class="promise-section" id="promise" data-public-section="promise">
             <div class="promise-heading" data-reveal>
                 <span>WHAT COURSEHUB PROMISES</span>
                 <h2>Useful promises,<br><em>not marketing fog.</em></h2>
@@ -114,7 +115,7 @@ final class LandingPage
             </div>
         </section>
 
-        <section class="category-section" id="categories">
+        <section class="category-section" id="categories" data-public-section="categories">
             <div class="section-intro" data-reveal>
                 <span>CHOOSE A DIRECTION</span>
                 <h2>Start with a subject.<br><em>Build from there.</em></h2>
@@ -123,7 +124,7 @@ final class LandingPage
             <div class="category-stack"><?= $categoryCards ?></div>
         </section>
 
-        <section class="course-section">
+        <section class="course-section" id="courses" data-public-section="courses">
             <div class="section-intro course-intro" data-reveal>
                 <span>APPROVED COURSES</span>
                 <h2>Find the course<br><em>worth continuing.</em></h2>
@@ -152,7 +153,7 @@ final class LandingPage
         <p>© <?= date('Y') ?> CourseHub. Practical learning, clear payment service and lifetime access to approved purchases.</p>
     </footer>
 
-    <script src="/room-assets/Public/Landing/page.js?v=20260728-4" defer></script>
+    <script src="/room-assets/Public/Landing/page.js?v=20260728-5" defer></script>
 </body>
 </html>
         <?php
