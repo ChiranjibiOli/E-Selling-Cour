@@ -24,7 +24,7 @@ final class StudentProgressPage
             $rows .= '<article class="progress-course-row"><div><span class="portal-eyebrow">' . $e($course['instructor_name'] ?? 'CourseHub instructor') . '</span><h3>' . $e($course['title'] ?? 'Course') . '</h3><p>' . $completed . ' of ' . $total . ' lessons completed' . (($course['last_activity'] ?? '') !== '' ? ' · Last activity ' . $e($course['last_activity']) : '') . '</p><div class="learning-progress"><span><i style="width:' . max(0, min(100, $percent)) . '%"></i></span><b>' . $percent . '%</b></div></div><a class="portal-button" href="/student/course-player?course=' . (int) ($course['course_id'] ?? 0) . '">' . ($percent > 0 ? 'Continue' : 'Start') . ' course →</a></article>';
         }
         if ($rows === '') {
-            $rows = '<div class="rich-empty"><div class="empty-art"><i></i><i></i><span>CH</span></div><h3>No learning progress yet</h3><p>Purchase a course and complete the first lesson to begin tracking momentum.</p><a class="portal-button" href="/courses">Explore courses</a></div>';
+            $rows = '<div class="rich-empty"><div class="empty-art"><i></i><i></i><span>CH</span></div><h3>No learning progress yet</h3><p>Purchase a course and complete the first lesson to begin tracking momentum.</p><a class="portal-button" href="/student/courses">Explore courses</a></div>';
         }
         $average = count($courses) > 0 ? (int) floor($sumProgress / count($courses)) : 0;
         $alert = $error !== '' ? '<div class="form-alert error">' . $e($error) . '</div>' : '';
