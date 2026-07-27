@@ -40,16 +40,25 @@ $requiredFiles = [
     'apps/web-platform/src/Shared/Ui/PortalPage.php',
     'apps/web-platform/src/Shared/Ui/PanelFactory.php',
     'apps/web-platform/src/Shared/Ui/AdminConsole.php',
+    'apps/web-platform/src/Shared/Ui/AccountProfilePage.php',
+    'apps/web-platform/src/Shared/Profile/AccountProfileManager.php',
     'apps/web-platform/src/Shared/Room/RoomRuntime.php',
     'apps/web-platform/src/Shared/Routing/HouseRouter.php',
+    'apps/web-platform/src/Shared/Session/AuthSession.php',
     'apps/web-platform/src/Shared/Session/SessionGuard.php',
     'apps/web-platform/src/Admin/Profile/Middleware.php',
     'apps/web-platform/src/Admin/Profile/Controller.php',
     'apps/web-platform/src/Admin/Profile/Page.php',
+    'apps/web-platform/src/Student/Profile/Controller.php',
+    'apps/web-platform/src/Student/Profile/Page.php',
     'apps/web-platform/public/assets/css/app.css',
     'apps/web-platform/public/assets/css/admin-console.css',
     'apps/web-platform/public/assets/css/profile-links.css',
     'apps/web-platform/public/assets/js/app.js',
+    'services/identity-service/public/account-profile.php',
+    'services/identity-service/public/router.php',
+    'services/identity-service/src/Features/Login/LoginHandler.php',
+    'services/identity-service/src/Features/Session/SessionHandler.php',
     'services/reporting-service/public/admin-console.php',
     'services/reporting-service/public/router.php',
 ];
@@ -60,6 +69,10 @@ foreach ($requiredFiles as $file) {
 }
 
 $contracts = [
+    'apps/web-platform/src/config/rooms.php' => [
+        "'Admin/Profile' => ['title'=>'Profile','path'=>'/admin/profile','methods'=>'GET|POST'",
+        "'Student/Profile' => ['title'=>'Profile','path'=>'/student/profile','methods'=>'GET|POST'",
+    ],
     'apps/web-platform/src/Shared/Ui/PortalPage.php' => [
         'data-portal-nav',
         'data-logout-dialog',
@@ -70,17 +83,36 @@ $contracts = [
         "default => '/student/profile'",
         'portal-profile-link',
         'portal-top-profile',
+        "profileImage !== ''",
+        '?photo=1&amp;v=',
     ],
-    'apps/web-platform/src/Admin/Profile/Page.php' => [
-        "PortalPage::render('admin', 'Profile'",
-        'admin-profile-panel',
-        'Open security',
-        'Open settings',
+    'apps/web-platform/src/Shared/Ui/AccountProfilePage.php' => [
+        'View photo',
+        'Change photo',
+        'Remove photo',
+        'data-profile-photo-remove',
+        'profile_photo',
+        'Csrf::field()',
+    ],
+    'apps/web-platform/src/Shared/Profile/AccountProfileManager.php' => [
+        "'/api/v1/users/account-profile'",
+        "'private/profile-photos'",
+        "'change_photo'",
+        "'remove_photo'",
+        'SecureUpload::delete',
+        'AuthSession::synchronizeUser',
+    ],
+    'apps/web-platform/src/Instructor/Profile/Page.php' => [
+        'View photo',
+        'cannot be removed completely',
+        '25-day lock',
     ],
     'apps/web-platform/public/assets/css/profile-links.css' => [
         '.portal-profile-link',
         '.portal-top-profile',
-        '.admin-profile-panel',
+        '.portal-avatar img',
+        '.account-profile-panel',
+        '.account-profile-upload',
     ],
     'apps/web-platform/public/assets/js/app.js' => [
         'navigationScrollKey',
@@ -90,6 +122,8 @@ $contracts = [
         "fetch('/session-status'",
         'window.setInterval(checkSession, 12000)',
         'window.location.replace',
+        'data-profile-photo-remove',
+        'Remove this profile photo',
     ],
     'apps/web-platform/src/Shared/Routing/HouseRouter.php' => [
         "'/session-status'",
@@ -97,13 +131,37 @@ $contracts = [
         'SessionEndedException',
         "Response::redirect($exception->loginPath() . '?session=ended')",
     ],
+    'apps/web-platform/src/Shared/Session/AuthSession.php' => [
+        'synchronizeUser',
+        "'profile_image'",
+    ],
     'apps/web-platform/src/Shared/Session/SessionGuard.php' => [
         "get('/api/v1/auth/session')",
         'AuthSession::clear()',
+        'AuthSession::synchronizeUser',
         "'/learn/sign-in'",
         "'/teach/studio-access'",
         'ADMIN_LOGIN_PATH',
         'SessionValidationUnavailableException',
+    ],
+    'services/identity-service/public/account-profile.php' => [
+        "['student', 'admin']",
+        "'change_photo', 'remove_photo'",
+        'private/profile-photos',
+        'profile_image=NULL',
+        'old_profile_image',
+    ],
+    'services/identity-service/public/router.php' => [
+        "'/api/v1/users/account-profile'",
+        "require __DIR__ . '/account-profile.php'",
+    ],
+    'services/identity-service/src/Features/Login/LoginHandler.php' => [
+        'profile_image FROM users',
+        "'profile_image' =>",
+    ],
+    'services/identity-service/src/Features/Session/SessionHandler.php' => [
+        'u.profile_image',
+        "'profile_image' =>",
     ],
     'apps/web-platform/src/Shared/Ui/AdminConsole.php' => [
         "'Notifications' => 'notifications'",
@@ -136,7 +194,7 @@ foreach ($contracts as $file => $needles) {
     $content = is_file($root . '/' . $file) ? (string) file_get_contents($root . '/' . $file) : '';
     foreach ($needles as $needle) {
         if (!str_contains($content, $needle)) {
-            $errors[] = 'Missing Admin panel contract in ' . $file . ': ' . $needle;
+            $errors[] = 'Missing panel contract in ' . $file . ': ' . $needle;
         }
     }
 }
@@ -159,4 +217,5 @@ echo "Panel routes: 55\n";
 echo "Authenticated panels: 50\n";
 echo "Admin navigation rooms: implemented\n";
 echo "Portal avatars: linked to role profiles\n";
+echo "Profile photos: view, change and role-safe removal enabled\n";
 echo "Revoked sessions: automatic portal logout enabled\n";
