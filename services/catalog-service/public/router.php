@@ -10,6 +10,11 @@ if ($path === '/api/v1/courses/pending' && $method === 'GET') {
     exit;
 }
 
+if (preg_match('#^/api/v1/courses/\d+/duration$#', $path) === 1 && $method === 'POST') {
+    require __DIR__ . '/course-duration.php';
+    exit;
+}
+
 $authoringRoute = ($path === '/api/v1/courses/authoring' && $method === 'POST')
     || ($path === '/api/v1/courses/mine' && $method === 'GET')
     || ($path === '/api/v1/courses/edit-permissions' && $method === 'GET')
