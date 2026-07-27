@@ -66,6 +66,38 @@ final class SmtpMailer
         self::send($recipient, $subject, $body);
     }
 
+    public static function sendSupportReply(
+        string $recipient,
+        string $recipientName,
+        string $originalSubject,
+        string $replySubject,
+        string $replyBody,
+    ): void {
+        if (!self::isConfigured()) {
+            throw new EmailDeliveryException('Support reply email is not configured. Add the SMTP settings to .env.');
+        }
+
+        $recipientName = trim($recipientName) !== '' ? trim($recipientName) : 'CourseHub user';
+        $originalSubject = trim($originalSubject) !== '' ? trim($originalSubject) : 'Support request';
+        $replySubject = trim($replySubject);
+        $replyBody = trim($replyBody);
+        if ($replySubject === '' || mb_strlen($replySubject) > 200) {
+            throw new EmailDeliveryException('A support reply subject between 1 and 200 characters is required.');
+        }
+        if ($replyBody === '' || mb_strlen($replyBody) > 10_000) {
+            throw new EmailDeliveryException('A support reply message between 1 and 10000 characters is required.');
+        }
+
+        $body = "Hello {$recipientName},\n\n"
+            . "CourseHub support replied to your message about:\n"
+            . "{$originalSubject}\n\n"
+            . "{$replyBody}\n\n"
+            . "You can reply to this email or send another message through the CourseHub contact page if more help is needed.\n\n"
+            . "CourseHub Support";
+
+        self::send($recipient, $replySubject, $body);
+    }
+
     private static function send(string $recipient, string $subject, string $body): void
     {
         $host = trim((string) getenv('SMTP_HOST'));
