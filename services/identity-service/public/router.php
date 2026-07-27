@@ -15,6 +15,11 @@ if (in_array($method, ['GET', 'POST'], true) && $path === '/api/v1/users/account
     exit;
 }
 
+if (in_array($method, ['GET', 'POST'], true) && $path === '/api/v1/users/instructor-profile') {
+    require __DIR__ . '/instructor-profile.php';
+    exit;
+}
+
 if ($method === 'POST' && preg_match('#^/api/v1/users/instructor-applications/\d+/(approve|reject)$#', $path) === 1) {
     require __DIR__ . '/instructor-decision.php';
     exit;
