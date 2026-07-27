@@ -10,22 +10,31 @@ final class StudioAccessScreen
     public static function render(string $error = '', string $email = '', int $status = 200): Response
     {
         $e = static fn (string $value): string => htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $errorHtml = $error !== '' ? '<aside class="studio-error">' . $e($error) . '</aside>' : '';
+        $errorHtml = $error !== '' ? '<aside class="studio-error" role="alert">' . $e($error) . '</aside>' : '';
 
         $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            . '<meta name="robots" content="noindex,nofollow,noarchive"><meta name="theme-color" content="#f4ede2"><title>Instructor access | CourseHub</title><link rel="stylesheet" href="/assets/css/app.css">'
-            . '<link rel="stylesheet" href="/room-assets/Instructor/Login/page.css"><link rel="stylesheet" href="/assets/css/coursehub-editorial.css"></head><body class="studio-access-body">'
-            . '<header class="studio-top"><a class="coursehub-auth-brand" href="/teach/studio-access"><img src="/assets/images/coursehub-robot.svg" alt=""><span>CourseHub</span></a><a href="/register/instructor">Create Instructor account</a></header>'
-            . '<main class="studio-access-grid"><section class="studio-panel"><span>SEPARATE INSTRUCTOR ACCESS</span><h1>Build courses.<br>Teach clearly.<br>Track every sale.</h1>'
-            . '<ul><li>Instructor login is separate from the Student landing-page flow</li><li>Applications require a passport-size photo and identity document</li><li>Only approved Instructor accounts can enter the studio</li></ul>'
-            . '<a class="studio-apply-link" href="/register/instructor">Create a new Instructor account →</a></section>'
-            . '<section class="studio-form-wrap"><div class="studio-form-card"><p class="studio-label">APPROVED INSTRUCTORS</p><h2>Instructor sign in</h2>'
-            . '<p>Pending applications cannot enter until an administrator approves the Instructor account.</p>' . $errorHtml
+            . '<meta name="robots" content="noindex,nofollow,noarchive"><meta name="theme-color" content="#f5efe5"><title>Instructor sign in | CourseHub</title>'
+            . '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+            . '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600&display=swap" rel="stylesheet">'
+            . '<link rel="stylesheet" href="/room-assets/Instructor/Login/page.css?v=20260728-3"></head><body class="studio-access-body">'
+            . '<header class="studio-top"><a class="coursehub-auth-brand" href="/"><img src="/assets/images/coursehub-robot.svg" alt=""><span>CourseHub</span></a>'
+            . '<nav aria-label="Instructor access links"><a href="/learn/sign-in">Student sign in</a><a class="studio-create-link" href="/register/instructor">Create Instructor account</a></nav></header>'
+            . '<main class="studio-access-grid">'
+            . '<section class="studio-panel" aria-labelledby="studio-heading"><div class="studio-panel-inner">'
+            . '<span>INSTRUCTOR ACCESS</span><h1 id="studio-heading">Return to your courses,<br><em>students and sales.</em></h1>'
+            . '<p>The Instructor studio stays separate from Student access so course ownership, approvals and earnings remain clear.</p>'
+            . '<dl class="studio-access-facts"><div><dt>Approval</dt><dd>Only approved Instructor accounts enter</dd></div><div><dt>Courses</dt><dd>Draft, submit and manage revisions</dd></div><div><dt>Business</dt><dd>Follow enrolments, sales and payouts</dd></div></dl>'
+            . '<div class="studio-apply-line"><span>Not registered as an Instructor?</span><a href="/register/instructor">Start an application</a></div>'
+            . '</div></section>'
+            . '<section class="studio-form-wrap"><div class="studio-form-card"><header><span>TEACHING WORKSPACE</span><h2>Instructor sign in</h2><p>Use the account approved for your CourseHub studio.</p></header>'
+            . $errorHtml
             . '<form method="post" action="/teach/studio-access">' . Csrf::field()
-            . '<label>Instructor email<input type="email" name="studio_email" value="' . $e($email) . '" autocomplete="email" required></label>'
-            . '<label>Instructor password<input type="password" name="studio_password" autocomplete="current-password" required></label>'
+            . '<label><span>Instructor email</span><input type="email" name="studio_email" value="' . $e($email) . '" autocomplete="email" inputmode="email" placeholder="you@example.com" required></label>'
+            . '<label><span>Password</span><input type="password" name="studio_password" autocomplete="current-password" placeholder="Your password" required></label>'
+            . '<div class="studio-form-row"><a href="/forgot-password">Forgot password?</a></div>'
             . '<button type="submit">Open Instructor studio</button></form>'
-            . '<div class="studio-account-actions"><a href="/forgot-password">Recover Instructor access</a><a href="/register/instructor">Create Instructor account</a></div></div></section></main>'
+            . '<footer><span>Application not submitted?</span><a href="/register/instructor">Create Instructor account</a></footer>'
+            . '</div></section></main>'
             . '<script src="/room-assets/Instructor/Login/page.js" defer></script></body></html>';
 
         return Response::html($html, $status);
