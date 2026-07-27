@@ -31,6 +31,7 @@ return [
     'Student/Login' => ['title'=>'Student sign in','path'=>'/learn/sign-in','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented','middleware_file'=>'StudentGuestGate.php','controller_file'=>'StudentLoginAction.php','room_files'=>['StudentEntryRoute.php','StudentGuestGate.php','StudentCredentialPacket.php','StudentIdentityBridge.php','StudentLoginAction.php','StudentLoginScreen.php','ROOM.md','Components/README.md','Assets/page.css','Assets/page.js','Tests/README.md']],
     'Student/Registration' => ['title'=>'Student registration','path'=>'/student/register','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented'],
     'Student/Dashboard' => ['title'=>'Student dashboard','path'=>'/student/dashboard','methods'=>'GET','role'=>'student','service'=>'reporting-service','status'=>'implemented'],
+    'Student/Courses' => ['title'=>'All courses','path'=>'/student/courses','methods'=>'GET','role'=>'student','service'=>'catalog-service','status'=>'implemented'],
     'Student/Cart' => ['title'=>'Cart','path'=>'/student/cart','methods'=>'GET|POST','role'=>'student','service'=>'commerce-service','status'=>'implemented'],
     'Student/Checkout' => ['title'=>'Checkout','path'=>'/student/checkout','methods'=>'GET|POST','role'=>'student','service'=>'commerce-service','status'=>'implemented'],
     'Student/Payment' => ['title'=>'Payment','path'=>'/student/payment','methods'=>'GET|POST','role'=>'student','service'=>'payment-service','status'=>'implemented'],
