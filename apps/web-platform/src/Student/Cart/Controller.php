@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use CourseHub\WebPlatform\Shared\Http\ApiClient;
 use CourseHub\WebPlatform\Shared\Http\Request;
+use CourseHub\WebPlatform\Shared\Http\Response;
 use CourseHub\WebPlatform\Shared\Room\RoomRuntime;
 use CourseHub\WebPlatform\Shared\Security\Csrf;
 
@@ -17,7 +18,21 @@ return static function (Request $request) {
 
     try {
         if ($request->method === 'GET' && (int) ($request->query['add'] ?? 0) > 0) {
-            $result = $client->post('/api/v1/cart', ['course_id' => (int) $request->query['add']]);
+            $courseId = (int) $request->query['add'];
+            try {
+                $enrollments = $client->get('/api/v1/enrollments/mine')['data'] ?? [];
+                foreach (is_array($enrollments) ? $enrollments : [] as $enrollment) {
+                    if ((int) ($enrollment['course_id'] ?? 0) === $courseId
+                        && (string) ($enrollment['status'] ?? '') === 'active'
+                    ) {
+                        return Response::redirect('/student/my-courses');
+                    }
+                }
+            } catch (DomainException) {
+                // Commerce service performs the final ownership check.
+            }
+
+            $result = $client->post('/api/v1/cart', ['course_id' => $courseId]);
             $message = (string) ($result['message'] ?? 'Course added to cart.');
         }
         if ($request->method === 'POST') {
