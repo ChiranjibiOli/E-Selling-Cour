@@ -56,12 +56,23 @@ final class CourseDetailsPage
         $priceHtml = $discounted
             ? '<small class="original-price">NPR ' . number_format($originalPrice, 0) . '</small><strong class="price">NPR ' . number_format($price, 0) . '</strong>'
             : '<strong class="price">' . ($price > 0 ? 'NPR ' . number_format($price, 0) : 'Free') . '</strong>';
-        $action = $price > 0
-            ? '<a class="buy-button" href="/student/cart?add=' . (int) $course['id'] . '">Buy once · NPR ' . number_format($price, 0) . '</a>'
-            : '<a class="buy-button" href="/student/cart?add=' . (int) $course['id'] . '">Enroll free</a>';
+        $owned = (bool) ($course['owned'] ?? false);
+        $viewerRole = (string) ($course['viewer_role'] ?? '');
+        if ($owned) {
+            $action = '<a class="buy-button" href="/student/course-player?course=' . (int) $course['id'] . '">Open purchased course</a>';
+            $priceHtml = '<strong class="price">Access active</strong>';
+        } elseif ($viewerRole === 'student') {
+            $action = $price > 0
+                ? '<a class="buy-button" href="/student/cart?add=' . (int) $course['id'] . '">Buy once · NPR ' . number_format($price, 0) . '</a>'
+                : '<a class="buy-button" href="/student/cart?add=' . (int) $course['id'] . '">Enroll free</a>';
+        } else {
+            $action = '<a class="buy-button" href="/learn/sign-in">Sign in to enrol</a>';
+        }
+        $accountLink = $viewerRole === 'student' ? '/student/my-courses' : '/learn/sign-in';
+        $accountLabel = $viewerRole === 'student' ? 'My courses' : 'Student sign in';
 
         $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' . $e($course['title'] ?? 'Course') . ' | CourseHub</title><link rel="stylesheet" href="/room-assets/Public/CourseDetails/page.css"></head><body class="detail-body">'
-            . '<header class="detail-header"><a href="/">CourseHub</a><nav><a href="/courses">All courses</a><a href="/instructors">Instructors</a><a href="/pricing">Pricing</a><a href="/learn/sign-in">Student sign in</a></nav></header><main>'
+            . '<header class="detail-header"><a href="/">CourseHub</a><nav><a href="/courses">All courses</a><a href="/instructors">Instructors</a><a href="/pricing">Pricing</a><a href="' . $e($accountLink) . '">' . $e($accountLabel) . '</a></nav></header><main>'
             . '<section class="detail-hero"><div class="detail-copy"><a href="/courses">← Back to catalog</a><span>' . $e($course['category_name'] ?? 'Course') . '</span><h1>' . $e($course['title'] ?? 'Untitled course') . '</h1>'
             . ($subtitle !== '' ? '<h2>' . $e($subtitle) . '</h2>' : '') . '<p>' . $e($course['short_description'] ?? '') . '</p>' . $introLink
             . '<div class="detail-meta"><div><small>Instructor</small><strong>' . $e($course['instructor_name'] ?? 'CourseHub instructor') . '</strong></div><div><small>Level</small><strong>' . $e(ucfirst((string) ($course['level'] ?? 'beginner'))) . '</strong></div><div><small>Language</small><strong>' . $e($course['language'] ?? 'English') . '</strong></div></div></div>'
