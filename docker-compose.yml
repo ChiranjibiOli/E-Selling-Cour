@@ -74,7 +74,7 @@ services:
   identity-service:
     <<: *domain-service
     working_dir: /repo/services/identity-service
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/router.php"]
     environment:
       <<: *database-environment
       ADMIN_ACCESS_CODE: ${ADMIN_ACCESS_CODE:-replace-with-a-long-random-admin-entry-code}
