@@ -13,9 +13,9 @@ final class StudentLoginScreen
         $errorHtml = $error !== '' ? '<div class="student-alert" role="alert">' . $e($error) . '</div>' : '';
 
         $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            . '<title>Student sign in | CourseHub</title><link rel="stylesheet" href="/assets/css/app.css">'
-            . '<link rel="stylesheet" href="/room-assets/Student/Login/page.css"></head><body class="student-login-body">'
-            . '<main class="student-login-shell"><section class="student-login-copy"><a class="brand" href="/">CourseHub</a>'
+            . '<meta name="theme-color" content="#f4ede2"><title>Student sign in | CourseHub</title><link rel="stylesheet" href="/assets/css/app.css">'
+            . '<link rel="stylesheet" href="/room-assets/Student/Login/page.css"><link rel="stylesheet" href="/assets/css/coursehub-editorial.css"></head><body class="student-login-body">'
+            . '<main class="student-login-shell"><section class="student-login-copy"><a class="brand coursehub-auth-brand" href="/"><img src="/assets/images/coursehub-robot.svg" alt=""><span>CourseHub</span></a>'
             . '<span class="student-kicker">LEARNER ACCESS</span><h1>Continue learning.</h1>'
             . '<p>Open your purchased courses, lessons, progress and certificates from one focused workspace.</p>'
             . '<a href="/register/student">Create a student account</a></section>'
