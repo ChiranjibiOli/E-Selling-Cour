@@ -22,8 +22,19 @@ return static function (Request $request): Response {
 
     try {
         Csrf::assertValid((string) ($request->body['_token'] ?? ''));
-        $credentials = StudentCredentialPacket::from($request->body);
-        $result = (new StudentIdentityBridge())->authenticate($credentials);
+        $bridge = new StudentIdentityBridge();
+        $googleCredential = trim((string) ($request->body['google_credential'] ?? ''));
+
+        if ($googleCredential !== '') {
+            if (strlen($googleCredential) > 12_000) {
+                throw new DomainException('Google returned an invalid sign-in credential.');
+            }
+            $result = $bridge->authenticateWithGoogle($googleCredential);
+        } else {
+            $credentials = StudentCredentialPacket::from($request->body);
+            $result = $bridge->authenticate($credentials);
+        }
+
         AuthSession::establish($result);
 
         return Response::redirect('/student/dashboard');
