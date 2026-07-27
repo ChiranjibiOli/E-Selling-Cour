@@ -20,7 +20,7 @@ final class LoginPage
             . '<nav aria-label="Public navigation"><a href="/courses">Courses</a><a href="/instructors">Published instructors</a><a href="/contact">Support</a></nav></header>'
             . '<main class="access-main">' . $notice
             . '<section class="access-intro"><div><span>COURSEHUB ACCESS</span><h1>Enter the space built for your work.</h1></div>'
-            . '<p>Students learn through one entrance. Approved instructors build and manage courses through another. Admin access stays private and is never advertised on public pages.</p></section>'
+            . '<p>Students learn through one entrance. Approved instructors build and manage courses through another. Each account type stays inside its own dedicated portal.</p></section>'
             . '<section class="access-portals" aria-label="CourseHub portals">'
             . '<a class="access-portal access-student" href="/learn/sign-in"><div class="access-portal-index">01</div><div class="access-portal-copy"><span>STUDENT LEARNING</span><h2>Continue your courses.</h2><p>Sign in to purchase courses, open protected lessons, track progress and manage your learning account.</p><ul><li>Purchased course library</li><li>Lesson progress</li><li>Payments and notifications</li></ul></div><span class="access-arrow" aria-hidden="true">↗</span></a>'
             . '<a class="access-portal access-instructor" href="/teach/studio-access"><div class="access-portal-index">02</div><div class="access-portal-copy"><span>INSTRUCTOR STUDIO</span><h2>Build and manage teaching.</h2><p>Approved instructors sign in here. New Instructor applications are available only from inside this dedicated portal.</p><ul><li>Complete course authoring</li><li>Course review workflow</li><li>Students, sales and payouts</li></ul></div><span class="access-arrow" aria-hidden="true">↗</span></a>'
@@ -28,7 +28,7 @@ final class LoginPage
             . '<section class="access-shortcuts" aria-label="Useful public actions"><a href="/courses"><span>Browse</span><strong>Explore published courses</strong><i>→</i></a>'
             . '<a href="/instructors"><span>People</span><strong>View published instructors</strong><i>→</i></a>'
             . '<a href="/contact"><span>Help</span><strong>Contact CourseHub support</strong><i>→</i></a></section>'
-            . '<footer class="access-footer"><span>Admin access is private.</span><a href="/">Return to CourseHub home</a></footer></main></body></html>';
+            . '<footer class="access-footer"><a href="/">Return to CourseHub home</a></footer></main></body></html>';
 
         return Response::html($html);
     }
