@@ -1,3 +1,5 @@
+@import url("./coursehub-editorial.css");
+
 /* CourseHub scroll motion v2: loaded after page.css so it can provide safe defaults. */
 
 @media (min-width: 821px) {
