@@ -1,10 +1,12 @@
 'use strict';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const proofForm = document.querySelector('[data-payment-proof-form]');
     const proofInput = document.querySelector('[data-payment-proof-input]');
     const proofPreview = document.querySelector('[data-payment-proof-preview]');
     let proofObjectUrl = '';
     proofInput?.addEventListener('change', () => {
+        proofInput.setCustomValidity('');
         if (proofObjectUrl) URL.revokeObjectURL(proofObjectUrl);
         proofObjectUrl = '';
         const file = proofInput.files?.[0];
@@ -31,6 +33,21 @@ document.addEventListener('DOMContentLoaded', () => {
             proofPreview.appendChild(pdf);
         }
     });
+    proofForm?.addEventListener('submit', (event) => {
+        proofForm.querySelectorAll('[data-error]').forEach((control) => control.setCustomValidity(''));
+        if (!proofInput?.files?.[0]) {
+            proofInput?.setCustomValidity(proofInput.dataset.error || 'Upload the actual payment receipt.');
+        }
+        proofForm.querySelectorAll('[data-error]').forEach((control) => {
+            if (!control.checkValidity()) control.setCustomValidity(control.dataset.error || 'Check this payment field.');
+        });
+        if (!proofForm.checkValidity()) {
+            event.preventDefault();
+            const invalid = proofForm.querySelector(':invalid');
+            invalid?.reportValidity();
+            invalid?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    });
 
     const proofDialog = document.querySelector('[data-proof-dialog]');
     const proofFrame = proofDialog?.querySelector('[data-proof-frame]');
@@ -53,5 +70,17 @@ document.addEventListener('DOMContentLoaded', () => {
     proofDialog?.querySelectorAll('[data-proof-close]').forEach((button) => button.addEventListener('click', closeProof));
     proofDialog?.addEventListener('click', (event) => {
         if (event.target === proofDialog) closeProof();
+    });
+
+    const changesDialog = document.querySelector('[data-course-changes-dialog]');
+    const closeChanges = () => changesDialog?.close();
+    document.querySelectorAll('[data-course-changes-open]').forEach((button) => {
+        button.addEventListener('click', () => {
+            if (changesDialog && typeof changesDialog.showModal === 'function') changesDialog.showModal();
+        });
+    });
+    changesDialog?.querySelectorAll('[data-course-changes-close]').forEach((button) => button.addEventListener('click', closeChanges));
+    changesDialog?.addEventListener('click', (event) => {
+        if (event.target === changesDialog) closeChanges();
     });
 });
