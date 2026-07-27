@@ -9,10 +9,10 @@ use InvalidArgumentException;
 final class Request
 {
     private const MAX_QUERY_FIELDS = 80;
-    private const MAX_BODY_FIELDS = 250;
-    private const MAX_DEPTH = 4;
+    private const MAX_BODY_FIELDS = 1_200;
+    private const MAX_DEPTH = 8;
     private const MAX_QUERY_VALUE_BYTES = 8_000;
-    private const MAX_BODY_VALUE_BYTES = 100_000;
+    private const MAX_BODY_VALUE_BYTES = 2_000_000;
 
     public function __construct(
         public readonly string $method,
@@ -30,7 +30,7 @@ final class Request
         $contentType = strtolower((string) ($_SERVER['CONTENT_TYPE'] ?? ''));
         if (str_contains($contentType, 'application/json')) {
             try {
-                $decoded = json_decode((string) file_get_contents('php://input'), true, 32, JSON_THROW_ON_ERROR);
+                $decoded = json_decode((string) file_get_contents('php://input'), true, 64, JSON_THROW_ON_ERROR);
             } catch (\JsonException $exception) {
                 throw new InvalidArgumentException('The request contains malformed JSON.', 0, $exception);
             }
