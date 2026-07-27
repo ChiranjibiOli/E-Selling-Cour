@@ -6,8 +6,6 @@ use CourseHub\WebPlatform\Shared\Http\Request;
 use CourseHub\WebPlatform\Shared\Session\AuthSession;
 use CourseHub\WebPlatform\Shared\Http\Response;
 
-require_once __DIR__ . '/Page.php';
-
 return static function (Request $request): Response {
     $dashboard = match (AuthSession::role()) {
         'student' => '/student/dashboard',
@@ -21,6 +19,7 @@ return static function (Request $request): Response {
     }
 
     $sessionEnded = strtolower(trim((string) ($request->query['session'] ?? ''))) === 'ended';
+    $destination = '/learn/sign-in' . ($sessionEnded ? '?session=ended' : '');
 
-    return LoginPage::render($sessionEnded);
+    return Response::redirect($destination);
 };
