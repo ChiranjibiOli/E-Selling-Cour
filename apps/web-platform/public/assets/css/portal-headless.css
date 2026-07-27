@@ -1,3 +1,5 @@
+@import url('/assets/css/authoring-height.css');
+
 /* Portal pages already identify themselves in the sticky top bar. Keep content direct and compact. */
 .portal-main {
     padding-top: 24px;
