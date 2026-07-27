@@ -1,0 +1,48 @@
+/* Let the complete Instructor course editor use the full page instead of a short nested scroll box. */
+.portal-role-instructor .complete-authoring-layout{
+  min-height:calc(100vh - 112px);
+  align-items:start;
+}
+.portal-role-instructor .complete-authoring-form{
+  max-height:none!important;
+  min-height:calc(100vh - 150px);
+  overflow:visible!important;
+  padding-right:0!important;
+  padding-bottom:44px;
+}
+.portal-role-instructor .authoring-sheet{
+  min-height:1180px;
+  overflow:visible;
+}
+.portal-role-instructor .authoring-sheet-head{
+  min-height:270px;
+}
+.portal-role-instructor .authoring-block{
+  min-height:230px;
+}
+.portal-role-instructor .curriculum-authoring-block{
+  min-height:520px;
+}
+.portal-role-instructor .course-design-preview{
+  position:sticky;
+  top:92px;
+  max-height:calc(100vh - 112px);
+  overflow:auto;
+}
+.portal-role-instructor .complete-authoring-actions{
+  position:sticky;
+  bottom:14px;
+  z-index:30;
+  margin:0 14px 14px;
+  border-radius:18px;
+}
+@media(max-width:1180px){
+  .portal-role-instructor .complete-authoring-layout{grid-template-columns:1fr}
+  .portal-role-instructor .course-design-preview{position:static;max-height:none}
+  .portal-role-instructor .authoring-sheet{min-height:auto}
+}
+@media(max-width:760px){
+  .portal-role-instructor .authoring-sheet-head{min-height:220px}
+  .portal-role-instructor .authoring-block{min-height:auto}
+  .portal-role-instructor .complete-authoring-actions{position:static;margin:0;border-radius:0 0 24px 24px}
+}
