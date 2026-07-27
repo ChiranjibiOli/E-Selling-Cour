@@ -1,0 +1,228 @@
+:root{
+  --ch-ink:#171611;
+  --ch-ink-soft:#665f54;
+  --ch-cream:#f4ede2;
+  --ch-paper:#fffaf0;
+  --ch-paper-strong:#fff6e7;
+  --ch-gold:#c99a3f;
+  --ch-gold-dark:#a97724;
+  --ch-line:#ded2bf;
+  --ch-shadow:0 18px 46px rgba(45,35,20,.12);
+}
+
+.portal-shell,
+.student-login-body,
+.studio-access-body,
+.control-body{
+  color:var(--ch-ink);
+  background:
+    radial-gradient(circle at 12% 0%,rgba(201,154,63,.10),transparent 28%),
+    linear-gradient(180deg,#f8f2e9 0%,var(--ch-cream) 100%);
+}
+
+.portal-sidebar{
+  color:#f7ecd8;
+  background:
+    radial-gradient(circle at 16% 4%,rgba(201,154,63,.18),transparent 24%),
+    linear-gradient(180deg,#171611 0%,#211e18 64%,#15140f 100%);
+  border-right:1px solid rgba(255,246,231,.10);
+}
+.portal-brand{
+  min-height:78px;
+  color:#fff8eb;
+  border-bottom:1px solid rgba(255,246,231,.10);
+}
+.portal-brand .coursehub-brand-mark{
+  width:44px;
+  height:44px;
+  padding:3px;
+  display:grid;
+  place-items:center;
+  flex:0 0 44px;
+  overflow:visible;
+  border-radius:15px;
+  background:#f4c552;
+  box-shadow:0 10px 25px rgba(0,0,0,.24);
+}
+.portal-brand .coursehub-brand-mark img{width:100%;height:100%;display:block}
+.portal-brand strong{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:1.2rem;
+  letter-spacing:-.025em;
+}
+.portal-workspace{
+  background:rgba(255,250,240,.055);
+  border-color:rgba(255,246,231,.09);
+}
+.portal-workspace span,
+.portal-nav-label{color:#b99a64}
+.portal-nav-link,
+.portal-sidebar-foot>a{color:#cfc2ae}
+.portal-nav-link:hover{color:#fff8eb;background:rgba(255,246,231,.07)}
+.portal-nav-link.active{
+  color:#171611;
+  background:linear-gradient(100deg,#e2b85d,#c99a3f);
+  box-shadow:inset 3px 0 rgba(255,255,255,.7),0 10px 24px rgba(0,0,0,.16);
+}
+.portal-nav-icon{
+  color:#d5b36b;
+  background:rgba(201,154,63,.11);
+}
+.portal-nav-link.active .portal-nav-icon{color:#171611;background:rgba(255,250,240,.42)}
+.portal-sidebar-user{
+  background:rgba(255,250,240,.06);
+  border:1px solid rgba(255,246,231,.08);
+}
+.portal-sidebar-user strong{color:#fff8eb}
+.portal-sidebar-user small{color:#a99d89}
+.portal-avatar,.portal-top-avatar{
+  color:#171611;
+  background:#f4c552;
+  border-radius:50%;
+}
+.portal-stage{background:transparent}
+.portal-topbar{
+  background:rgba(255,250,240,.88);
+  border-bottom:1px solid var(--ch-line);
+  box-shadow:0 8px 28px rgba(45,35,20,.05);
+}
+.portal-crumb strong{color:var(--ch-ink)}
+.portal-crumb span,.portal-crumb i{color:#9b8d78}
+.portal-main{background:transparent}
+.portal-footer{color:#837766;border-color:var(--ch-line)}
+.portal-search,
+.portal-icon-button{
+  background:rgba(255,255,255,.64);
+  border-color:var(--ch-line);
+}
+.portal-search:focus-within{border-color:var(--ch-gold);box-shadow:0 0 0 4px rgba(201,154,63,.12)}
+
+.portal-button,
+.form-card button,
+.student-login-card button,
+.studio-form-card button,
+.control-terminal button{
+  color:#171611;
+  background:linear-gradient(135deg,#e3b75a,#c99a3f);
+  border-color:transparent;
+  box-shadow:0 10px 24px rgba(164,116,36,.20);
+}
+.portal-button:hover,
+.form-card button:hover,
+.student-login-card button:hover,
+.studio-form-card button:hover,
+.control-terminal button:hover{
+  transform:translateY(-1px);
+  filter:brightness(1.03);
+}
+.portal-button.secondary{
+  color:var(--ch-ink);
+  background:#fffaf0;
+  border:1px solid var(--ch-line);
+  box-shadow:none;
+}
+.form-card,
+.data-card,
+.metric-card,
+.panel-card,
+.student-login-card,
+.studio-form-card,
+.control-terminal{
+  background:rgba(255,250,240,.94);
+  border-color:var(--ch-line);
+  box-shadow:var(--ch-shadow);
+}
+.form-card input,
+.form-card textarea,
+.form-card select,
+.portal-form input,
+.portal-form textarea,
+.portal-form select,
+.panel-form input,
+.panel-form textarea,
+.panel-form select,
+.student-login-card input,
+.studio-form-card input,
+.control-terminal input{
+  color:var(--ch-ink);
+  background:#fffdf8;
+  border-color:var(--ch-line);
+}
+.form-card input:focus,
+.form-card textarea:focus,
+.form-card select:focus,
+.portal-form input:focus,
+.portal-form textarea:focus,
+.portal-form select:focus,
+.panel-form input:focus,
+.panel-form textarea:focus,
+.panel-form select:focus,
+.student-login-card input:focus,
+.studio-form-card input:focus,
+.control-terminal input:focus{
+  border-color:var(--ch-gold);
+  box-shadow:0 0 0 4px rgba(201,154,63,.13);
+}
+.metric-card{border-radius:16px}
+.metric-card:before{background:var(--ch-gold)!important}
+.data-card-head{background:linear-gradient(135deg,#fffaf0,#f1e4d0);border-color:var(--ch-line)}
+.status-badge.completed{color:#fff8eb;background:#2e5d3d}
+.learning-progress>span{background:#ded5c7}
+.learning-progress i{background:linear-gradient(90deg,#c99a3f,#e3b75a)}
+
+.coursehub-auth-brand{
+  display:inline-flex!important;
+  align-items:center;
+  gap:10px;
+  color:var(--ch-ink)!important;
+  text-decoration:none;
+  font-family:Georgia,"Times New Roman",serif;
+  font-weight:800;
+  letter-spacing:-.025em;
+}
+.coursehub-auth-brand img{
+  width:48px;
+  height:48px;
+  padding:3px;
+  border-radius:16px;
+  background:#f4c552;
+  box-shadow:0 10px 24px rgba(45,35,20,.16);
+}
+.student-login-copy h1,
+.studio-panel h1,
+.control-terminal h1{
+  font-family:Georgia,"Times New Roman",serif;
+  letter-spacing:-.045em;
+}
+.student-kicker,
+.studio-panel>span,
+.studio-label,
+.control-status{color:var(--ch-gold-dark)!important}
+.student-login-copy,
+.studio-panel{color:var(--ch-ink)}
+.student-login-copy p,
+.studio-panel li,
+.studio-form-card p,
+.control-terminal p{color:var(--ch-ink-soft)}
+.studio-top{
+  background:rgba(255,250,240,.9);
+  border-color:var(--ch-line);
+}
+.control-mark{
+  color:#fff8eb;
+  background:linear-gradient(150deg,#171611,#2b261d);
+}
+.coursehub-control-logo{
+  width:68px;
+  height:68px;
+  padding:5px;
+  display:block;
+  margin-bottom:18px;
+  border-radius:22px;
+  background:#f4c552;
+}
+
+@media(max-width:760px){
+  .portal-brand .coursehub-brand-mark{width:40px;height:40px;flex-basis:40px}
+  .coursehub-auth-brand img{width:42px;height:42px}
+}
