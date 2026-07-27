@@ -38,7 +38,7 @@ final class PortalPage
         };
         $subtitle = match ($role) {
             'admin' => 'Manage people, learning, commerce and platform operations.',
-            'instructor' => 'Build courses, support students and grow your teaching business.',
+            'instructor' => 'Build complete courses, support students and manage your teaching business.',
             default => 'Continue learning and keep your progress moving.',
         };
         $dashboard = match ($role) {
@@ -68,7 +68,7 @@ final class PortalPage
         $sidebarUser = '<a class="portal-sidebar-user portal-profile-link" href="' . $e($profile) . '" aria-label="Open your profile"><span class="portal-avatar">' . $avatarContent . '</span><div><strong>' . $e($name) . '</strong><small>' . $e($email !== '' ? $email : ucfirst($role)) . '</small></div><span class="portal-profile-chevron" aria-hidden="true">›</span></a>';
 
         $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            . '<meta name="theme-color" content="#07122d"><title>' . $e($title) . ' | CourseHub</title><link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/assets/css/commerce.css"><link rel="stylesheet" href="/assets/css/portal-fixes.css"><link rel="stylesheet" href="/assets/css/admin-console.css"><link rel="stylesheet" href="/assets/css/profile-links.css"><link rel="stylesheet" href="/assets/css/profile-dialog.css"><link rel="stylesheet" href="/assets/css/instructor-console.css"><link rel="stylesheet" href="/assets/css/instructor-identity.css"></head>'
+            . '<meta name="theme-color" content="#07122d"><title>' . $e($title) . ' | CourseHub</title><link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/assets/css/commerce.css"><link rel="stylesheet" href="/assets/css/portal-fixes.css"><link rel="stylesheet" href="/assets/css/admin-console.css"><link rel="stylesheet" href="/assets/css/profile-links.css"><link rel="stylesheet" href="/assets/css/profile-dialog.css"><link rel="stylesheet" href="/assets/css/instructor-console.css"><link rel="stylesheet" href="/assets/css/instructor-identity.css"><link rel="stylesheet" href="/assets/css/workflow-console.css"></head>'
             . '<body class="portal-shell portal-role-' . $e($role) . '" data-portal-role="' . $e($role) . '"><button class="portal-mobile-toggle" type="button" data-portal-toggle aria-label="Open navigation" aria-expanded="false"><span></span><span></span><span></span></button>'
             . '<div class="portal-overlay" data-portal-overlay></div><aside class="portal-sidebar" data-portal-sidebar><a class="portal-brand" href="' . $e($dashboard) . '"><span>CH</span><strong>CourseHub</strong></a>'
             . $workspace . '<nav class="portal-sidebar-nav" data-portal-nav>' . $nav . '</nav>'
@@ -95,8 +95,8 @@ final class PortalPage
                 'Operations' => ['/admin/reports' => ['Reports', 'RP'], '/admin/contact-messages' => ['Messages', 'MS'], '/admin/audit-logs' => ['Audit logs', 'AL'], '/admin/security' => ['Security', 'SC'], '/admin/settings' => ['Settings', 'SE']],
             ],
             'instructor' => [
-                'Workspace' => ['/instructor/dashboard' => ['Overview', 'OV'], '/instructor/verification-pending' => ['Verification', 'VR'], '/instructor/notifications' => ['Notifications', 'NT'], '/instructor/messaging' => ['Messages', 'MS']],
-                'Courses' => ['/instructor/courses' => ['All courses', 'CR'], '/instructor/courses/create' => ['Create course', 'NW'], '/instructor/courses/drafts' => ['Drafts', 'DR'], '/instructor/courses/pending' => ['Pending review', 'PN'], '/instructor/courses/published' => ['Published', 'PB'], '/instructor/curriculum' => ['Curriculum', 'CU'], '/instructor/lessons' => ['Lessons', 'LS']],
+                'Workspace' => ['/instructor/dashboard' => ['Overview', 'OV'], '/instructor/notifications' => ['Notifications', 'NT'], '/instructor/messaging' => ['Messages', 'MS']],
+                'Courses' => ['/instructor/courses' => ['All courses', 'CR'], '/instructor/courses/create' => ['Complete authoring', 'NW'], '/instructor/courses/drafts' => ['Drafts', 'DR'], '/instructor/courses/pending' => ['Pending review', 'PN'], '/instructor/courses/published' => ['Published', 'PB']],
                 'Business' => ['/instructor/students' => ['Students', 'ST'], '/instructor/sales' => ['Sales', 'SL'], '/instructor/coupons' => ['Coupons', 'CP'], '/instructor/withdrawals' => ['Withdrawals', 'WD'], '/instructor/bank-details' => ['Payout details', 'BK']],
                 'Account' => ['/instructor/profile' => ['Profile', 'PR']],
             ],
