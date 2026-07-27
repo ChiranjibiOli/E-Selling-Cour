@@ -36,7 +36,7 @@ final class LoginHandler
         }
 
         $this->rateLimiter->assertAllowed($email, $ip);
-        $statement = $this->database->prepare('SELECT id, full_name, email, password, role, status FROM users WHERE email = :email LIMIT 1');
+        $statement = $this->database->prepare('SELECT id, full_name, email, password, role, status, profile_image FROM users WHERE email = :email LIMIT 1');
         $statement->execute(['email' => $email]);
         $user = $statement->fetch();
 
@@ -82,6 +82,7 @@ final class LoginHandler
                 'name' => (string) $user['full_name'],
                 'email' => (string) $user['email'],
                 'role' => (string) $user['role'],
+                'profile_image' => (string) ($user['profile_image'] ?? ''),
             ],
         ];
     }
