@@ -43,9 +43,26 @@ final class RegistrationPage
             ? '<small>Use the same email when correcting a rejected application. Pending and approved accounts cannot be registered again.</small>'
             : '<small>Student accounts require an address ending in @gmail.com. A verification code will be sent before activation.</small>';
         $emailPattern = $instructor ? '' : ' pattern="[A-Za-z0-9._%+\-]+@[Gg][Mm][Aa][Ii][Ll]\.[Cc][Oo][Mm]"';
-        $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            . '<title>' . $e($title) . ' | CourseHub</title><link rel="stylesheet" href="/assets/css/app.css"></head><body>'
-            . '<header class="house-header"><a href="/">CourseHub</a><nav><a href="' . $signInPath . '">' . ($instructor ? 'Instructor sign in' : 'Student sign in') . '</a></nav></header>'
+
+        if ($instructor) {
+            $headExtras = '<meta name="robots" content="noindex,nofollow,noarchive"><link rel="stylesheet" href="/assets/css/app.css">';
+            $header = '<header class="house-header"><a href="/teach/studio-access">CourseHub</a><nav><a href="/teach/studio-access">Instructor sign in</a></nav></header>';
+            $bodyClass = 'instructor-registration-body';
+            $scripts = '';
+        } else {
+            $headExtras = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+                . '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet">'
+                . '<link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/assets/css/public-site.css?v=20260728-1">';
+            $header = '<header class="public-site-nav" data-public-site-nav><a class="public-site-brand" href="/" aria-label="CourseHub home"><img src="/assets/images/coursehub-robot.svg" alt=""><strong>CourseHub</strong></a>'
+                . '<button class="public-site-menu" type="button" data-public-site-menu aria-label="Open navigation" aria-expanded="false"><span></span><span></span></button>'
+                . '<nav class="public-site-links" aria-label="Public navigation"><a href="/">Home</a><a href="/courses">Courses</a><a href="/#categories">Categories</a><a href="/about">About</a><a href="/contact">Contact</a></nav>'
+                . '<div class="public-site-account"><a class="public-login" href="/learn/sign-in">Log in</a><a class="public-create active" href="/register/student">Create account</a></div></header>';
+            $bodyClass = 'public-form-body';
+            $scripts = '<script src="/assets/js/public-site.js?v=20260728-1" defer></script>';
+        }
+
+        $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f7f0e5">'
+            . '<title>' . $e($title) . ' | CourseHub</title>' . $headExtras . '</head><body class="' . $bodyClass . '">' . $header
             . '<main class="form-shell"><section class="form-intro"><span>' . ($instructor ? 'SEPARATE INSTRUCTOR APPLICATION' : 'STUDENT ACCOUNT') . '</span><h1>' . $e($title) . '</h1><p>' . $e($intro) . '</p></section>'
             . '<section class="form-card">' . $alert . '<form method="post" action="/register/' . $role . '"' . $enctype . '>' . Csrf::field()
             . '<label>Full name<input type="text" inputmode="text" name="full_name" value="' . $e($values['full_name'] ?? '') . '" minlength="2" maxlength="100" autocomplete="name" required></label>'
@@ -55,7 +72,7 @@ final class RegistrationPage
             . '<div class="form-columns"><label>Password<input type="password" name="password" minlength="8" maxlength="200" autocomplete="new-password" required></label>'
             . '<label>Confirm password<input type="password" name="password_confirmation" minlength="8" maxlength="200" autocomplete="new-password" required></label></div>'
             . '<button type="submit">' . ($instructor ? 'Submit Instructor application' : 'Send Gmail verification code') . '</button></form>'
-            . '<p class="form-foot">Already registered? <a href="' . $signInPath . '">' . ($instructor ? 'Open Instructor sign in' : 'Open Student sign in') . '</a></p></section></main></body></html>';
+            . '<p class="form-foot">Already registered? <a href="' . $signInPath . '">' . ($instructor ? 'Open Instructor sign in' : 'Open Student sign in') . '</a></p></section></main>' . $scripts . '</body></html>';
 
         return Response::html($html, $status);
     }
