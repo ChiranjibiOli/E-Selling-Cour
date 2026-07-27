@@ -20,6 +20,7 @@ return static function (Request $request) {
     $orderId = filter_var($request->query['order'] ?? $request->body['order_id'] ?? 0, FILTER_VALIDATE_INT);
     $orderId = $orderId !== false && $orderId > 0 ? (int) $orderId : 0;
     $storedProof = null;
+    $options = [];
 
     $gatewayForm = static function (string $action, array $fields): Response {
         $parts = parse_url($action);
@@ -96,7 +97,7 @@ return static function (Request $request) {
             && ($request->query['gateway'] ?? '') === 'esewa'
             && ($request->query['result'] ?? '') === 'failure'
         ) {
-            $message = 'The eSewa sandbox payment was cancelled, failed or left pending. You can safely try again.';
+            $message = 'The eSewa payment was cancelled, failed or left pending. You can safely try again.';
             $success = false;
         }
 
@@ -167,12 +168,24 @@ return static function (Request $request) {
                 }
             }
         }
+        $options = $client->get('/api/v1/payments/options')['data'] ?? [];
     } catch (DomainException $exception) {
         SecureUpload::delete($storedProof);
         $order = $order ?? [];
         $message = $exception->getMessage();
         $success = false;
+        try {
+            $options = $client->get('/api/v1/payments/options')['data'] ?? [];
+        } catch (DomainException) {
+            $options = [];
+        }
     }
 
-    return StudentPaymentPage::render(is_array($order) ? $order : [], $message, $success, $request->body);
+    return StudentPaymentPage::render(
+        is_array($order) ? $order : [],
+        $message,
+        $success,
+        $request->body,
+        is_array($options) ? $options : [],
+    );
 };
