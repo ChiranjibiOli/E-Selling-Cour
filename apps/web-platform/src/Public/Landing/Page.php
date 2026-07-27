@@ -48,7 +48,7 @@ final class LandingPage
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="CourseHub offers reviewed, practical courses with lifetime student access.">
+    <meta name="description" content="CourseHub offers approved, practical courses with lifetime student access.">
     <meta name="theme-color" content="#f5efe5">
     <title>CourseHub | Education that transforms your life</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -57,25 +57,24 @@ final class LandingPage
     <link rel="stylesheet" href="/assets/css/app.css">
     <link rel="stylesheet" href="/room-assets/Public/Landing/page.css?v=20260728-1">
     <link rel="stylesheet" href="/room-assets/Public/Landing/hero-photo.css?v=20260728-1">
-    <link rel="stylesheet" href="/assets/css/public-unified.css?v=20260728-1">
 </head>
-<body class="landing-body public-page-body">
-    <header class="public-nav" data-public-nav>
-        <a class="public-brand" href="/" aria-label="CourseHub home">
-            <span class="public-brand-mark"><img src="/assets/images/coursehub-robot.svg" alt=""></span>
+<body class="landing-body">
+    <header class="landing-nav" data-landing-nav>
+        <a class="landing-brand" href="/" aria-label="CourseHub home">
+            <span class="landing-brand-mark"><img src="/assets/images/coursehub-robot.svg" alt=""></span>
             <strong>CourseHub</strong>
         </a>
-        <button class="public-menu" type="button" aria-label="Open navigation" aria-expanded="false" data-public-menu><span></span><span></span></button>
-        <nav class="public-links" aria-label="Primary navigation" data-public-links>
-            <a class="active" href="/">Home</a>
+        <button class="landing-menu" type="button" aria-label="Open navigation" aria-expanded="false" data-landing-menu><span></span><span></span></button>
+        <nav class="landing-links" aria-label="Primary navigation" data-landing-links>
+            <a class="active" href="#top">Home</a>
             <a href="/courses">Courses</a>
-            <a href="/#categories">Categories</a>
-            <a href="/about">About</a>
+            <a href="#categories">Categories</a>
+            <a href="#promise">About</a>
             <a href="/contact">Contact</a>
         </nav>
-        <div class="public-account">
-            <a class="public-login" href="/login">Log in</a>
-            <a class="public-create" href="/register/student">Create account</a>
+        <div class="landing-account">
+            <a href="/learn/sign-in">Log in</a>
+            <a class="landing-create" href="/register/student">Create account</a>
         </div>
     </header>
 
@@ -84,14 +83,14 @@ final class LandingPage
     <main>
         <section class="landing-hero" id="top">
             <div class="hero-copy" data-reveal>
-                <span class="hero-kicker"><i></i> LEARN WITH CLARITY</span>
+                <span class="hero-kicker"><i></i> LEARN FROM THE BEST</span>
                 <h1>Education<br>that <em>transforms</em><br>your life.</h1>
-                <p>Handpicked courses reviewed before publishing, designed for real progress. Purchase once, complete payment verification, and keep lifetime access.</p>
+                <p>Handpicked courses from approved instructors, designed for real progress. Purchase once, complete payment verification, and keep lifetime access.</p>
                 <div class="hero-actions">
                     <a class="primary-action" href="/courses">Explore courses</a>
                     <a class="secondary-action" href="#promise">How it works</a>
                 </div>
-                <div class="hero-trust"><span>Reviewed courses</span><span>Lifetime access</span><span>Progress tracking</span></div>
+                <div class="hero-trust"><span>Approved instructors</span><span>Lifetime access</span><span>Progress tracking</span></div>
             </div>
 
             <div class="hero-visual hero-photo-visual" data-hero-visual>
@@ -108,7 +107,7 @@ final class LandingPage
                 <h2>Useful promises,<br><em>not marketing fog.</em></h2>
             </div>
             <div class="promise-list">
-                <article data-reveal><span>01</span><div><h3>Reviewed publishing</h3><p>Course submissions are checked before they reach the public catalogue.</p></div></article>
+                <article data-reveal><span>01</span><div><h3>Approved instructors</h3><p>Instructor applications and course submissions are reviewed before they reach Students.</p></div></article>
                 <article data-reveal><span>02</span><div><h3>Clear course information</h3><p>Understand the level, learning outcomes, lesson structure and payment before enrolling.</p></div></article>
                 <article data-reveal><span>03</span><div><h3>Lifetime learning access</h3><p>After payment approval, the purchased course remains in the Student learning library.</p></div></article>
                 <article data-reveal><span>04</span><div><h3>Visible progress</h3><p>Completed lessons and course progress remain connected to the Student account.</p></div></article>
@@ -149,11 +148,10 @@ final class LandingPage
     <footer class="landing-footer">
         <div class="footer-brand"><img src="/assets/images/coursehub-robot.svg" alt=""><div><strong>CourseHub</strong><span>Education that moves with you.</span></div></div>
         <div><small>EXPLORE</small><a href="/courses">Courses</a><a href="/about">About</a><a href="/contact">Contact</a></div>
-        <div><small>STUDENT</small><a href="/login">Sign in</a><a href="/register/student">Create account</a></div>
+        <div><small>STUDENT</small><a href="/learn/sign-in">Sign in</a><a href="/register/student">Create account</a></div>
         <p>© <?= date('Y') ?> CourseHub. Practical learning, clear payment service and lifetime access to approved purchases.</p>
     </footer>
 
-    <script src="/assets/js/public-nav.js?v=20260728-1" defer></script>
     <script src="/room-assets/Public/Landing/page.js?v=20260728-1" defer></script>
 </body>
 </html>
