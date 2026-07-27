@@ -8,6 +8,21 @@
   const motionMode = new URLSearchParams(window.location.search).get('motion');
   const reducedMotion = motionMode === 'reduce';
 
+  if (!document.querySelector('link[data-course-card-theme]')) {
+    const themeStyles = document.createElement('link');
+    themeStyles.rel = 'stylesheet';
+    themeStyles.href = '/assets/css/course-card-theme.css';
+    themeStyles.dataset.courseCardTheme = '1';
+    document.head.appendChild(themeStyles);
+  }
+  if (!document.querySelector('script[data-course-card-theme]')) {
+    const themeScript = document.createElement('script');
+    themeScript.src = '/assets/js/course-card-theme.js';
+    themeScript.defer = true;
+    themeScript.dataset.courseCardTheme = '1';
+    document.head.appendChild(themeScript);
+  }
+
   body.classList.add('motion-v2');
 
   const revealItems = document.querySelectorAll('.reveal');
