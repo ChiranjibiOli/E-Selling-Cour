@@ -18,7 +18,7 @@ final class SessionHandler
         $token = $this->bearerToken($authorization);
         $statement = $this->database->prepare(
             'SELECT s.id AS session_id, s.portal, s.expires_at, '
-            . 'u.id, u.full_name, u.email, u.role, u.status '
+            . 'u.id, u.full_name, u.email, u.role, u.status, u.profile_image '
             . 'FROM identity_sessions s '
             . 'INNER JOIN users u ON u.id = s.user_id '
             . 'WHERE s.token_hash = :token_hash '
@@ -44,6 +44,7 @@ final class SessionHandler
                 'name' => (string) $session['full_name'],
                 'email' => (string) $session['email'],
                 'role' => (string) $session['role'],
+                'profile_image' => (string) ($session['profile_image'] ?? ''),
             ],
         ];
     }
