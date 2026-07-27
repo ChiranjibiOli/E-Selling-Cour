@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use CourseHub\WebPlatform\Shared\Http\Response;
+use CourseHub\WebPlatform\Shared\Ui\PublicNavbar;
 
 final class CourseDetailsPage
 {
@@ -68,17 +69,13 @@ final class CourseDetailsPage
         } else {
             $action = '<a class="buy-button" href="/learn/sign-in">Sign in to enrol</a>';
         }
-        $accountActions = $viewerRole === 'student'
-            ? '<div class="public-site-account"><a class="public-login" href="/student/my-courses">My courses</a></div>'
-            : '<div class="public-site-account"><a class="public-login" href="/learn/sign-in">Log in</a><a class="public-create" href="/register/student">Create account</a></div>';
+        $accountState = $viewerRole === 'student' ? 'student' : 'guest';
 
         $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f7f0e5"><title>' . $e($course['title'] ?? 'Course') . ' | CourseHub</title>'
             . '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
             . '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet">'
-            . '<link rel="stylesheet" href="/room-assets/Public/CourseDetails/page.css"><link rel="stylesheet" href="/assets/css/public-site.css?v=20260728-1"><link rel="stylesheet" href="/assets/css/course-human-system.css?v=20260728-1"></head><body class="detail-body">'
-            . '<header class="public-site-nav" data-public-site-nav><a class="public-site-brand" href="/" aria-label="CourseHub home"><img src="/assets/images/coursehub-robot.svg" alt=""><strong>CourseHub</strong></a>'
-            . '<button class="public-site-menu" type="button" data-public-site-menu aria-label="Open navigation" aria-expanded="false"><span></span><span></span></button>'
-            . '<nav class="public-site-links" aria-label="Public navigation"><a href="/">Home</a><a class="active" href="/courses" aria-current="page">Courses</a><a href="/#categories">Categories</a><a href="/about">About</a><a href="/contact">Contact</a></nav>' . $accountActions . '</header><main>'
+            . '<link rel="stylesheet" href="/room-assets/Public/CourseDetails/page.css"><link rel="stylesheet" href="/assets/css/public-site.css?v=20260728-1"><link rel="stylesheet" href="/assets/css/course-human-system.css?v=20260728-1">' . PublicNavbar::styles() . '</head><body class="detail-body">'
+            . PublicNavbar::render('courses', $accountState) . '<main>'
             . '<section class="detail-hero"><div class="detail-copy"><a href="/courses">← Back to courses</a><span>' . $e($course['category_name'] ?? 'Course') . '</span><h1>' . $e($course['title'] ?? 'Untitled course') . '</h1>'
             . ($subtitle !== '' ? '<h2>' . $e($subtitle) . '</h2>' : '') . '<p>' . $e($course['short_description'] ?? '') . '</p>' . $introLink
             . '<div class="detail-meta"><div><small>Course creator</small><strong>' . $e($course['instructor_name'] ?? 'CourseHub creator') . '</strong></div><div><small>Level</small><strong>' . $e(ucfirst((string) ($course['level'] ?? 'beginner'))) . '</strong></div><div><small>Language</small><strong>' . $e($course['language'] ?? 'English') . '</strong></div></div></div>'
@@ -86,7 +83,7 @@ final class CourseDetailsPage
             . '<section class="detail-content"><article class="detail-description"><span>ABOUT THIS COURSE</span><h2>Course overview</h2><div>' . nl2br($e($course['full_description'] ?? 'Course details will be added soon.')) . '</div></article><aside class="detail-facts"><h3>Course information</h3><dl><div><dt>Duration</dt><dd>' . $e($course['duration'] ?? 'Self-paced') . '</dd></div><div><dt>Access</dt><dd>Lifetime</dd></div><div><dt>Status</dt><dd>Published</dd></div><div><dt>Tags</dt><dd>' . $e($course['tags'] ?? 'CourseHub learning') . '</dd></div></dl></aside></section>'
             . '<section class="course-promise"><article><span>LEARNING OUTCOMES</span><h2>What you will be able to do</h2><ul>' . $outcomes . '</ul></article><article><span>REQUIREMENTS</span><h2>What you need first</h2><ul>' . $requirements . '</ul></article><article><span>TARGET AUDIENCE</span><h2>Who this course is for</h2><ul>' . $audience . '</ul></article></section>'
             . '<section class="curriculum"><div class="curriculum-heading"><span>CURRICULUM</span><h2>Course structure</h2><p>Preview lessons are available before enrolment. Full lessons unlock after verified payment.</p></div><div class="curriculum-list">' . $curriculum . '</div></section>'
-            . '</main><footer class="detail-footer"><a href="/">CourseHub</a><span>Education that moves with you.</span></footer><script src="/assets/js/public-site.js?v=20260728-2" defer></script><script src="/assets/js/course-card-theme.js" defer></script></body></html>';
+            . '</main><footer class="detail-footer"><a href="/">CourseHub</a><span>Education that moves with you.</span></footer>' . PublicNavbar::script() . '<script src="/assets/js/course-card-theme.js" defer></script></body></html>';
         return Response::html($html);
     }
 }
