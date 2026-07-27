@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 $root = dirname(__DIR__);
 $rooms = require $root . '/apps/web-platform/src/config/rooms.php';
-$expected = ['Student' => 14, 'Instructor' => 20, 'Admin' => 20];
+$expected = ['Student' => 14, 'Instructor' => 20, 'Admin' => 21];
 $counts = array_fill_keys(array_keys($expected), 0);
 $authenticated = 0;
 $errors = [];
@@ -32,8 +32,8 @@ foreach ($expected as $floor => $count) {
         $errors[] = sprintf('%s panel count changed: expected %d, found %d.', $floor, $count, $counts[$floor]);
     }
 }
-if ($authenticated !== 49) {
-    $errors[] = 'Authenticated panel count must remain 49; found ' . $authenticated . '.';
+if ($authenticated !== 50) {
+    $errors[] = 'Authenticated panel count must remain 50; found ' . $authenticated . '.';
 }
 
 $requiredFiles = [
@@ -43,8 +43,12 @@ $requiredFiles = [
     'apps/web-platform/src/Shared/Room/RoomRuntime.php',
     'apps/web-platform/src/Shared/Routing/HouseRouter.php',
     'apps/web-platform/src/Shared/Session/SessionGuard.php',
+    'apps/web-platform/src/Admin/Profile/Middleware.php',
+    'apps/web-platform/src/Admin/Profile/Controller.php',
+    'apps/web-platform/src/Admin/Profile/Page.php',
     'apps/web-platform/public/assets/css/app.css',
     'apps/web-platform/public/assets/css/admin-console.css',
+    'apps/web-platform/public/assets/css/profile-links.css',
     'apps/web-platform/public/assets/js/app.js',
     'services/reporting-service/public/admin-console.php',
     'services/reporting-service/public/router.php',
@@ -61,6 +65,22 @@ $contracts = [
         'data-logout-dialog',
         'Yes, log out',
         '$role === \'admin\'',
+        "'admin' => '/admin/profile'",
+        "'instructor' => '/instructor/profile'",
+        "default => '/student/profile'",
+        'portal-profile-link',
+        'portal-top-profile',
+    ],
+    'apps/web-platform/src/Admin/Profile/Page.php' => [
+        "PortalPage::render('admin', 'Profile'",
+        'admin-profile-panel',
+        'Open security',
+        'Open settings',
+    ],
+    'apps/web-platform/public/assets/css/profile-links.css' => [
+        '.portal-profile-link',
+        '.portal-top-profile',
+        '.admin-profile-panel',
     ],
     'apps/web-platform/public/assets/js/app.js' => [
         'navigationScrollKey',
@@ -135,7 +155,8 @@ if ($errors !== []) {
 }
 
 echo "PANEL COVERAGE CHECK: PASS\n";
-echo "Panel routes: 54\n";
-echo "Authenticated panels: 49\n";
+echo "Panel routes: 55\n";
+echo "Authenticated panels: 50\n";
 echo "Admin navigation rooms: implemented\n";
+echo "Portal avatars: linked to role profiles\n";
 echo "Revoked sessions: automatic portal logout enabled\n";
