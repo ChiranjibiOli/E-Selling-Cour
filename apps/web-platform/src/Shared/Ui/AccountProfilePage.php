@@ -29,11 +29,12 @@ final class AccountProfilePage
         $alert = $message !== ''
             ? '<div class="form-alert ' . ($success ? 'success' : 'error') . '">' . $e($message) . '</div>'
             : '';
+        $photoUrl = $profilePath . '?photo=1&amp;v=' . $e(hash('sha256', $profileImage));
         $photo = $profileImage !== ''
-            ? '<a class="account-profile-photo" href="' . $e($profilePath) . '?photo=1" target="_blank" rel="noopener"><img src="' . $e($profilePath) . '?photo=1&amp;v=' . $e(hash('sha256', $profileImage)) . '" alt="' . $e($name) . ' profile photo"></a>'
+            ? '<button class="account-profile-photo profile-photo-trigger" type="button" data-photo-open aria-label="View profile photo"><img src="' . $photoUrl . '" alt="' . $e($name) . ' profile photo"></button>'
             : '<div class="account-profile-photo account-profile-photo-empty" aria-label="No profile photo"><span>' . $e($initials) . '</span></div>';
         $view = $profileImage !== ''
-            ? '<a class="portal-button secondary" href="' . $e($profilePath) . '?photo=1" target="_blank" rel="noopener">View photo</a>'
+            ? '<button class="portal-button secondary" type="button" data-photo-open>View photo</button>'
             : '';
         $remove = $profileImage !== ''
             ? '<form method="post" data-profile-photo-remove>' . Csrf::field() . '<input type="hidden" name="action" value="remove_photo"><button class="portal-button danger" type="submit">Remove photo</button></form>'
@@ -43,14 +44,21 @@ final class AccountProfilePage
             ? '<a class="portal-button secondary" href="/admin/security">Open security</a><a class="portal-button" href="/admin/settings">Open settings</a>'
             : '<a class="portal-button secondary" href="/student/payment-history">Payment history</a><a class="portal-button" href="/student/my-courses">My courses</a>';
 
+        $photoDialog = $profileImage !== ''
+            ? '<dialog class="profile-photo-dialog" data-photo-dialog aria-labelledby="profile-photo-title"><div class="profile-photo-dialog-shell"><header><div><span>PROFILE PHOTO</span><h2 id="profile-photo-title">' . $e($name) . '</h2></div><button type="button" data-photo-close aria-label="Close photo viewer">×</button></header><div class="profile-photo-stage"><img src="' . $photoUrl . '" alt="' . $e($name) . ' profile photo" data-photo-image></div><footer><button class="portal-button secondary" type="button" data-photo-zoom-out aria-label="Zoom out">−</button><button class="portal-button secondary" type="button" data-photo-reset>Reset</button><button class="portal-button secondary" type="button" data-photo-zoom-in aria-label="Zoom in">+</button><button class="portal-button" type="button" data-photo-close>Close</button></footer></div></dialog>'
+            : '';
+        $removeDialog = $profileImage !== ''
+            ? '<dialog class="portal-confirm-dialog" data-photo-remove-dialog aria-labelledby="remove-photo-title"><div class="portal-confirm-content"><span class="portal-confirm-icon">×</span><div><h2 id="remove-photo-title">Remove profile photo?</h2><p>The initials avatar will replace this image in the sidebar and top bar.</p></div><div class="portal-confirm-actions"><button class="portal-button secondary" type="button" data-photo-remove-cancel>No, keep photo</button><button class="portal-button danger" type="button" data-photo-remove-confirm>Yes, remove photo</button></div></div></dialog>'
+            : '';
+
         $content = $alert
             . '<section class="account-profile-panel">'
             . '<div class="account-profile-hero">' . $photo . '<div class="account-profile-heading"><span>' . $e(ucfirst($role)) . ' profile</span><h2>' . $e($name) . '</h2><p>' . $e($email !== '' ? $email : 'Email unavailable') . '</p></div></div>'
-            . '<div class="account-profile-controls"><div><h3>Profile photo</h3><p>JPG, PNG, or WebP. Use a clear, mostly square image of at least 200 × 200 pixels and no more than 3 MB.</p></div><div class="account-profile-buttons">' . $view . $remove . '</div>'
+            . '<div class="account-profile-controls"><div><h3>Profile photo</h3><p>JPG, PNG or WebP. Use a clear, mostly square image of at least 200 × 200 pixels and no more than 3 MB.</p></div><div class="account-profile-buttons">' . $view . $remove . '</div>'
             . '<form class="account-profile-upload" method="post" enctype="multipart/form-data">' . Csrf::field() . '<input type="hidden" name="action" value="change_photo"><label>Choose new photo<input type="file" name="profile_photo" accept="image/jpeg,image/png,image/webp" required></label><button class="portal-button" type="submit">Change photo</button></form></div>'
             . '<div class="account-profile-details"><div><small>Account ID</small><strong>#' . $id . '</strong></div><div><small>Portal role</small><strong>' . $e(ucfirst($role)) . '</strong></div><div><small>Display name</small><strong>' . $e($name) . '</strong></div><div><small>Sign-in email</small><strong>' . $e($email !== '' ? $email : 'Unavailable') . '</strong></div></div>'
             . '<div class="account-profile-footer"><p>The photo is served through your authenticated profile route. Removing it restores the initials avatar in the sidebar and top bar.</p><div>' . $roleLinks . '</div></div>'
-            . '</section>';
+            . '</section>' . $photoDialog . $removeDialog;
 
         return PortalPage::render($role, 'Profile', $content);
     }
