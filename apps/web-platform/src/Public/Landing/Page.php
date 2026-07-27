@@ -55,8 +55,8 @@ final class LandingPage
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/app.css">
-    <link rel="stylesheet" href="/room-assets/Public/Landing/page.css?v=20260728-1">
-    <link rel="stylesheet" href="/room-assets/Public/Landing/hero-photo.css?v=20260728-1">
+    <link rel="stylesheet" href="/room-assets/Public/Landing/page.css?v=20260728-4">
+    <link rel="stylesheet" href="/room-assets/Public/Landing/hero-photo.css?v=20260728-4">
 </head>
 <body class="landing-body">
     <header class="landing-nav" data-landing-nav>
@@ -96,7 +96,7 @@ final class LandingPage
             <div class="hero-visual hero-photo-visual" data-hero-visual>
                 <span class="hero-orbit hero-orbit-one" aria-hidden="true"></span>
                 <span class="hero-orbit hero-orbit-two" aria-hidden="true"></span>
-                <img class="hero-book-photo" src="/assets/images/landing-book-photo.svg" alt="Open book with a hand turning a page">
+                <img class="hero-book-photo" src="/assets/images/landing-book-photo.svg?v=20260728-4" alt="Open book with a hand turning a page">
                 <div class="hero-note"><span>COURSEHUB</span><strong>Learn clearly.<br>Build confidently.</strong></div>
             </div>
         </section>
@@ -152,7 +152,7 @@ final class LandingPage
         <p>© <?= date('Y') ?> CourseHub. Practical learning, clear payment service and lifetime access to approved purchases.</p>
     </footer>
 
-    <script src="/room-assets/Public/Landing/page.js?v=20260728-1" defer></script>
+    <script src="/room-assets/Public/Landing/page.js?v=20260728-4" defer></script>
 </body>
 </html>
         <?php
