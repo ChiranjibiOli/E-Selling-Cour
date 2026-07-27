@@ -1,11 +1,11 @@
 <?php
 
 declare(strict_types=1);
-
 namespace CourseHub\WebPlatform\Shared\Room;
 
 use CourseHub\WebPlatform\Shared\Http\Request;
 use CourseHub\WebPlatform\Shared\Http\Response;
+use CourseHub\WebPlatform\Shared\Ui\AdminConsole;
 use CourseHub\WebPlatform\Shared\Ui\PanelFactory;
 use CourseHub\WebPlatform\Shared\Ui\PortalPage;
 
@@ -30,7 +30,13 @@ final class RoomRuntime
 
     public static function load(string $directory, Request $request): array
     {
-        return ['metadata' => self::metadata($directory), 'method' => $request->method, 'query' => $request->query, 'input' => $request->body];
+        $metadata = self::metadata($directory);
+        $role = (string) ($metadata['role'] ?? 'guest');
+        $room = (string) ($metadata['room'] ?? '');
+        if ($role === 'admin' && AdminConsole::supports($room)) {
+            return AdminConsole::load($metadata, $request);
+        }
+        return ['metadata' => $metadata, 'method' => $request->method, 'query' => $request->query, 'input' => $request->body];
     }
 
     public static function render(string $directory, array $model): Response
@@ -38,7 +44,10 @@ final class RoomRuntime
         $metadata = self::metadata($directory);
         $role = (string) ($metadata['role'] ?? 'guest');
         if (in_array($role, ['student', 'instructor', 'admin'], true)) {
-            $panel = PanelFactory::build($metadata, $model);
+            $room = (string) ($metadata['room'] ?? '');
+            $panel = $role === 'admin' && AdminConsole::supports($room)
+                ? AdminConsole::build($metadata, $model)
+                : PanelFactory::build($metadata, $model);
             return PortalPage::render(
                 $role,
                 (string) ($metadata['title'] ?? $metadata['room']),
