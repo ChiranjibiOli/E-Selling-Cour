@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use CourseHub\Identity\Infrastructure\EmailDeliveryException;
+use CourseHub\Identity\Infrastructure\SmtpMailer;
 use CourseHub\Services\Shared\Database;
 use CourseHub\Services\Shared\ServiceAuth;
 use CourseHub\Services\Shared\ServiceAuthenticationException;
@@ -9,6 +11,7 @@ use CourseHub\Services\Shared\ServiceAuthorizationException;
 
 require_once dirname(__DIR__, 2) . '/_shared/Database.php';
 require_once dirname(__DIR__, 2) . '/_shared/ServiceAuth.php';
+require_once dirname(__DIR__, 2) . '/identity-service/src/Infrastructure/SmtpMailer.php';
 
 header('Content-Type: application/json; charset=utf-8');
 header('Cache-Control: no-store');
@@ -19,7 +22,7 @@ $authorization = (string) ($_SERVER['HTTP_AUTHORIZATION'] ?? '');
 
 $respond = static function (array $payload, int $status = 200): never {
     http_response_code($status);
-    echo json_encode($payload, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES);
+    echo json_encode($payload, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
     exit;
 };
 
@@ -33,6 +36,21 @@ $jsonInput = static function (): array {
         throw new InvalidArgumentException('Request body must be a JSON object.');
     }
     return $decoded;
+};
+
+$cleanScalar = static function (array $input, string $key, string $label, int $max, bool $required = true): string {
+    $value = $input[$key] ?? '';
+    if (!is_scalar($value) && $value !== null) {
+        throw new InvalidArgumentException($label . ' must be a single text value.');
+    }
+    $text = trim((string) $value);
+    if ($required && $text === '') {
+        throw new InvalidArgumentException($label . ' is required.');
+    }
+    if (mb_strlen($text) > $max || str_contains($text, "\0")) {
+        throw new InvalidArgumentException($label . ' is too long or contains invalid characters.');
+    }
+    return $text;
 };
 
 try {
@@ -74,15 +92,12 @@ try {
 
     if ($path === '/api/v1/notifications/contact' && $method === 'POST') {
         $input = $jsonInput();
-        $name = trim((string) ($input['name'] ?? ''));
-        $email = strtolower(trim((string) ($input['email'] ?? '')));
-        $subject = trim((string) ($input['subject'] ?? ''));
-        $message = trim((string) ($input['message'] ?? ''));
-        if ($name === '' || mb_strlen($name) > 100 || filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
-            throw new InvalidArgumentException('Enter a valid name and email address.');
-        }
-        if (mb_strlen($subject) > 200 || $message === '' || mb_strlen($message) > 10_000) {
-            throw new InvalidArgumentException('Enter a valid subject and message.');
+        $name = $cleanScalar($input, 'name', 'Name', 100);
+        $email = strtolower($cleanScalar($input, 'email', 'Email address', 150));
+        $subject = $cleanScalar($input, 'subject', 'Subject', 200, false);
+        $message = $cleanScalar($input, 'message', 'Message', 10_000);
+        if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
+            throw new InvalidArgumentException('Enter a valid email address.');
         }
         $statement = $database->prepare('INSERT INTO contact_messages (name, email, subject, message, status) VALUES (:name, :email, :subject, :message, \'new\')');
         $statement->execute(['name' => $name, 'email' => $email, 'subject' => $subject !== '' ? $subject : null, 'message' => $message]);
@@ -91,14 +106,67 @@ try {
 
     if ($path === '/api/v1/notifications/contact' && $method === 'GET') {
         ServiceAuth::requireUser($database, $authorization, 'admin');
-        $statement = $database->query('SELECT id, name, email, subject, message, status, created_at FROM contact_messages ORDER BY created_at DESC LIMIT 300');
+        $statement = $database->query(
+            'SELECT id, name, email, subject, message, status, reply_subject, reply_message, replied_by, replied_at, reply_delivery_status, created_at '
+            . 'FROM contact_messages ORDER BY created_at DESC LIMIT 300'
+        );
         $respond(['data' => $statement->fetchAll()]);
+    }
+
+    if (preg_match('#^/api/v1/notifications/contact/(\d+)/reply$#', $path, $matches) === 1 && $method === 'POST') {
+        $admin = ServiceAuth::requireUser($database, $authorization, 'admin');
+        $input = $jsonInput();
+        $replySubject = $cleanScalar($input, 'reply_subject', 'Reply subject', 200);
+        $replyMessage = $cleanScalar($input, 'reply_message', 'Reply message', 10_000);
+        $statement = $database->prepare('SELECT id, name, email, subject FROM contact_messages WHERE id=:id LIMIT 1');
+        $statement->execute(['id' => (int) $matches[1]]);
+        $contact = $statement->fetch();
+        if (!is_array($contact)) {
+            $respond(['error' => 'The contact message was not found.'], 404);
+        }
+
+        try {
+            SmtpMailer::sendSupportReply(
+                (string) $contact['email'],
+                (string) $contact['name'],
+                (string) ($contact['subject'] ?? 'Support request'),
+                $replySubject,
+                $replyMessage,
+            );
+            $deliveryStatus = 'sent';
+        } catch (EmailDeliveryException $exception) {
+            $deliveryStatus = 'failed';
+            $saveFailed = $database->prepare(
+                'UPDATE contact_messages SET status=\'read\',reply_subject=:reply_subject,reply_message=:reply_message,replied_by=:replied_by,replied_at=NOW(),reply_delivery_status=\'failed\' WHERE id=:id'
+            );
+            $saveFailed->execute([
+                'reply_subject' => $replySubject,
+                'reply_message' => $replyMessage,
+                'replied_by' => (int) $admin['id'],
+                'id' => (int) $contact['id'],
+            ]);
+            $respond([
+                'error' => 'The reply was saved, but email delivery failed. Check the SMTP configuration and send it again.',
+                'delivery_status' => $deliveryStatus,
+            ], 503);
+        }
+
+        $update = $database->prepare(
+            'UPDATE contact_messages SET status=\'replied\',reply_subject=:reply_subject,reply_message=:reply_message,replied_by=:replied_by,replied_at=NOW(),reply_delivery_status=\'sent\' WHERE id=:id'
+        );
+        $update->execute([
+            'reply_subject' => $replySubject,
+            'reply_message' => $replyMessage,
+            'replied_by' => (int) $admin['id'],
+            'id' => (int) $contact['id'],
+        ]);
+        $respond(['message' => 'Reply emailed to ' . (string) $contact['email'] . '.', 'delivery_status' => 'sent']);
     }
 
     if (preg_match('#^/api/v1/notifications/contact/(\d+)$#', $path, $matches) === 1 && $method === 'POST') {
         ServiceAuth::requireUser($database, $authorization, 'admin');
         $input = $jsonInput();
-        $status = strtolower(trim((string) ($input['status'] ?? 'read')));
+        $status = strtolower($cleanScalar($input, 'status', 'Message status', 20));
         if (!in_array($status, ['new', 'read', 'replied'], true)) {
             throw new InvalidArgumentException('Choose a valid contact-message status.');
         }
