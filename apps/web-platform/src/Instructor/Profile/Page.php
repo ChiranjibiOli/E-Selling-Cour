@@ -14,8 +14,11 @@ final class InstructorProfilePage
         $alert = $message !== '' ? '<div class="form-alert ' . ($success ? 'success' : 'error') . '">' . $e($message) . '</div>' : '';
         $hasPhoto = trim((string) ($profile['profile_image'] ?? '')) !== '';
         $photo = $hasPhoto
-            ? '<img src="/instructor/profile?photo=1&amp;v=' . rawurlencode((string) ($profile['profile_image_changed_at'] ?? 'profile')) . '" alt="Instructor profile photo">'
+            ? '<a href="/instructor/profile?photo=1" target="_blank" rel="noopener"><img src="/instructor/profile?photo=1&amp;v=' . rawurlencode((string) ($profile['profile_image_changed_at'] ?? 'profile')) . '" alt="Instructor profile photo"></a>'
             : '<span>IN</span>';
+        $viewPhoto = $hasPhoto
+            ? '<a class="portal-button secondary" href="/instructor/profile?photo=1" target="_blank" rel="noopener">View photo</a>'
+            : '';
         $canChangePhoto = (bool) ($profile['photo_change_allowed'] ?? false);
         $availableAt = trim((string) ($profile['profile_image_change_available_at'] ?? ''));
         $photoRule = $canChangePhoto
@@ -24,8 +27,8 @@ final class InstructorProfilePage
         $disabled = $canChangePhoto ? '' : ' disabled';
 
         $content = $alert
-            . '<section class="portal-grid"><article class="portal-card"><div class="instructor-profile-photo">' . $photo . '</div><h2>' . $e($profile['full_name'] ?? 'Instructor') . '</h2><p>' . $e($profile['professional_headline'] ?? '') . '</p><span class="secure-pill">Approved Instructor</span></article>'
-            . '<article class="portal-card"><h2>Profile-photo policy</h2><p>The passport-size photo accepted with your Instructor application is your official profile photo. It can be replaced only once every 25 days.</p>' . $photoRule . '</article></section>'
+            . '<section class="portal-grid"><article class="portal-card"><div class="instructor-profile-photo">' . $photo . '</div><h2>' . $e($profile['full_name'] ?? 'Instructor') . '</h2><p>' . $e($profile['professional_headline'] ?? '') . '</p><div class="actions">' . $viewPhoto . '</div><span class="secure-pill">Approved Instructor</span></article>'
+            . '<article class="portal-card"><h2>Profile-photo policy</h2><p>The passport-size photo accepted with your Instructor application is your verified profile photo. It can be viewed at full size and replaced once every 25 days.</p><p class="muted-copy">Verified Instructor photos cannot be removed completely. Replace the photo after the cooldown so the approved teaching identity remains visible.</p>' . $photoRule . '</article></section>'
             . '<section class="data-card"><div class="data-card-head"><div><span>INSTRUCTOR PROFILE</span><h3>Public teaching identity</h3></div><span class="secure-pill">Identity document remains private</span></div>'
             . '<form class="portal-form" method="post" action="/instructor/profile" enctype="multipart/form-data">' . Csrf::field()
             . '<div class="form-columns"><label>Full name<input name="full_name" value="' . $e($profile['full_name'] ?? '') . '" maxlength="100" required></label>'
@@ -37,7 +40,7 @@ final class InstructorProfilePage
             . '<label>Teaching experience<textarea name="teaching_experience" rows="5" minlength="20" maxlength="2000" required>' . $e($profile['teaching_experience'] ?? '') . '</textarea></label>'
             . '<label>Course subjects<textarea name="course_subjects" rows="3" minlength="3" maxlength="1000" required>' . $e($profile['course_subjects'] ?? '') . '</textarea></label>'
             . '<label>Social or professional profile<input type="url" name="social_profile_url" value="' . $e($profile['social_profile_url'] ?? '') . '" maxlength="500"></label>'
-            . '<label>Replace passport-size profile photo<input type="file" name="profile_photo" accept="image/jpeg,image/png,image/webp"' . $disabled . '><small>Portrait JPG, PNG, or WebP, at least 300 × 400 pixels, maximum 3 MB.</small></label>'
+            . '<label>Change passport-size profile photo<input type="file" name="profile_photo" accept="image/jpeg,image/png,image/webp"' . $disabled . '><small>Portrait JPG, PNG, or WebP, at least 300 × 400 pixels, maximum 3 MB.</small></label>'
             . '<button class="portal-button" type="submit">Save Instructor profile</button></form></section>';
 
         return PortalPage::render('instructor', 'Profile', $content);
