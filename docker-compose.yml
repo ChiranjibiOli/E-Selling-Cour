@@ -98,7 +98,7 @@ services:
   learning-service:
     <<: *domain-service
     working_dir: /repo/services/learning-service
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/router.php"]
 
   commerce-service:
     <<: *domain-service
@@ -108,7 +108,7 @@ services:
   payment-service:
     <<: *domain-service
     working_dir: /repo/services/payment-service
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/router.php"]
 
   enrollment-service:
     <<: *domain-service
