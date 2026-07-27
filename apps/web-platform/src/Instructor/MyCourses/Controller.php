@@ -15,6 +15,10 @@ return static function (Request $request) {
     $client = new ApiClient();
     $message = '';
     $success = true;
+    $filter = strtolower(trim((string) ($request->query['status'] ?? '')));
+    if (!in_array($filter, ['draft', 'pending', 'published', 'rejected'], true)) {
+        $filter = '';
+    }
 
     try {
         if ($request->method === 'POST') {
@@ -40,5 +44,13 @@ return static function (Request $request) {
         $success = false;
     }
 
-    return InstructorCoursesPage::render(is_array($courses) ? $courses : [], $message, $success);
+    $courses = is_array($courses) ? $courses : [];
+    if ($filter !== '') {
+        $courses = array_values(array_filter(
+            $courses,
+            static fn (array $course): bool => (string) ($course['status'] ?? '') === $filter,
+        ));
+    }
+
+    return InstructorCoursesPage::render($courses, $message, $success, $filter);
 };
