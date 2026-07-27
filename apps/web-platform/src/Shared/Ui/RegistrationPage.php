@@ -58,7 +58,7 @@ final class RegistrationPage
                 . '<nav class="public-site-links" aria-label="Public navigation"><a href="/">Home</a><a href="/courses">Courses</a><a href="/#categories">Categories</a><a href="/about">About</a><a href="/contact">Contact</a></nav>'
                 . '<div class="public-site-account"><a class="public-login" href="/learn/sign-in">Log in</a><a class="public-create active" href="/register/student">Create account</a></div></header>';
             $bodyClass = 'public-form-body';
-            $scripts = '<script src="/assets/js/public-site.js?v=20260728-1" defer></script>';
+            $scripts = '<script src="/assets/js/public-site.js?v=20260728-2" defer></script>';
         }
 
         $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f7f0e5">'
