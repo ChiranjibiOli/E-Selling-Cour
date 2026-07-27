@@ -48,6 +48,10 @@ final class SessionGuard
             throw new SessionEndedException($loginPath, 'This session is no longer valid for the requested portal.');
         }
 
+        if (is_array($session['user'] ?? null)) {
+            AuthSession::synchronizeUser($session['user']);
+        }
+
         return $session;
     }
 
