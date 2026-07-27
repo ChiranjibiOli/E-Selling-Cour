@@ -52,9 +52,11 @@ final class PortalPage
         $workspace = $role === 'student'
             ? '<div class="portal-workspace"><span>Student</span><strong>' . $e($roleName) . '</strong></div>'
             : '';
-        $crumb = $role === 'instructor'
-            ? '<div class="portal-crumb portal-crumb-simple"><strong>' . $e($title) . '</strong></div>'
-            : '<div class="portal-crumb"><span>' . $e(ucfirst($role)) . '</span><i>/</i><strong>' . $e($title) . '</strong></div>';
+        $crumb = match ($role) {
+            'admin' => '',
+            'instructor' => '<div class="portal-crumb portal-crumb-simple"><strong>' . $e($title) . '</strong></div>',
+            default => '<div class="portal-crumb"><span>' . $e(ucfirst($role)) . '</span><i>/</i><strong>' . $e($title) . '</strong></div>',
+        };
         $contextActions = trim($action) !== '' ? '<div class="portal-context-actions">' . $action . '</div>' : '';
         $logout = '<form class="portal-logout-form" method="post" action="/logout" data-logout-form>' . Csrf::field()
             . '<button class="portal-logout-button" type="submit"><span class="portal-nav-icon">↪</span><span>Log out</span></button></form>';
