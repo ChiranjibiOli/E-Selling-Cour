@@ -28,11 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (sidebarNav) {
         const savedPosition = Number.parseInt(sessionStorage.getItem(navigationScrollKey) || '', 10);
         window.requestAnimationFrame(() => {
-            if (Number.isFinite(savedPosition)) {
-                sidebarNav.scrollTop = savedPosition;
-            } else {
-                activeNavigation?.scrollIntoView({ block: 'nearest' });
-            }
+            if (Number.isFinite(savedPosition)) sidebarNav.scrollTop = savedPosition;
+            else activeNavigation?.scrollIntoView({ block: 'nearest' });
         });
         sidebarNav.addEventListener('scroll', () => {
             sessionStorage.setItem(navigationScrollKey, String(Math.round(sidebarNav.scrollTop)));
@@ -109,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const removeConfirm = document.querySelector('[data-photo-remove-confirm]');
     let pendingRemoveForm = null;
     let removeApproved = false;
-
     document.querySelectorAll('[data-profile-photo-remove]').forEach((form) => {
         form.addEventListener('submit', (event) => {
             if (removeApproved) return;
@@ -146,45 +142,271 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    const courseAuthoring = document.querySelector('[data-course-authoring]');
-    if (courseAuthoring) {
-        const titleInput = courseAuthoring.querySelector('[name="title"]');
-        const descriptionInput = courseAuthoring.querySelector('[name="short_description"]');
-        const categoryInput = courseAuthoring.querySelector('[name="category_id"]');
-        const priceInput = courseAuthoring.querySelector('[name="price"]');
-        const discountInput = courseAuthoring.querySelector('[name="discount_price"]');
-        const thumbnailInput = courseAuthoring.querySelector('[name="thumbnail"]');
-        const previewTitle = courseAuthoring.querySelector('[data-preview-title]');
-        const previewDescription = courseAuthoring.querySelector('[data-preview-description]');
-        const previewCategory = courseAuthoring.querySelector('[data-preview-category]');
-        const previewPrice = courseAuthoring.querySelector('[data-preview-price]');
-        const previewMedia = courseAuthoring.querySelector('[data-preview-media]');
+    document.addEventListener('invalid', (event) => {
+        const control = event.target;
+        if (!(control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement || control instanceof HTMLSelectElement)) return;
+        const reason = control.dataset.error || '';
+        if (reason) control.setCustomValidity(reason);
+    }, true);
+    document.addEventListener('input', (event) => {
+        const control = event.target;
+        if (control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement || control instanceof HTMLSelectElement) {
+            control.setCustomValidity('');
+        }
+    });
+    document.addEventListener('change', (event) => {
+        const control = event.target;
+        if (control instanceof HTMLInputElement || control instanceof HTMLTextAreaElement || control instanceof HTMLSelectElement) {
+            control.setCustomValidity('');
+        }
+    });
+
+    const completeAuthoring = document.querySelector('[data-complete-authoring]');
+    if (completeAuthoring) {
+        const form = completeAuthoring.querySelector('[data-course-form]');
+        const sectionList = completeAuthoring.querySelector('[data-section-list]');
+        const curriculumJson = completeAuthoring.querySelector('[data-curriculum-json]');
+        const addSectionButton = completeAuthoring.querySelector('[data-add-section]');
+        const previewTitle = completeAuthoring.querySelector('[data-preview-title]');
+        const previewDescription = completeAuthoring.querySelector('[data-preview-description]');
+        const previewCategory = completeAuthoring.querySelector('[data-preview-category]');
+        const previewPrice = completeAuthoring.querySelector('[data-preview-price]');
+        const previewLevel = completeAuthoring.querySelector('[data-preview-level]');
+        const previewLanguage = completeAuthoring.querySelector('[data-preview-language]');
+        const previewMedia = completeAuthoring.querySelector('[data-preview-media]');
+        const titleInput = completeAuthoring.querySelector('[name="title"]');
+        const descriptionInput = completeAuthoring.querySelector('[name="short_description"]');
+        const categoryInput = completeAuthoring.querySelector('[name="category_id"]');
+        const priceInput = completeAuthoring.querySelector('[name="price"]');
+        const discountInput = completeAuthoring.querySelector('[name="discount_price"]');
+        const levelInput = completeAuthoring.querySelector('[name="level"]');
+        const languageInput = completeAuthoring.querySelector('[name="language"]');
+        const thumbnailInput = completeAuthoring.querySelector('[name="thumbnail"]');
         let thumbnailObjectUrl = '';
+        const sectionPrototype = sectionList?.querySelector('[data-section]')?.cloneNode(true) || null;
 
         const cleanPreviewText = (value, fallback) => {
             const text = String(value || '').replace(/\s+/g, ' ').trim();
             return text || fallback;
         };
-        const updateCoursePreview = () => {
-            if (previewTitle) previewTitle.textContent = cleanPreviewText(titleInput?.value, 'Your course title');
-            if (previewDescription) previewDescription.textContent = cleanPreviewText(
-                descriptionInput?.value,
-                'Your short description will appear here and stay contained inside the course card.',
-            );
-            if (previewCategory && categoryInput instanceof HTMLSelectElement) {
-                previewCategory.textContent = cleanPreviewText(categoryInput.selectedOptions[0]?.textContent, 'Choose a category');
+
+        const clearLesson = (lesson) => {
+            lesson.querySelectorAll('input, textarea, select').forEach((control) => {
+                if (control instanceof HTMLSelectElement) control.value = control.matches('[data-content-type]') ? 'text' : control.options[0]?.value || '';
+                else if (control instanceof HTMLInputElement && control.type === 'checkbox') control.checked = false;
+                else if (control instanceof HTMLInputElement && control.type === 'number') control.value = '0';
+                else if (control instanceof HTMLInputElement && control.type === 'file') control.value = '';
+                else control.value = '';
+                control.setCustomValidity('');
+            });
+            lesson.querySelectorAll('.existing-resource').forEach((status) => { status.textContent = 'No file uploaded yet.'; });
+        };
+
+        const setLessonPanel = (lesson) => {
+            const type = lesson.querySelector('[data-content-type]')?.value || 'text';
+            lesson.querySelectorAll('[data-content-panel]').forEach((panel) => {
+                const accepted = String(panel.dataset.contentPanel || '').split(/\s+/).filter(Boolean);
+                const active = accepted.includes(type);
+                panel.hidden = !active;
+                panel.querySelectorAll('input, textarea, select').forEach((control) => {
+                    if (control instanceof HTMLInputElement && control.type === 'file') control.disabled = !active;
+                });
+            });
+        };
+
+        const renumberAuthoring = () => {
+            let globalLessonNumber = 0;
+            sectionList?.querySelectorAll('[data-section]').forEach((section, sectionIndex) => {
+                const sectionNumber = section.querySelector('[data-section-number]');
+                if (sectionNumber) sectionNumber.textContent = `SECTION ${String(sectionIndex + 1).padStart(2, '0')}`;
+                section.querySelectorAll('[data-lesson]').forEach((lesson, lessonIndex) => {
+                    globalLessonNumber += 1;
+                    const lessonNumber = lesson.querySelector('[data-lesson-number]');
+                    if (lessonNumber) lessonNumber.textContent = `LESSON ${String(globalLessonNumber).padStart(2, '0')}`;
+                    lesson.querySelectorAll('[data-resource-file]').forEach((fileInput) => {
+                        fileInput.name = `lesson_file_${sectionIndex}_${lessonIndex}`;
+                    });
+                    setLessonPanel(lesson);
+                });
+            });
+        };
+
+        const wireLesson = (lesson) => {
+            if (lesson.dataset.wired === '1') return;
+            lesson.dataset.wired = '1';
+            lesson.querySelector('[data-content-type]')?.addEventListener('change', () => setLessonPanel(lesson));
+            lesson.querySelector('[data-remove-lesson]')?.addEventListener('click', () => {
+                lesson.remove();
+                renumberAuthoring();
+            });
+            lesson.querySelectorAll('[data-resource-file]').forEach((fileInput) => {
+                fileInput.addEventListener('change', () => {
+                    const status = fileInput.closest('label')?.querySelector('.existing-resource');
+                    if (status) status.textContent = fileInput.files?.[0]?.name || 'No file uploaded yet.';
+                });
+            });
+            setLessonPanel(lesson);
+        };
+
+        const wireSection = (section) => {
+            if (section.dataset.wired === '1') return;
+            section.dataset.wired = '1';
+            section.querySelectorAll('[data-lesson]').forEach(wireLesson);
+            section.querySelector('[data-remove-section]')?.addEventListener('click', () => {
+                section.remove();
+                renumberAuthoring();
+            });
+            section.querySelector('[data-add-lesson]')?.addEventListener('click', () => {
+                const lessonList = section.querySelector('[data-lesson-list]');
+                const lessonSource = section.querySelector('[data-lesson]') || sectionPrototype?.querySelector('[data-lesson]');
+                if (!lessonList || !lessonSource) return;
+                const lesson = lessonSource.cloneNode(true);
+                delete lesson.dataset.wired;
+                clearLesson(lesson);
+                lessonList.appendChild(lesson);
+                wireLesson(lesson);
+                renumberAuthoring();
+                lesson.querySelector('[data-lesson-title]')?.focus();
+            });
+        };
+
+        sectionList?.querySelectorAll('[data-section]').forEach(wireSection);
+        addSectionButton?.addEventListener('click', () => {
+            if (!sectionList || !sectionPrototype) return;
+            const section = sectionPrototype.cloneNode(true);
+            delete section.dataset.wired;
+            const lessons = Array.from(section.querySelectorAll('[data-lesson]'));
+            lessons.slice(1).forEach((lesson) => lesson.remove());
+            const firstLesson = section.querySelector('[data-lesson]');
+            section.querySelectorAll('input, textarea, select').forEach((control) => control.setCustomValidity(''));
+            const sectionTitle = section.querySelector('[data-section-title]');
+            if (sectionTitle) sectionTitle.value = '';
+            if (firstLesson) {
+                delete firstLesson.dataset.wired;
+                clearLesson(firstLesson);
             }
+            sectionList.appendChild(section);
+            wireSection(section);
+            renumberAuthoring();
+            sectionTitle?.focus();
+        });
+
+        const serializeCurriculum = () => {
+            const sections = [];
+            sectionList?.querySelectorAll('[data-section]').forEach((section, sectionIndex) => {
+                const lessons = [];
+                section.querySelectorAll('[data-lesson]').forEach((lesson, lessonIndex) => {
+                    const type = lesson.querySelector('[data-content-type]')?.value || 'text';
+                    const linkValue = lesson.querySelector('[data-link-url]')?.value || '';
+                    const contentUrl = type === 'link' ? linkValue : (lesson.querySelector('[data-content-url]')?.value || '');
+                    const activeFile = Array.from(lesson.querySelectorAll('[data-resource-file]')).find((input) => !input.disabled);
+                    lessons.push({
+                        title: lesson.querySelector('[data-lesson-title]')?.value || '',
+                        content_type: type,
+                        content_url: contentUrl,
+                        content_name: lesson.querySelector('[data-content-name]')?.value || '',
+                        content_text: ['text', 'word'].includes(type) ? (lesson.querySelector('[data-content-text]')?.value || '') : '',
+                        duration_minutes: lesson.querySelector('[data-duration]')?.value || '0',
+                        is_preview: Boolean(lesson.querySelector('[data-is-preview]')?.checked),
+                        file_key: activeFile?.name || `lesson_file_${sectionIndex}_${lessonIndex}`,
+                    });
+                });
+                sections.push({ title: section.querySelector('[data-section-title]')?.value || '', lessons });
+            });
+            if (curriculumJson) curriculumJson.value = JSON.stringify(sections);
+            return sections;
+        };
+
+        const validateSubmissionSpecificContent = (submitAction) => {
+            const submitting = submitAction === 'submit';
+            let firstInvalid = null;
+            completeAuthoring.querySelectorAll('[data-error]').forEach((control) => control.setCustomValidity(''));
+            if (!submitting) return true;
+            const requiredNames = ['subtitle', 'learning_outcomes', 'requirements', 'target_audience'];
+            requiredNames.forEach((name) => {
+                const control = form?.querySelector(`[name="${name}"]`);
+                if (!control || String(control.value || '').trim() !== '') return;
+                control.setCustomValidity(control.dataset.error || 'Complete this field before submitting for review.');
+                firstInvalid ||= control;
+            });
+            const existingThumbnail = form?.querySelector('[name="existing_thumbnail"]')?.value || '';
+            if (!existingThumbnail && !thumbnailInput?.files?.[0]) {
+                thumbnailInput?.setCustomValidity('Upload the real public course thumbnail before submitting for review.');
+                firstInvalid ||= thumbnailInput;
+            }
+            const sections = Array.from(sectionList?.querySelectorAll('[data-section]') || []);
+            if (sections.length === 0) {
+                showToast('Add at least one section and one lesson before submitting.');
+                return false;
+            }
+            let lessonCount = 0;
+            sections.forEach((section) => {
+                section.querySelectorAll('[data-lesson]').forEach((lesson) => {
+                    lessonCount += 1;
+                    const type = lesson.querySelector('[data-content-type]')?.value || 'text';
+                    if (['text', 'word'].includes(type)) {
+                        const editor = lesson.querySelector('[data-content-text]');
+                        if (editor && !editor.value.trim()) {
+                            editor.setCustomValidity('Write the lesson content that Students should read inside CourseHub.');
+                            firstInvalid ||= editor;
+                        }
+                    } else if (type === 'link') {
+                        const link = lesson.querySelector('[data-link-url]');
+                        if (link && !link.value.trim()) {
+                            link.setCustomValidity('Enter the HTTPS resource address for this link lesson.');
+                            firstInvalid ||= link;
+                        }
+                    } else {
+                        const existing = lesson.querySelector('[data-content-url]')?.value || '';
+                        const file = Array.from(lesson.querySelectorAll('[data-resource-file]')).find((input) => !input.disabled);
+                        if (!existing && !file?.files?.[0]) {
+                            file?.setCustomValidity(`Upload the actual ${type} file for this lesson.`);
+                            firstInvalid ||= file;
+                        }
+                    }
+                });
+            });
+            if (lessonCount === 0) {
+                showToast('Add at least one lesson before submitting.');
+                return false;
+            }
+            if (firstInvalid) {
+                firstInvalid.reportValidity();
+                firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return false;
+            }
+            return true;
+        };
+
+        form?.addEventListener('submit', (event) => {
+            serializeCurriculum();
+            const submitter = event.submitter;
+            const submitAction = submitter instanceof HTMLButtonElement ? submitter.value : 'draft';
+            completeAuthoring.querySelectorAll('[data-error]').forEach((control) => {
+                if (!control.checkValidity()) control.setCustomValidity(control.dataset.error || 'Check this field.');
+            });
+            if (!form.checkValidity() || !validateSubmissionSpecificContent(submitAction)) {
+                event.preventDefault();
+                const invalid = form.querySelector(':invalid');
+                invalid?.reportValidity();
+                invalid?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+
+        const updateCoursePreview = () => {
+            if (previewTitle) previewTitle.textContent = cleanPreviewText(titleInput?.value, 'Your course title will appear here');
+            if (previewDescription) previewDescription.textContent = cleanPreviewText(descriptionInput?.value, 'The short course benefit appears here and remains neatly contained inside the card.');
+            if (previewCategory && categoryInput instanceof HTMLSelectElement) previewCategory.textContent = cleanPreviewText(categoryInput.selectedOptions[0]?.textContent, 'Choose a category');
+            if (previewLevel && levelInput instanceof HTMLSelectElement) previewLevel.textContent = cleanPreviewText(levelInput.selectedOptions[0]?.textContent, 'Beginner');
+            if (previewLanguage) previewLanguage.textContent = cleanPreviewText(languageInput?.value, 'English');
             const discount = Number.parseFloat(discountInput?.value || '');
             const standard = Number.parseFloat(priceInput?.value || '0');
             const amount = Number.isFinite(discount) ? discount : standard;
-            if (previewPrice) {
-                previewPrice.textContent = Number.isFinite(amount) && amount > 0
-                    ? `NPR ${new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 }).format(amount)}`
-                    : 'Free';
-            }
+            if (previewPrice) previewPrice.textContent = Number.isFinite(amount) && amount > 0
+                ? `NPR ${new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 }).format(amount)}`
+                : 'Free';
         };
-
-        [titleInput, descriptionInput, categoryInput, priceInput, discountInput].forEach((field) => {
+        [titleInput, descriptionInput, categoryInput, priceInput, discountInput, levelInput, languageInput].forEach((field) => {
             field?.addEventListener('input', updateCoursePreview);
             field?.addEventListener('change', updateCoursePreview);
         });
@@ -192,31 +414,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const file = thumbnailInput.files?.[0];
             if (thumbnailObjectUrl) URL.revokeObjectURL(thumbnailObjectUrl);
             thumbnailObjectUrl = '';
-            if (!previewMedia) return;
-            previewMedia.replaceChildren();
-            if (!file) {
-                const placeholder = document.createElement('span');
-                placeholder.textContent = 'CourseHub';
-                previewMedia.appendChild(placeholder);
-                return;
-            }
+            if (!previewMedia || !file) return;
             thumbnailObjectUrl = URL.createObjectURL(file);
             const image = document.createElement('img');
             image.src = thumbnailObjectUrl;
             image.alt = 'Selected course thumbnail preview';
-            previewMedia.appendChild(image);
+            previewMedia.replaceChildren(image);
         });
+        renumberAuthoring();
+        serializeCurriculum();
         updateCoursePreview();
     }
 
     let toastTimer = 0;
-    const showToast = (message) => {
+    function showToast(message) {
         if (!toast) return;
         window.clearTimeout(toastTimer);
         toast.textContent = message;
         toast.classList.add('visible');
-        toastTimer = window.setTimeout(() => toast.classList.remove('visible'), 3200);
-    };
+        toastTimer = window.setTimeout(() => toast.classList.remove('visible'), 3600);
+    }
 
     if (shell) {
         let checkingSession = false;
@@ -226,17 +443,11 @@ document.addEventListener('DOMContentLoaded', () => {
             checkingSession = true;
             try {
                 const response = await fetch('/session-status', {
-                    method: 'GET',
-                    credentials: 'same-origin',
-                    cache: 'no-store',
-                    headers: { Accept: 'application/json' },
+                    method: 'GET', credentials: 'same-origin', cache: 'no-store', headers: { Accept: 'application/json' },
                 });
                 if (response.status !== 401) return;
-
                 const payload = await response.json().catch(() => ({}));
-                const loginUrl = typeof payload.login_url === 'string' && payload.login_url.startsWith('/')
-                    ? payload.login_url
-                    : '/login';
+                const loginUrl = typeof payload.login_url === 'string' && payload.login_url.startsWith('/') ? payload.login_url : '/login';
                 sessionEnded = true;
                 showToast('This session was revoked or expired. Redirecting to sign in.');
                 window.setTimeout(() => {
@@ -244,12 +455,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.replace(`${loginUrl}${separator}session=ended`);
                 }, 500);
             } catch (error) {
-                // A temporary network or service outage must not destroy a valid local browser session.
+                // A temporary service outage must not destroy a valid local browser session.
             } finally {
                 checkingSession = false;
             }
         };
-
         window.setTimeout(checkSession, 1500);
         window.setInterval(checkSession, 12000);
         document.addEventListener('visibilitychange', () => {
@@ -260,14 +470,12 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('[data-demo-action]').forEach((button) => {
         button.addEventListener('click', () => showToast(button.dataset.demoAction || 'This action is ready for service integration.'));
     });
-
     document.querySelectorAll('.payment-method').forEach((button) => {
         button.addEventListener('click', () => {
             document.querySelectorAll('.payment-method').forEach((item) => item.classList.remove('active'));
             button.classList.add('active');
         });
     });
-
     document.querySelectorAll('.filter-tabs').forEach((tabs) => {
         tabs.querySelectorAll('button').forEach((button) => {
             button.addEventListener('click', () => {
@@ -280,7 +488,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pageSearch = document.querySelector('.portal-search input');
     pageSearch?.addEventListener('input', () => {
         const term = pageSearch.value.trim().toLowerCase();
-        document.querySelectorAll('.portal-main tbody tr:not(.empty-row), .portal-main details.portal-card').forEach((item) => {
+        document.querySelectorAll('.portal-main tbody tr:not(.empty-row), .portal-main details.portal-card, .portal-main details.support-message-row').forEach((item) => {
             const matches = term === '' || (item.textContent || '').toLowerCase().includes(term);
             item.hidden = !matches;
         });
