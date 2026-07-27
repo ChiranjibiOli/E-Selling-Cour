@@ -29,7 +29,7 @@ final class StudentCartPage
         }
 
         if ($list === '') {
-            $list = '<div class="rich-empty"><div class="empty-art"><i></i><i></i><span>CH</span></div><h3>Your cart is empty</h3><p>Add a published course, compare the final server price and continue when you are ready.</p><a class="portal-button secondary" href="/courses">Explore courses</a></div>';
+            $list = '<div class="rich-empty"><div class="empty-art"><i></i><i></i><span>CH</span></div><h3>Your cart is empty</h3><p>Add a published course, compare the final server price and continue when you are ready.</p><a class="portal-button secondary" href="/student/courses">Explore courses</a></div>';
         }
 
         $content = $alert
@@ -37,12 +37,12 @@ final class StudentCartPage
             . '<article class="metric-card violet"><div class="metric-top"><span>Current subtotal</span><i></i></div><strong>NPR ' . number_format($subtotal, 2) . '</strong><small>Calculated by the server</small></article>'
             . '<article class="metric-card teal"><div class="metric-top"><span>Access type</span><i></i></div><strong>Lifetime</strong><small>Per purchased course</small></article>'
             . '<article class="metric-card orange"><div class="metric-top"><span>Pricing</span><i></i></div><strong>Protected</strong><small>Browser totals are never trusted</small></article></section>'
-            . '<div class="panel-split panel-split-wide"><section class="data-card"><div class="data-card-head"><div><span>CART ITEMS</span><h3>Your selected courses</h3></div><a class="text-button" href="/courses">Browse catalog</a></div><div class="cart-course-list">' . $list . '</div></section>'
+            . '<div class="panel-split panel-split-wide"><section class="data-card"><div class="data-card-head"><div><span>CART ITEMS</span><h3>Your selected courses</h3></div><a class="text-button" href="/student/courses">Browse catalogue</a></div><div class="cart-course-list">' . $list . '</div></section>'
             . '<aside class="summary-card accent-card"><span>ORDER SUMMARY</span><div class="summary-row"><span>Subtotal</span><strong>NPR ' . number_format($subtotal, 2) . '</strong></div>'
             . '<div class="summary-row"><span>Discount</span><strong>Calculated at checkout</strong></div><div class="summary-total"><span>Current total</span><strong>NPR ' . number_format($subtotal, 2) . '</strong></div>'
-            . (count($items) > 0 ? '<a class="portal-button full" href="/student/checkout">Continue to secure checkout</a>' : '<a class="portal-button secondary full" href="/courses">Choose a course</a>')
+            . (count($items) > 0 ? '<a class="portal-button full" href="/student/checkout">Continue to secure checkout</a>' : '<a class="portal-button secondary full" href="/student/courses">Choose a course</a>')
             . '<p class="muted-copy">The checkout service reloads every course and price from the database before creating an order.</p></aside></div>';
 
-        return PortalPage::render('student', 'My cart', $content, '<a class="portal-button secondary" href="/courses">+ Add another course</a>');
+        return PortalPage::render('student', 'My cart', $content, '<a class="portal-button secondary" href="/student/courses">+ Add another course</a>');
     }
 }
