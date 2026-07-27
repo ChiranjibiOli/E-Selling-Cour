@@ -175,3 +175,338 @@
     .workflow-record-body { padding-left: 16px; padding-right: 16px; }
     .support-destination { align-items: flex-start; flex-direction: column; }
 }
+
+/* Premium Instructor authoring studio. Loaded after instructor-console.css. */
+.portal-role-instructor .complete-authoring-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(330px, 380px);
+    gap: 28px;
+    align-items: start;
+}
+.portal-role-instructor .complete-authoring-form {
+    max-height: calc(100vh - 126px);
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 5px;
+    scrollbar-width: thin;
+    scrollbar-color: #8d93a6 transparent;
+}
+.portal-role-instructor .authoring-sheet {
+    overflow: visible;
+    border: 0;
+    border-radius: 28px;
+    background: #f1f3f8;
+    box-shadow: 0 28px 80px rgba(16, 24, 48, .14);
+}
+.portal-role-instructor .authoring-sheet-head {
+    min-height: 210px;
+    padding: clamp(30px, 5vw, 52px);
+    align-items: flex-end;
+    color: #fff;
+    border: 0;
+    border-radius: 28px 28px 0 0;
+    background:
+        radial-gradient(circle at 82% 18%, rgba(171, 91, 255, .38), transparent 30%),
+        radial-gradient(circle at 12% 88%, rgba(65, 150, 255, .25), transparent 34%),
+        linear-gradient(145deg, #0b101a, #131b31 58%, #202653);
+}
+.portal-role-instructor .authoring-sheet-head > div > span { color: #9db0ff; }
+.portal-role-instructor .authoring-sheet-head h2 {
+    max-width: 680px;
+    margin: 10px 0 9px;
+    color: #fff;
+    font-size: clamp(2rem, 4.2vw, 3.4rem);
+    line-height: 1;
+    letter-spacing: -.05em;
+}
+.portal-role-instructor .authoring-sheet-head p { max-width: 650px; color: #c6cee0; font-size: .82rem; }
+.portal-role-instructor .authoring-sheet-head > strong {
+    min-width: 68px;
+    height: 68px;
+    border: 1px solid rgba(255,255,255,.14);
+    border-radius: 20px;
+    background: linear-gradient(145deg, #4395ff, #755fff 55%, #aa5cff);
+    box-shadow: 0 16px 36px rgba(82, 87, 255, .32), inset 0 1px 0 rgba(255,255,255,.3);
+}
+.portal-role-instructor .authoring-block {
+    padding: 34px;
+    grid-template-columns: minmax(145px, 185px) minmax(0, 1fr);
+    align-items: start;
+    gap: 18px 28px;
+    border-bottom: 1px solid #e1e5ee;
+    background: #f8f9fc;
+}
+.portal-role-instructor .authoring-block:nth-of-type(even) { background: #f3f5f9; }
+.portal-role-instructor .authoring-block > :not(.authoring-block-title) { grid-column: 2; }
+.portal-role-instructor .authoring-block-title {
+    position: sticky;
+    top: 18px;
+    grid-template-columns: 42px minmax(0, 1fr);
+    gap: 12px;
+}
+.portal-role-instructor .authoring-block-title > span {
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+    background: linear-gradient(145deg, #438fff, #735fff 62%, #a75cff);
+    box-shadow: 0 10px 24px rgba(83, 91, 242, .22);
+}
+.portal-role-instructor .authoring-block-title h3 { font-size: 1rem; line-height: 1.25; }
+.portal-role-instructor .authoring-block-title p { margin-top: 7px; color: #7a8498; }
+.portal-role-instructor .authoring-block > label,
+.portal-role-instructor .authoring-block > .form-columns > label,
+.portal-role-instructor .course-lesson-editor label:not(.lesson-preview-check) {
+    padding: 16px;
+    gap: 10px;
+    border: 1px solid #dfe4ee;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 8px 24px rgba(22, 31, 55, .045);
+}
+.portal-role-instructor .authoring-block input:not([type="checkbox"]),
+.portal-role-instructor .authoring-block textarea,
+.portal-role-instructor .authoring-block select {
+    width: 100%;
+    border: 1px solid #d8deea;
+    border-radius: 12px;
+    background: #f7f8fb;
+    color: #111827;
+}
+.portal-role-instructor .authoring-block input:focus,
+.portal-role-instructor .authoring-block textarea:focus,
+.portal-role-instructor .authoring-block select:focus {
+    outline: 3px solid rgba(99, 102, 241, .12);
+    border-color: #716cf4;
+    background: #fff;
+}
+.portal-role-instructor .field-info {
+    color: #fff;
+    border-color: transparent;
+    background: linear-gradient(145deg, #438fff, #825fff);
+    box-shadow: 0 6px 14px rgba(91, 91, 232, .2);
+}
+.portal-role-instructor .curriculum-authoring-block { background: #eef1f7; }
+.portal-role-instructor .course-section-editor {
+    border: 1px solid #d8deea;
+    border-radius: 20px;
+    box-shadow: 0 16px 36px rgba(25, 34, 56, .07);
+}
+.portal-role-instructor .course-section-editor > header {
+    padding: 20px 22px;
+    color: #fff;
+    border: 0;
+    background: linear-gradient(110deg, #131a2b, #222d4d);
+}
+.portal-role-instructor .course-section-editor > header span { color: #aebcff; }
+.portal-role-instructor .course-section-editor > header h4 { color: #fff; }
+.portal-role-instructor .course-section-editor > header .danger-text { color: #ffb8c5; }
+.portal-role-instructor .course-lesson-editor {
+    padding: 20px;
+    gap: 17px;
+    border: 1px solid #e0e4ed;
+    border-radius: 16px;
+    background: #f9fafc;
+}
+.portal-role-instructor .course-lesson-editor > header {
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e3e7ef;
+}
+.portal-role-instructor .lesson-content-panels > div {
+    padding: 18px;
+    border: 1px dashed #bfc8d9;
+    border-radius: 14px;
+    background: #eef2f8;
+}
+.portal-role-instructor .complete-authoring-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 20;
+    padding: 20px 24px;
+    border-radius: 0 0 28px 28px;
+    background: rgba(13, 18, 29, .97);
+    color: #fff;
+    backdrop-filter: blur(18px);
+    box-shadow: 0 -16px 34px rgba(15, 23, 42, .14);
+}
+.portal-role-instructor .complete-authoring-actions > div span { color: #aeb7c8; }
+.portal-role-instructor .complete-authoring-actions .portal-button {
+    border: 0;
+    background: linear-gradient(90deg, #4298ff, #7469ff 54%, #ae65ff);
+    box-shadow: 0 10px 24px rgba(86, 87, 242, .28);
+}
+.portal-role-instructor .complete-authoring-actions .portal-button.secondary {
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.14);
+    background: rgba(255,255,255,.075);
+    box-shadow: none;
+}
+.portal-role-instructor .course-design-preview {
+    top: 96px;
+    max-height: calc(100vh - 116px);
+    overflow-y: auto;
+    padding: 18px;
+    border: 1px solid rgba(80, 91, 139, .16);
+    border-radius: 24px;
+    background: #eceef4;
+    box-shadow: 0 22px 60px rgba(16, 24, 48, .12);
+    scrollbar-width: thin;
+}
+.portal-role-instructor .course-design-preview > header { padding: 2px 4px 8px; }
+.portal-role-instructor .course-design-preview > header > span { color: #665ff2; }
+.portal-role-instructor .course-design-preview > header strong { color: #111827; font-size: 1rem; }
+.portal-role-instructor .course-design-preview > header p { color: #6b7280; }
+.portal-role-instructor .provided-course-card {
+    position: relative;
+    min-height: 560px;
+    padding: 52px 10px 10px;
+    display: grid;
+    grid-template-rows: 220px minmax(0, 1fr);
+    overflow: hidden;
+    border: 0;
+    border-radius: 30px;
+    color: #fff;
+    background: linear-gradient(135deg, #4196ff 0%, #706cff 49%, #aa5bff 100%);
+    box-shadow: 0 26px 60px rgba(51, 63, 145, .25);
+}
+.portal-role-instructor .provided-course-card::before {
+    content: "LIVE COURSE CARD";
+    position: absolute;
+    left: 22px;
+    top: 18px;
+    color: #fff;
+    font-size: .72rem;
+    font-weight: 950;
+    font-style: italic;
+    letter-spacing: .055em;
+}
+.portal-role-instructor .provided-course-card::after {
+    content: "✦";
+    position: absolute;
+    right: 22px;
+    top: 16px;
+    color: #fff;
+    font-size: 1rem;
+}
+.portal-role-instructor .provided-course-thumb {
+    min-height: 0;
+    border-radius: 23px 23px 0 0;
+    background: radial-gradient(circle at 70% 18%, rgba(150, 100, 255, .48), transparent 34%), linear-gradient(145deg, #111827, #202943);
+}
+.portal-role-instructor .provided-course-thumb > b { background: rgba(12, 17, 27, .78); }
+.portal-role-instructor .provided-course-body {
+    padding: 22px;
+    color: #fff;
+    background: linear-gradient(180deg, #121720, #0d121a);
+    border-radius: 0 0 23px 23px;
+}
+.portal-role-instructor .provided-course-body > span { color: #aebcff; }
+.portal-role-instructor .provided-course-body h3 { color: #fff; font-family: inherit; font-size: 1.5rem; }
+.portal-role-instructor .provided-course-body > p { color: #97a1b4; }
+.portal-role-instructor .provided-course-meta small { color: #d6deef; background: rgba(255,255,255,.06); }
+.portal-role-instructor .provided-course-body footer { border-top-color: rgba(255,255,255,.09); }
+.portal-role-instructor .provided-course-body footer small { color: #919bad; }
+.portal-role-instructor .provided-course-body footer strong,
+.portal-role-instructor .provided-course-body footer > b { color: #fff; font-family: inherit; }
+.portal-role-instructor .preview-checklist {
+    color: #60697c;
+    border-color: #d7dce6;
+    background: #fff;
+}
+
+/* Purchased-course cards use the same premium family. */
+.portal-role-student .learning-course-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+}
+.portal-role-student .learning-course-card {
+    position: relative;
+    min-width: 0;
+    min-height: 540px;
+    padding: 52px 10px 10px;
+    display: grid;
+    grid-template-rows: 205px minmax(0, 1fr);
+    overflow: hidden;
+    border-radius: 30px;
+    background: linear-gradient(135deg, #4196ff 0%, #706cff 49%, #aa5bff 100%);
+    box-shadow: 0 24px 55px rgba(51, 63, 145, .22);
+}
+.portal-role-student .learning-course-card::before {
+    content: "PURCHASED COURSE";
+    position: absolute;
+    left: 22px;
+    top: 18px;
+    color: #fff;
+    font-size: .7rem;
+    font-weight: 950;
+    font-style: italic;
+    letter-spacing: .055em;
+}
+.portal-role-student .learning-course-card::after {
+    content: "✦";
+    position: absolute;
+    right: 22px;
+    top: 16px;
+    color: #fff;
+}
+.portal-role-student .learning-course-media {
+    min-height: 0;
+    border-radius: 23px 23px 0 0;
+    background: #111722;
+}
+.portal-role-student .learning-course-copy {
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    color: #f8fafc;
+    background: linear-gradient(180deg, #121720, #0d121a);
+    border-radius: 0 0 23px 23px;
+}
+.portal-role-student .learning-course-copy > span { color: #aebcff; }
+.portal-role-student .learning-course-copy h3 {
+    min-height: 58px;
+    display: -webkit-box;
+    overflow: hidden;
+    color: #fff;
+    font-size: 1.42rem;
+    line-height: 1.18;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+.portal-role-student .learning-course-copy p {
+    min-height: 50px;
+    display: -webkit-box;
+    overflow: hidden;
+    color: #97a1b4;
+    line-height: 1.58;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+.portal-role-student .learning-course-copy > small { color: #a7b0c1; }
+.portal-role-student .learning-progress > span { background: rgba(255,255,255,.1); }
+.portal-role-student .learning-progress b { color: #fff; }
+.portal-role-student .learning-course-copy footer { margin-top: auto; }
+.portal-role-student .learning-course-copy footer .portal-button {
+    flex: 1 1 130px;
+    justify-content: center;
+    border: 0;
+    background: linear-gradient(90deg, #4298ff, #7469ff 54%, #ae65ff);
+    color: #fff;
+}
+.portal-role-student .learning-course-copy footer .portal-button.secondary {
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.07);
+}
+
+@media (max-width: 1180px) {
+    .portal-role-instructor .complete-authoring-layout { grid-template-columns: 1fr; }
+    .portal-role-instructor .complete-authoring-form { max-height: none; overflow: visible; padding-right: 0; }
+    .portal-role-instructor .course-design-preview { position: static; width: min(430px, 100%); max-height: none; }
+    .portal-role-student .learning-course-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+    .portal-role-instructor .authoring-block { grid-template-columns: 1fr; padding: 20px; }
+    .portal-role-instructor .authoring-block > :not(.authoring-block-title) { grid-column: 1; }
+    .portal-role-instructor .authoring-block-title { position: static; }
+    .portal-role-instructor .authoring-sheet-head { min-height: 0; align-items: flex-start; }
+    .portal-role-instructor .complete-authoring-actions { position: static; }
+    .portal-role-student .learning-course-grid { grid-template-columns: 1fr; }
+}
