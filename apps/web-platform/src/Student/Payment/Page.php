@@ -22,20 +22,21 @@ final class StudentPaymentPage
         }
 
         if ($orderId < 1) {
-            $content = $alert . '<section class="data-card"><div class="rich-empty"><div class="empty-art"><i></i><i></i><span>CH</span></div><h3>No unpaid order found</h3><p>Create an order from your cart before opening payment.</p><a class="portal-button" href="/student/cart">Open my cart</a></div></section>';
+            $content = $alert . '<section class="data-card"><div class="rich-empty"><h3>No unpaid order found</h3><p>Create an order from your cart before opening payment.</p><a class="portal-button" href="/student/cart">Open my cart</a></div></section>';
             return PortalPage::render('student', 'Payment', $content);
         }
 
-        $form = '<form method="post" action="/student/payment?order=' . $orderId . '">' . Csrf::field() . '<input type="hidden" name="order_id" value="' . $orderId . '">'
+        $form = '<form method="post" action="/student/payment?order=' . $orderId . '" enctype="multipart/form-data" novalidate data-payment-proof-form>' . Csrf::field() . '<input type="hidden" name="order_id" value="' . $orderId . '">'
             . '<div class="panel-split panel-split-wide"><section class="data-card"><div class="data-card-head"><div><span>PAYMENT METHOD</span><h3>Pay order #' . $orderId . '</h3></div><span class="secure-pill">NPR ' . number_format($amount, 2) . '</span></div>'
-            . '<div class="payment-methods"><button class="payment-method active" type="button"><i>QR</i><span><strong>Manual QR or bank payment</strong><small>Submit transaction reference for admin verification</small></span><b>✓</b></button>'
+            . '<div class="payment-methods"><button class="payment-method active" type="button"><i>QR</i><span><strong>Manual QR or bank payment</strong><small>Upload the actual receipt for Admin verification</small></span><b>✓</b></button>'
             . '<button class="payment-method" type="button" disabled title="Configure gateway credentials first"><i>eS</i><span><strong>eSewa</strong><small>Requires merchant credentials and webhook verification</small></span></button>'
-            . '<button class="payment-method" type="button" disabled title="Configure gateway credentials first"><i>Kh</i><span><strong>Khalti</strong><small>Requires live public/secret keys and webhook verification</small></span></button></div>'
-            . '<div class="panel-form"><label>Transaction reference<input name="transaction_id" maxlength="150" value="' . $e($values['transaction_id'] ?? '') . '" placeholder="Bank, eSewa or Khalti reference" required></label>'
-            . '<label>Uploaded proof filename<input name="proof_image" maxlength="255" value="' . $e($values['proof_image'] ?? '') . '" placeholder="payment-proof-123.jpg" required><small>The secure media uploader must create this filename before production use.</small></label>'
+            . '<button class="payment-method" type="button" disabled title="Configure gateway credentials first"><i>Kh</i><span><strong>Khalti</strong><small>Requires live public and secret keys</small></span></button></div>'
+            . '<div class="panel-form"><label>Transaction reference<input type="text" name="transaction_id" minlength="3" maxlength="150" value="' . $e($values['transaction_id'] ?? '') . '" placeholder="Bank, eSewa or Khalti reference" required data-error="Enter the real transaction reference from the completed payment."></label>'
+            . '<label>Payment screenshot or receipt<input type="file" name="proof_image" accept="image/jpeg,image/png,image/webp,application/pdf" required data-payment-proof-input data-error="Upload the actual JPG, PNG, WebP or PDF payment receipt."><small>Images must be readable and at least 400 × 300 pixels. Maximum file size is 8 MB.</small></label>'
+            . '<div class="payment-proof-preview" data-payment-proof-preview><span>No receipt selected</span></div>'
             . '<label>Payment note<textarea name="note" rows="4" maxlength="1000" placeholder="Sender name, paid account or useful verification detail">' . $e($values['note'] ?? '') . '</textarea></label>'
-            . '<div class="payment-note"><span>i</span><p>Submitting this form does not grant access. Enrollment is created only after an administrator verifies the payment amount and approves it.</p></div>'
-            . '<button class="portal-button" type="submit">Submit payment for verification</button></div></section>'
+            . '<div class="payment-note"><span>i</span><p>Submitting proof does not grant access. Enrollment is created only after Admin verifies the order amount, reference and uploaded receipt.</p></div>'
+            . '<button class="portal-button" type="submit">Submit real proof for verification</button></div></section>'
             . '<aside class="summary-card"><span>ORDER #' . $orderId . '</span>' . $itemList . '<div class="summary-row"><span>Original amount</span><strong>NPR ' . number_format((float) ($order['original_amount'] ?? 0), 2) . '</strong></div>'
             . '<div class="summary-row"><span>Discount</span><strong>− NPR ' . number_format((float) ($order['discount_amount'] ?? 0), 2) . '</strong></div><div class="summary-total"><span>Payable</span><strong>NPR ' . number_format($amount, 2) . '</strong></div>'
             . '<a class="portal-button secondary full" href="/student/payment-history">View payment history</a></aside></div></form>';
