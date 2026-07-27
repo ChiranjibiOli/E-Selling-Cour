@@ -21,8 +21,25 @@ return static function (Request $request) {
             throw new DomainException('You must agree to the instructor and content rules before applying.');
         }
 
+        $profileFile = is_array($_FILES['profile_photo'] ?? null) ? $_FILES['profile_photo'] : [];
+        $temporaryPhoto = (string) ($profileFile['tmp_name'] ?? '');
+        $photoError = (int) ($profileFile['error'] ?? UPLOAD_ERR_NO_FILE);
+        if ($photoError !== UPLOAD_ERR_OK || $temporaryPhoto === '' || !is_uploaded_file($temporaryPhoto)) {
+            throw new DomainException('A passport-size profile photo is required.');
+        }
+        $dimensions = @getimagesize($temporaryPhoto);
+        if (!is_array($dimensions)) {
+            throw new DomainException('The profile photo must be a valid image.');
+        }
+        $width = (int) ($dimensions[0] ?? 0);
+        $height = (int) ($dimensions[1] ?? 0);
+        $ratio = $height > 0 ? $width / $height : 0;
+        if ($width < 300 || $height < 400 || $height <= $width || $ratio < 0.62 || $ratio > 0.9) {
+            throw new DomainException('Upload a clear portrait passport-size photo at least 300 × 400 pixels.');
+        }
+
         $profileImage = SecureUpload::store(
-            is_array($_FILES['profile_photo'] ?? null) ? $_FILES['profile_photo'] : [],
+            $profileFile,
             'private/instructor-profiles',
             ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'],
             3 * 1024 * 1024,
@@ -34,7 +51,7 @@ return static function (Request $request) {
             6 * 1024 * 1024,
         );
         if ($profileImage === null || $identityDocument === null) {
-            throw new DomainException('A personal photo and identity document are required.');
+            throw new DomainException('A passport-size photo and identity document are required.');
         }
 
         $payload = $request->body;
