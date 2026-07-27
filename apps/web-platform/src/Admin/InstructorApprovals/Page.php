@@ -69,8 +69,8 @@ final class InstructorApprovalsPage
                     . '</section>'
                     . '<section class="instructor-document-panel"><div><span>PRIVATE VERIFICATION</span><h3>Identity document</h3><p>The document is available only through this authenticated Admin route and remains outside the public web root.</p></div><div class="actions">' . $identityPreview . '</div></section>'
                     . '<form class="portal-form instructor-decision-form" method="post" action="/admin/instructor-approvals">' . Csrf::field() . '<input type="hidden" name="instructor_id" value="' . $id . '">'
-                    . '<label>Decision note<textarea name="note" rows="3" maxlength="1000" placeholder="Required when rejecting"></textarea></label>'
-                    . '<div class="actions"><button class="portal-button" name="decision" value="approve" type="submit">Approve Instructor</button><button class="portal-button danger" name="decision" value="reject" type="submit">Reject application</button></div></form>'
+                    . '<label>Decision note<small>Required when rejecting. This exact reason is saved and emailed to the Instructor.</small><textarea name="note" rows="3" maxlength="1000" placeholder="Explain clearly what must be corrected before reapplying"></textarea></label>'
+                    . '<div class="actions"><button class="portal-button" name="decision" value="approve" type="submit">Approve Instructor</button><button class="portal-button danger" name="decision" value="reject" type="submit">Reject and email reason</button></div></form>'
                     . '</div></details>';
             }
 
