@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use CourseHub\WebPlatform\Shared\Http\Response;
+use CourseHub\WebPlatform\Shared\Ui\PublicNavbar;
 
 require_once __DIR__ . '/Components/CourseCard.php';
 
@@ -60,26 +61,10 @@ final class LandingPage
     <link rel="stylesheet" href="/assets/css/public-site-fixes.css?v=20260728-2">
     <link rel="stylesheet" href="/assets/css/course-card-theme.css">
     <link rel="stylesheet" href="/assets/css/course-human-system.css?v=20260728-1">
+    <?= PublicNavbar::styles() ?>
 </head>
 <body class="landing-body">
-    <header class="landing-nav" data-landing-nav>
-        <a class="landing-brand" href="/" aria-label="CourseHub home">
-            <span class="landing-brand-mark"><img src="/assets/images/coursehub-robot.svg" alt=""></span>
-            <strong>CourseHub</strong>
-        </a>
-        <button class="landing-menu" type="button" aria-label="Open navigation" aria-expanded="false" data-landing-menu><span></span><span></span></button>
-        <nav class="landing-links" aria-label="Primary navigation" data-landing-links>
-            <a class="active" data-nav-section="top" href="#top" aria-current="page">Home</a>
-            <a data-nav-section="courses" href="/courses">Courses</a>
-            <a data-nav-section="categories" href="#categories">Categories</a>
-            <a data-nav-section="promise" href="#promise">About</a>
-            <a data-nav-section="contact" href="/contact">Contact</a>
-        </nav>
-        <div class="landing-account">
-            <a class="landing-login" href="/learn/sign-in">Log in</a>
-            <a class="landing-create" href="/register/student">Create account</a>
-        </div>
-    </header>
+    <?= PublicNavbar::render('home') ?>
 
     <?= $serviceNotice ?>
 
@@ -91,7 +76,7 @@ final class LandingPage
                 <p>Handpicked courses from approved instructors, designed for real progress. Purchase once, complete payment verification, and keep lifetime access.</p>
                 <div class="hero-actions">
                     <a class="primary-action" href="/courses">Explore courses</a>
-                    <a class="secondary-action" href="#promise">How it works</a>
+                    <a class="secondary-action" href="/#promise">How it works</a>
                 </div>
                 <div class="hero-trust"><span>Approved instructors</span><span>Lifetime access</span><span>Progress tracking</span></div>
             </div>
@@ -150,12 +135,13 @@ final class LandingPage
 
     <footer class="landing-footer">
         <div class="footer-brand"><img src="/assets/images/coursehub-robot.svg" alt=""><div><strong>CourseHub</strong><span>Education that moves with you.</span></div></div>
-        <div><small>EXPLORE</small><a href="/courses">Courses</a><a href="/about">About</a><a href="/contact">Contact</a></div>
+        <div><small>EXPLORE</small><a href="/courses">Courses</a><a href="/#promise">About</a><a href="/contact">Contact</a></div>
         <div><small>STUDENT</small><a href="/learn/sign-in">Sign in</a><a href="/register/student">Create account</a></div>
         <p>© <?= date('Y') ?> CourseHub. Practical learning, clear payment service and lifetime access to approved purchases.</p>
     </footer>
 
-    <script src="/room-assets/Public/Landing/page.js?v=20260728-5" defer></script>
+    <?= PublicNavbar::script() ?>
+    <script src="/room-assets/Public/Landing/page.js?v=20260728-6" defer></script>
     <script src="/assets/js/course-card-theme.js" defer></script>
 </body>
 </html>
