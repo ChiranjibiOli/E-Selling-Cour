@@ -18,12 +18,17 @@ return static function (Request $request) {
     try {
         if ($request->method === 'POST') {
             Csrf::assertValid((string) ($request->body['_token'] ?? ''));
-            $action = FormInput::enum($request->body, 'action', 'Notification action', ['read_one', 'read_all'], 'read_one');
+            $action = FormInput::enum($request->body, 'action', 'Notification action', ['read_one', 'read_all', 'delete_one', 'delete_all'], 'read_one');
             if ($action === 'read_all') {
                 $result = $client->post('/api/v1/notifications/read-all', []);
+            } elseif ($action === 'delete_all') {
+                $result = $client->post('/api/v1/notifications/delete-all', []);
             } else {
                 $notificationId = FormInput::integer($request->body, 'notification_id', 'Notification', 1, PHP_INT_MAX);
-                $result = $client->post('/api/v1/notifications/' . $notificationId . '/read', []);
+                $endpoint = $action === 'delete_one'
+                    ? '/api/v1/notifications/' . $notificationId . '/delete'
+                    : '/api/v1/notifications/' . $notificationId . '/read';
+                $result = $client->post($endpoint, []);
             }
             $message = (string) ($result['message'] ?? 'Notifications updated.');
         }
