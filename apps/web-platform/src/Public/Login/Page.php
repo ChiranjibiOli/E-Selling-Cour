@@ -16,7 +16,7 @@ final class LoginPage
             . '<meta name="description" content="Choose the correct CourseHub student or teaching portal."><title>Log in | CourseHub</title>'
             . '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
             . '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet">'
-            . '<link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/room-assets/Public/Login/page.css"><link rel="stylesheet" href="/assets/css/public-unified.css?v=20260728-1"></head>'
+            . '<link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/assets/css/public-login.css?v=20260728-1"><link rel="stylesheet" href="/assets/css/public-unified.css?v=20260728-1"></head>'
             . '<body class="access-body"><div class="access-grain" aria-hidden="true"></div>'
             . '<header class="public-nav" data-public-nav><a class="public-brand" href="/" aria-label="CourseHub home"><span class="public-brand-mark"><img src="/assets/images/coursehub-robot.svg" alt=""></span><strong>CourseHub</strong></a>'
             . '<button class="public-menu" type="button" aria-label="Open navigation" aria-expanded="false" data-public-menu><span></span><span></span></button>'
