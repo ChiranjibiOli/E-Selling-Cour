@@ -26,7 +26,7 @@ final class AboutPage
         <a href="/courses">Courses</a>
         <a class="active" href="/about">About</a>
         <a href="/contact">Contact</a>
-        <a href="/learn/sign-in">Student sign in</a>
+        <a href="/login">Sign in</a>
         <a class="about-join" href="/register/student">Join</a>
     </nav>
 </header>
@@ -38,7 +38,7 @@ final class AboutPage
             <p>CourseHub is a Nepal-focused course marketplace where reviewed instructors publish useful courses and students purchase only the courses they need, with lifetime access after verified payment.</p>
             <div class="about-actions">
                 <a class="about-primary" href="/courses">Explore courses →</a>
-                <a class="about-secondary" href="/register/instructor">Apply to teach</a>
+                <a class="about-secondary" href="/contact">Contact support</a>
             </div>
         </div>
         <div class="about-hero-panel" aria-label="CourseHub platform model">
