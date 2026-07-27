@@ -30,6 +30,8 @@ $checks = [
     'apps/web-platform/src/Public/ForgotPassword/Page.php' => ['STUDENT ACCOUNT RECOVERY', 'Student sign in', 'Send six-digit code'],
     'apps/web-platform/src/Instructor/Profile/Controller.php' => ['/api/v1/users/instructor-profile', 'PrivateMedia', 'SecureUpload'],
     'apps/web-platform/src/Admin/InstructorApprovals/Controller.php' => ['PrivateMedia', 'instructor-applications'],
+    'apps/web-platform/src/Admin/InstructorApprovals/Page.php' => ['instructor-review-summary', 'Review application', 'instructor-review-body'],
+    'apps/web-platform/public/assets/css/portal-fixes.css' => ['overflow-wrap: anywhere', 'instructor-approval-list', 'instructor-review-card[open]'],
     'apps/web-platform/src/Instructor/CreateCourse/Controller.php' => ['/api/v1/courses', 'Csrf::assertValid'],
     'apps/web-platform/src/Admin/CourseApprovals/Controller.php' => ['/api/v1/courses/pending', 'Csrf::assertValid'],
 ];
@@ -66,6 +68,11 @@ foreach ([
     if (str_contains($content, '/teach/studio-access') || str_contains($content, '>Instructor<')) {
         $errors[] = 'Student recovery pages must not show Instructor access: ' . $studentRecoveryPage;
     }
+}
+
+$approvalPage = (string) file_get_contents($root . '/apps/web-platform/src/Admin/InstructorApprovals/Page.php');
+if (str_contains($approvalPage, '<details open')) {
+    $errors[] = 'Instructor approval applications must start collapsed.';
 }
 
 if ($errors !== []) {
