@@ -2,10 +2,83 @@
 
 declare(strict_types=1);
 
+use CourseHub\WebPlatform\Shared\Http\ApiClient;
 use CourseHub\WebPlatform\Shared\Http\Request;
+use CourseHub\WebPlatform\Shared\Media\PrivateMedia;
+use CourseHub\WebPlatform\Shared\Media\SecureUpload;
 use CourseHub\WebPlatform\Shared\Room\RoomRuntime;
+use CourseHub\WebPlatform\Shared\Security\Csrf;
+
+require_once __DIR__ . '/Page.php';
 
 return static function (Request $request) {
     RoomRuntime::authorize(__DIR__, $request);
-    return RoomRuntime::render(__DIR__, RoomRuntime::load(__DIR__, $request));
+    $client = new ApiClient();
+
+    try {
+        if ($request->method === 'GET' && (string) ($request->query['photo'] ?? '') === '1') {
+            $profile = $client->get('/api/v1/users/instructor-profile')['data'] ?? [];
+            return PrivateMedia::response((string) ($profile['profile_image'] ?? ''), ['private/instructor-profiles']);
+        }
+    } catch (DomainException $exception) {
+        return InstructorProfilePage::render([], $exception->getMessage(), false);
+    }
+
+    $message = '';
+    $success = true;
+    $newProfileImage = null;
+
+    try {
+        if ($request->method === 'POST') {
+            Csrf::assertValid((string) ($request->body['_token'] ?? ''));
+            $profileFile = is_array($_FILES['profile_photo'] ?? null) ? $_FILES['profile_photo'] : [];
+            $photoError = (int) ($profileFile['error'] ?? UPLOAD_ERR_NO_FILE);
+            if ($photoError !== UPLOAD_ERR_NO_FILE) {
+                $temporaryPhoto = (string) ($profileFile['tmp_name'] ?? '');
+                if ($photoError !== UPLOAD_ERR_OK || $temporaryPhoto === '' || !is_uploaded_file($temporaryPhoto)) {
+                    throw new DomainException('The new profile photo could not be received.');
+                }
+                $dimensions = @getimagesize($temporaryPhoto);
+                if (!is_array($dimensions)) {
+                    throw new DomainException('The new profile photo must be a valid image.');
+                }
+                $width = (int) ($dimensions[0] ?? 0);
+                $height = (int) ($dimensions[1] ?? 0);
+                $ratio = $height > 0 ? $width / $height : 0;
+                if ($width < 300 || $height < 400 || $height <= $width || $ratio < 0.62 || $ratio > 0.9) {
+                    throw new DomainException('Upload a clear portrait passport-size photo at least 300 × 400 pixels.');
+                }
+                $newProfileImage = SecureUpload::store(
+                    $profileFile,
+                    'private/instructor-profiles',
+                    ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'],
+                    3 * 1024 * 1024,
+                );
+            }
+
+            $payload = $request->body;
+            unset($payload['_token']);
+            if ($newProfileImage !== null) {
+                $payload['profile_image'] = $newProfileImage;
+            }
+            $result = $client->post('/api/v1/users/instructor-profile', $payload);
+            if ($newProfileImage !== null) {
+                SecureUpload::delete((string) ($result['old_profile_image'] ?? ''));
+            }
+            $message = (string) ($result['message'] ?? 'Instructor profile updated.');
+        }
+
+        $profile = $client->get('/api/v1/users/instructor-profile')['data'] ?? [];
+    } catch (DomainException $exception) {
+        SecureUpload::delete($newProfileImage);
+        $message = $exception->getMessage();
+        $success = false;
+        $profile = [];
+        try {
+            $profile = $client->get('/api/v1/users/instructor-profile')['data'] ?? [];
+        } catch (DomainException) {
+        }
+    }
+
+    return InstructorProfilePage::render(is_array($profile) ? $profile : [], $message, $success);
 };
