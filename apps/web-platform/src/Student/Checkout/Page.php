@@ -23,7 +23,7 @@ final class StudentCheckoutPage
                 . number_format((float) ($item['price'] ?? 0), 2) . '</b></div>';
         }
         if ($orderItems === '') {
-            $orderItems = '<div class="rich-empty"><h3>No course selected</h3><p>Return to the catalog and add a published course before checking out.</p><a class="portal-button secondary" href="/courses">Browse courses</a></div>';
+            $orderItems = '<div class="rich-empty"><h3>No course selected</h3><p>Return to the student catalogue and add a published course before checking out.</p><a class="portal-button secondary" href="/student/courses">Browse courses</a></div>';
         }
 
         $form = '<form method="post" action="/student/checkout">' . Csrf::field()
