@@ -22,6 +22,9 @@ foreach ($rooms as $key => $metadata) {
     if (!is_file($directory . '/Controller.php') && !isset($metadata['controller_file'])) {
         $errors[] = 'Panel controller missing: ' . $key;
     }
+    if ($floor === 'Admin' && $room !== 'Login' && (string) ($metadata['status'] ?? '') !== 'implemented') {
+        $errors[] = 'Admin navigation room must be implemented: ' . $key;
+    }
 }
 
 foreach ($expected as $floor => $count) {
@@ -33,15 +36,75 @@ if ($authenticated !== 49) {
     $errors[] = 'Authenticated panel count must remain 49; found ' . $authenticated . '.';
 }
 
-foreach ([
+$requiredFiles = [
     'apps/web-platform/src/Shared/Ui/PortalPage.php',
     'apps/web-platform/src/Shared/Ui/PanelFactory.php',
+    'apps/web-platform/src/Shared/Ui/AdminConsole.php',
+    'apps/web-platform/src/Shared/Room/RoomRuntime.php',
     'apps/web-platform/public/assets/css/app.css',
+    'apps/web-platform/public/assets/css/admin-console.css',
     'apps/web-platform/public/assets/js/app.js',
-] as $file) {
+    'services/reporting-service/public/admin-console.php',
+    'services/reporting-service/public/router.php',
+];
+foreach ($requiredFiles as $file) {
     if (!is_file($root . '/' . $file) || filesize($root . '/' . $file) < 100) {
         $errors[] = 'Shared panel asset is missing or empty: ' . $file;
     }
+}
+
+$contracts = [
+    'apps/web-platform/src/Shared/Ui/PortalPage.php' => [
+        'data-portal-nav',
+        'data-logout-dialog',
+        'Yes, log out',
+        "$role === 'admin'",
+    ],
+    'apps/web-platform/public/assets/js/app.js' => [
+        'navigationScrollKey',
+        'sessionStorage.setItem',
+        'data-logout-confirm',
+        'showModal',
+    ],
+    'apps/web-platform/src/Shared/Ui/AdminConsole.php' => [
+        "'Notifications' => 'notifications'",
+        "'Students' => 'students'",
+        "'Instructors' => 'instructors'",
+        "'Users' => 'users'",
+        "'Categories' => 'categories'",
+        "'Refunds' => 'refunds'",
+        "'Coupons' => 'coupons'",
+        "'Reports' => 'reports'",
+        "'AuditLogs' => 'audit-logs'",
+        "'Security' => 'security'",
+        "'Settings' => 'settings'",
+        'Csrf::field()',
+    ],
+    'services/reporting-service/public/admin-console.php' => [
+        "ServiceAuth::requireUser($database, $authorization, 'admin')",
+        "'notifications', 'students', 'instructors', 'users', 'categories', 'refunds'",
+        "'coupons', 'reports', 'audit-logs', 'security', 'settings'",
+        "payment_status='refunded'",
+        "UPDATE identity_sessions SET revoked_at",
+        'ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',
+    ],
+    'docker-compose.yml' => [
+        'services/reporting-service',
+        'public/router.php',
+    ],
+];
+foreach ($contracts as $file => $needles) {
+    $content = is_file($root . '/' . $file) ? (string) file_get_contents($root . '/' . $file) : '';
+    foreach ($needles as $needle) {
+        if (!str_contains($content, $needle)) {
+            $errors[] = 'Missing Admin panel contract in ' . $file . ': ' . $needle;
+        }
+    }
+}
+
+$portal = (string) file_get_contents($root . '/apps/web-platform/src/Shared/Ui/PortalPage.php');
+if (str_contains($portal, "'admin' => 'Platform control'")) {
+    $errors[] = 'The removed Admin Platform control workspace label returned.';
 }
 
 if ($errors !== []) {
@@ -55,3 +118,4 @@ if ($errors !== []) {
 echo "PANEL COVERAGE CHECK: PASS\n";
 echo "Panel routes: 54\n";
 echo "Authenticated panels: 49\n";
+echo "Admin navigation rooms: implemented\n";
