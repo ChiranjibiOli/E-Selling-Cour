@@ -13,9 +13,9 @@ final class ControlRoomScreen
         $errorHtml = $error !== '' ? '<div class="control-error" role="alert">' . $e($error) . '</div>' : '';
 
         $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            . '<meta name="robots" content="noindex,nofollow"><title>Restricted control entry</title>'
-            . '<link rel="stylesheet" href="/room-assets/Admin/Login/page.css"></head><body class="control-body">'
-            . '<main class="control-shell"><section class="control-mark"><span>COURSEHUB</span><strong>CONTROL<br>ROOM</strong><small>Restricted administration surface</small></section>'
+            . '<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#171611"><title>Restricted control entry</title>'
+            . '<link rel="stylesheet" href="/room-assets/Admin/Login/page.css"><link rel="stylesheet" href="/assets/css/coursehub-editorial.css"></head><body class="control-body">'
+            . '<main class="control-shell"><section class="control-mark"><img class="coursehub-control-logo" src="/assets/images/coursehub-robot.svg" alt=""><span>COURSEHUB</span><strong>CONTROL<br>ROOM</strong><small>Restricted administration surface</small></section>'
             . '<section class="control-terminal"><div class="control-status"><i></i> SECURE ENTRY</div><h1>Administrator challenge</h1>'
             . '<p>This entrance is intentionally absent from public navigation. Access still requires an administrator account, entry code, valid session and server-side role verification.</p>'
             . $errorHtml . '<form method="post" action="' . $e($action) . '">' . Csrf::field()
