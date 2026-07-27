@@ -26,6 +26,19 @@ final class AuthSession
         $_SESSION['authenticated_at'] = time();
     }
 
+    public static function synchronizeUser(array $user): void
+    {
+        $role = (string) ($user['role'] ?? '');
+        $id = (int) ($user['id'] ?? 0);
+        if ($id < 1 || !in_array($role, ['student', 'instructor', 'admin'], true)) {
+            throw new DomainException('The identity service returned an invalid user profile.');
+        }
+
+        $current = is_array($_SESSION['user'] ?? null) ? $_SESSION['user'] : [];
+        $_SESSION['user'] = array_merge($current, $user);
+        $_SESSION['role'] = $role;
+    }
+
     public static function role(): string
     {
         return (string) ($_SESSION['role'] ?? '');
