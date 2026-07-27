@@ -1,1 +1,420 @@
-/* Room-owned styles. Keep selectors scoped to this room. */
+.access-body {
+    margin: 0;
+    min-height: 100vh;
+    color: #101831;
+    background:
+        radial-gradient(circle at 82% 8%, rgba(92, 78, 255, .12), transparent 30rem),
+        radial-gradient(circle at 9% 88%, rgba(219, 169, 71, .12), transparent 28rem),
+        #f7f3ea;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    overflow-x: hidden;
+}
+
+.access-body *,
+.access-body *::before,
+.access-body *::after {
+    box-sizing: border-box;
+}
+
+.access-grain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: .18;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.12'/%3E%3C/svg%3E");
+    z-index: 0;
+}
+
+.access-header,
+.access-main {
+    position: relative;
+    z-index: 1;
+}
+
+.access-header {
+    width: min(1320px, calc(100% - 48px));
+    margin: 0 auto;
+    min-height: 88px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 28px;
+    border-bottom: 1px solid rgba(16, 24, 49, .15);
+}
+
+.access-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    color: inherit;
+    text-decoration: none;
+    letter-spacing: -.02em;
+}
+
+.access-brand span {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 13px;
+    color: #fff;
+    font-weight: 800;
+    font-size: 13px;
+    background: #5149f2;
+    box-shadow: 0 12px 28px rgba(81, 73, 242, .24);
+}
+
+.access-brand strong {
+    font-size: 17px;
+}
+
+.access-header nav {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.access-header nav a {
+    color: #38405a;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 650;
+    transition: color .2s ease;
+}
+
+.access-header nav a:hover,
+.access-header nav a:focus-visible {
+    color: #5149f2;
+}
+
+.access-main {
+    width: min(1320px, calc(100% - 48px));
+    margin: 0 auto;
+    padding: 72px 0 36px;
+}
+
+.access-notice {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 18px;
+    margin-bottom: 32px;
+    border: 1px solid rgba(81, 73, 242, .22);
+    background: rgba(255, 255, 255, .72);
+    backdrop-filter: blur(12px);
+}
+
+.access-notice span {
+    flex: 0 0 auto;
+    padding: 7px 10px;
+    color: #fff;
+    background: #5149f2;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.access-notice p {
+    margin: 0;
+    color: #4b536b;
+    font-size: 14px;
+}
+
+.access-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(280px, .7fr);
+    align-items: end;
+    gap: 64px;
+    margin-bottom: 52px;
+}
+
+.access-intro span,
+.access-portal-copy > span,
+.access-shortcuts span {
+    display: block;
+    color: #5149f2;
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+}
+
+.access-intro h1 {
+    max-width: 760px;
+    margin: 14px 0 0;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(48px, 7vw, 96px);
+    line-height: .94;
+    letter-spacing: -.055em;
+    font-weight: 600;
+}
+
+.access-intro > p {
+    margin: 0 0 6px;
+    color: #555d72;
+    font-size: 17px;
+    line-height: 1.75;
+}
+
+.access-portals {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 1px solid rgba(16, 24, 49, .18);
+    border-bottom: 1px solid rgba(16, 24, 49, .18);
+}
+
+.access-portal {
+    position: relative;
+    min-width: 0;
+    min-height: 430px;
+    display: grid;
+    grid-template-columns: 70px minmax(0, 1fr) 54px;
+    gap: 24px;
+    align-items: start;
+    padding: 42px 36px 38px;
+    color: inherit;
+    text-decoration: none;
+    overflow: hidden;
+    isolation: isolate;
+    transition: color .25s ease, transform .25s ease;
+}
+
+.access-portal:first-child {
+    border-right: 1px solid rgba(16, 24, 49, .18);
+}
+
+.access-portal::before {
+    content: "";
+    position: absolute;
+    inset: 100% 0 0;
+    z-index: -1;
+    transition: inset .35s cubic-bezier(.2, .7, .2, 1);
+}
+
+.access-student::before {
+    background: #101831;
+}
+
+.access-instructor::before {
+    background: #5149f2;
+}
+
+.access-portal:hover::before,
+.access-portal:focus-visible::before {
+    inset: 0;
+}
+
+.access-portal:hover,
+.access-portal:focus-visible {
+    color: #fff;
+    outline: none;
+}
+
+.access-portal-index {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 34px;
+    line-height: 1;
+    color: #b39a65;
+}
+
+.access-portal-copy {
+    min-width: 0;
+}
+
+.access-portal:hover .access-portal-copy > span,
+.access-portal:focus-visible .access-portal-copy > span {
+    color: #d9c28c;
+}
+
+.access-portal-copy h2 {
+    margin: 16px 0 18px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: clamp(34px, 4vw, 58px);
+    line-height: 1;
+    letter-spacing: -.045em;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.access-portal-copy p {
+    max-width: 520px;
+    margin: 0;
+    color: #5c6478;
+    font-size: 16px;
+    line-height: 1.7;
+    transition: color .25s ease;
+}
+
+.access-portal:hover .access-portal-copy p,
+.access-portal:focus-visible .access-portal-copy p {
+    color: rgba(255, 255, 255, .78);
+}
+
+.access-portal-copy ul {
+    margin: 34px 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 12px;
+}
+
+.access-portal-copy li {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    font-size: 14px;
+    font-weight: 650;
+}
+
+.access-portal-copy li::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #d1ae65;
+}
+
+.access-arrow {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(16, 24, 49, .22);
+    border-radius: 50%;
+    font-size: 22px;
+    transition: transform .25s ease, border-color .25s ease;
+}
+
+.access-portal:hover .access-arrow,
+.access-portal:focus-visible .access-arrow {
+    transform: rotate(45deg);
+    border-color: rgba(255, 255, 255, .48);
+}
+
+.access-shortcuts {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    margin-top: 34px;
+    background: rgba(16, 24, 49, .14);
+    border: 1px solid rgba(16, 24, 49, .14);
+}
+
+.access-shortcuts a {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 10px 18px;
+    align-items: center;
+    padding: 25px 26px;
+    color: inherit;
+    text-decoration: none;
+    background: rgba(255, 255, 255, .66);
+    transition: background .2s ease, color .2s ease;
+}
+
+.access-shortcuts a:hover,
+.access-shortcuts a:focus-visible {
+    color: #fff;
+    background: #101831;
+    outline: none;
+}
+
+.access-shortcuts span {
+    grid-column: 1 / -1;
+}
+
+.access-shortcuts strong {
+    min-width: 0;
+    font-size: 15px;
+    overflow-wrap: anywhere;
+}
+
+.access-shortcuts i {
+    font-style: normal;
+    font-size: 20px;
+}
+
+.access-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 18px;
+    padding: 28px 0 0;
+    color: #6a7080;
+    font-size: 13px;
+}
+
+.access-footer a {
+    color: #101831;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+@media (max-width: 900px) {
+    .access-intro {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .access-portals {
+        grid-template-columns: 1fr;
+    }
+
+    .access-portal:first-child {
+        border-right: 0;
+        border-bottom: 1px solid rgba(16, 24, 49, .18);
+    }
+
+    .access-shortcuts {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 680px) {
+    .access-header,
+    .access-main {
+        width: min(100% - 28px, 1320px);
+    }
+
+    .access-header {
+        align-items: flex-start;
+        padding: 18px 0;
+    }
+
+    .access-header nav {
+        justify-content: flex-end;
+        gap: 14px;
+        flex-wrap: wrap;
+    }
+
+    .access-header nav a:nth-child(2) {
+        display: none;
+    }
+
+    .access-main {
+        padding-top: 48px;
+    }
+
+    .access-intro h1 {
+        font-size: clamp(45px, 15vw, 70px);
+    }
+
+    .access-portal {
+        min-height: 0;
+        grid-template-columns: 46px minmax(0, 1fr);
+        padding: 30px 20px;
+    }
+
+    .access-arrow {
+        grid-column: 2;
+        width: 42px;
+        height: 42px;
+        margin-top: 10px;
+    }
+
+    .access-footer {
+        justify-content: flex-start;
+    }
+}
