@@ -1,8 +1,8 @@
 'use strict';
 
 (() => {
-    const cardSelector = '.course-card, .catalog-card, .provided-course-card, .learning-course-card, .instructor-course-card, .detail-purchase, .workflow-record';
-    const imageSelector = '.course-card-media img, .catalog-media img, .provided-course-thumb img, .learning-course-media img, .instructor-course-card-media img, .detail-image img, .workflow-course-thumb img';
+    const cardSelector = '.course-card, .catalog-card, .provided-course-card, .learning-course-card, .instructor-course-card, .detail-purchase, .workflow-record, .course-player-stage';
+    const imageSelector = '.course-card-media img, .catalog-media img, .provided-course-thumb img, .learning-course-media img, .instructor-course-card-media img, .detail-image img, .workflow-course-thumb img, .player-course-cover img';
 
     const clamp = (value, minimum, maximum) => Math.min(maximum, Math.max(minimum, value));
 
