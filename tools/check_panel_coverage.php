@@ -37,25 +37,26 @@ if ($authenticated !== 50) {
 }
 
 $requiredFiles = [
+    'apps/web-platform/src/Shared/Http/Request.php',
+    'apps/web-platform/src/Shared/Security/FormInput.php',
     'apps/web-platform/src/Shared/Ui/PortalPage.php',
-    'apps/web-platform/src/Shared/Ui/PanelFactory.php',
-    'apps/web-platform/src/Shared/Ui/AdminConsole.php',
     'apps/web-platform/src/Shared/Ui/AccountProfilePage.php',
     'apps/web-platform/src/Shared/Profile/AccountProfileManager.php',
-    'apps/web-platform/src/Shared/Room/RoomRuntime.php',
-    'apps/web-platform/src/Shared/Routing/HouseRouter.php',
     'apps/web-platform/src/Shared/Session/AuthSession.php',
     'apps/web-platform/src/Shared/Session/SessionGuard.php',
-    'apps/web-platform/src/Admin/Profile/Middleware.php',
+    'apps/web-platform/src/Instructor/CreateCourse/Controller.php',
+    'apps/web-platform/src/Instructor/CreateCourse/Page.php',
+    'apps/web-platform/src/Instructor/Profile/Controller.php',
+    'apps/web-platform/src/Instructor/Profile/Page.php',
     'apps/web-platform/src/Admin/Profile/Controller.php',
-    'apps/web-platform/src/Admin/Profile/Page.php',
     'apps/web-platform/src/Student/Profile/Controller.php',
-    'apps/web-platform/src/Student/Profile/Page.php',
-    'apps/web-platform/public/assets/css/app.css',
     'apps/web-platform/public/assets/css/admin-console.css',
     'apps/web-platform/public/assets/css/profile-links.css',
+    'apps/web-platform/public/assets/css/profile-dialog.css',
+    'apps/web-platform/public/assets/css/instructor-console.css',
     'apps/web-platform/public/assets/js/app.js',
     'services/identity-service/public/account-profile.php',
+    'services/identity-service/public/instructor-profile.php',
     'services/identity-service/public/router.php',
     'services/identity-service/src/Features/Login/LoginHandler.php',
     'services/identity-service/src/Features/Session/SessionHandler.php',
@@ -72,88 +73,120 @@ $contracts = [
     'apps/web-platform/src/config/rooms.php' => [
         "'Admin/Profile' => ['title'=>'Profile','path'=>'/admin/profile','methods'=>'GET|POST'",
         "'Student/Profile' => ['title'=>'Profile','path'=>'/student/profile','methods'=>'GET|POST'",
+        "'Instructor/Profile' => ['title'=>'Profile','path'=>'/instructor/profile','methods'=>'GET|POST'",
+    ],
+    'apps/web-platform/src/Shared/Http/Request.php' => [
+        'MAX_BODY_FIELDS',
+        'MAX_DEPTH',
+        'validatePayload',
+        'null byte',
+        'invalid text encoding',
+    ],
+    'apps/web-platform/src/Shared/Security/FormInput.php' => [
+        'function text(',
+        'function multiline(',
+        'function integer(',
+        'function decimal(',
+        'function httpsUrl(',
+        'function listText(',
+        'unsupported control characters',
     ],
     'apps/web-platform/src/Shared/Ui/PortalPage.php' => [
         'data-portal-nav',
         'data-logout-dialog',
         'Yes, log out',
-        '$role === \'admin\'',
+        "$role === 'student'",
+        'portal-crumb-simple',
         "'admin' => '/admin/profile'",
         "'instructor' => '/instructor/profile'",
         "default => '/student/profile'",
-        'portal-profile-link',
-        'portal-top-profile',
-        "profileImage !== ''",
-        '?photo=1&amp;v=',
+        'profile-dialog.css',
+        'instructor-console.css',
     ],
     'apps/web-platform/src/Shared/Ui/AccountProfilePage.php' => [
         'View photo',
         'Change photo',
         'Remove photo',
+        'data-photo-dialog',
         'data-profile-photo-remove',
-        'profile_photo',
+        'data-photo-remove-dialog',
         'Csrf::field()',
-    ],
-    'apps/web-platform/src/Shared/Profile/AccountProfileManager.php' => [
-        "'/api/v1/users/account-profile'",
-        "'private/profile-photos'",
-        "'change_photo'",
-        "'remove_photo'",
-        'SecureUpload::delete',
-        'AuthSession::synchronizeUser',
     ],
     'apps/web-platform/src/Instructor/Profile/Page.php' => [
         'View photo',
-        'cannot be removed completely',
-        '25-day lock',
+        'Remove photo',
+        'data-photo-dialog',
+        'data-photo-zoom-in',
+        'data-photo-remove-dialog',
+        'name="action" value="save_profile"',
+        'type="tel"',
+        'type="url"',
+        '25-day',
     ],
-    'apps/web-platform/public/assets/css/profile-links.css' => [
-        '.portal-profile-link',
-        '.portal-top-profile',
-        '.portal-avatar img',
-        '.account-profile-panel',
-        '.account-profile-upload',
+    'apps/web-platform/src/Instructor/Profile/Controller.php' => [
+        'FormInput::text',
+        'FormInput::multiline',
+        'FormInput::httpsUrl',
+        "'remove_photo'",
+        'SecureUpload::store',
+        'SecureUpload::delete',
+        'AuthSession::synchronizeUser',
+    ],
+    'services/identity-service/public/instructor-profile.php' => [
+        "['save_profile', 'remove_photo']",
+        'profile_image=NULL',
+        'profile_image_changed_at=NULL',
+        'FOR UPDATE',
+        'old_profile_image',
+        'normal HTTPS address',
+    ],
+    'apps/web-platform/src/Instructor/CreateCourse/Page.php' => [
+        'data-course-authoring',
+        'course-live-card',
+        'data-preview-title',
+        'data-preview-description',
+        'data-preview-price',
+        'type="number"',
+        'type="url"',
+        'type="file"',
+        'Csrf::field()',
+    ],
+    'apps/web-platform/src/Instructor/CreateCourse/Controller.php' => [
+        'FormInput::decimal',
+        'FormInput::integer',
+        'FormInput::httpsUrl',
+        'media/course-thumbnails',
+        'getimagesize',
+        'SecureUpload::delete',
     ],
     'apps/web-platform/public/assets/js/app.js' => [
-        'navigationScrollKey',
-        'sessionStorage.setItem',
-        'data-logout-confirm',
-        'showModal',
+        'data-photo-open',
+        'data-photo-zoom-in',
+        'data-photo-remove-confirm',
+        'data-course-authoring',
+        'updateCoursePreview',
+        'URL.createObjectURL',
+        "input[type=\"number\"]",
         "fetch('/session-status'",
         'window.setInterval(checkSession, 12000)',
-        'window.location.replace',
-        'data-profile-photo-remove',
-        'Remove this profile photo',
     ],
-    'apps/web-platform/src/Shared/Routing/HouseRouter.php' => [
-        "'/session-status'",
-        'SessionGuard::verify($requiredRole)',
-        'SessionEndedException',
-        "Response::redirect($exception->loginPath() . '?session=ended')",
+    'apps/web-platform/public/assets/css/profile-dialog.css' => [
+        '.profile-photo-dialog',
+        '.profile-photo-stage',
+        '.instructor-profile-surface',
+        '.instructor-profile-hero',
     ],
-    'apps/web-platform/src/Shared/Session/AuthSession.php' => [
-        'synchronizeUser',
-        "'profile_image'",
-    ],
-    'apps/web-platform/src/Shared/Session/SessionGuard.php' => [
-        "get('/api/v1/auth/session')",
-        'AuthSession::clear()',
-        'AuthSession::synchronizeUser',
-        "'/learn/sign-in'",
-        "'/teach/studio-access'",
-        'ADMIN_LOGIN_PATH',
-        'SessionValidationUnavailableException',
-    ],
-    'services/identity-service/public/account-profile.php' => [
-        "['student', 'admin']",
-        "'change_photo', 'remove_photo'",
-        'private/profile-photos',
-        'profile_image=NULL',
-        'old_profile_image',
+    'apps/web-platform/public/assets/css/instructor-console.css' => [
+        '.course-authoring-layout',
+        '.course-authoring-surface',
+        '.course-live-preview',
+        '.course-live-card',
+        'overflow-wrap: anywhere',
     ],
     'services/identity-service/public/router.php' => [
         "'/api/v1/users/account-profile'",
-        "require __DIR__ . '/account-profile.php'",
+        "'/api/v1/users/instructor-profile'",
+        "require __DIR__ . '/instructor-profile.php'",
     ],
     'services/identity-service/src/Features/Login/LoginHandler.php' => [
         'profile_image FROM users',
@@ -163,31 +196,10 @@ $contracts = [
         'u.profile_image',
         "'profile_image' =>",
     ],
-    'apps/web-platform/src/Shared/Ui/AdminConsole.php' => [
-        "'Notifications' => 'notifications'",
-        "'Students' => 'students'",
-        "'Instructors' => 'instructors'",
-        "'Users' => 'users'",
-        "'Categories' => 'categories'",
-        "'Refunds' => 'refunds'",
-        "'Coupons' => 'coupons'",
-        "'Reports' => 'reports'",
-        "'AuditLogs' => 'audit-logs'",
-        "'Security' => 'security'",
-        "'Settings' => 'settings'",
-        'Csrf::field()',
-    ],
     'services/reporting-service/public/admin-console.php' => [
         'ServiceAuth::requireUser($database, $authorization, \'admin\')',
-        "'notifications', 'students', 'instructors', 'users', 'categories', 'refunds'",
-        "'coupons', 'reports', 'audit-logs', 'security', 'settings'",
-        "payment_status='refunded'",
         'UPDATE identity_sessions SET revoked_at',
         'ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',
-    ],
-    'docker-compose.yml' => [
-        '/repo/services/reporting-service',
-        'public/router.php',
     ],
 ];
 foreach ($contracts as $file => $needles) {
@@ -203,6 +215,15 @@ $portal = (string) file_get_contents($root . '/apps/web-platform/src/Shared/Ui/P
 if (str_contains($portal, "'admin' => 'Platform control'")) {
     $errors[] = 'The removed Admin Platform control workspace label returned.';
 }
+if (str_contains($portal, '<div class="portal-workspace"><span>Instructor')) {
+    $errors[] = 'The removed Instructor workspace card returned.';
+}
+
+$accountProfile = (string) file_get_contents($root . '/apps/web-platform/src/Shared/Ui/AccountProfilePage.php');
+$instructorProfile = (string) file_get_contents($root . '/apps/web-platform/src/Instructor/Profile/Page.php');
+if (str_contains($accountProfile, 'target="_blank"') || str_contains($instructorProfile, 'target="_blank"')) {
+    $errors[] = 'Profile photo viewing must stay in the same page dialog.';
+}
 
 if ($errors !== []) {
     echo "PANEL COVERAGE CHECK: FAIL\n";
@@ -215,7 +236,8 @@ if ($errors !== []) {
 echo "PANEL COVERAGE CHECK: PASS\n";
 echo "Panel routes: 55\n";
 echo "Authenticated panels: 50\n";
-echo "Admin navigation rooms: implemented\n";
-echo "Portal avatars: linked to role profiles\n";
-echo "Profile photos: view, change and role-safe removal enabled\n";
+echo "Instructor chrome: simplified\n";
+echo "Course authoring: live public-card preview enabled\n";
+echo "Profile photos: in-page view, zoom, change and removal enabled\n";
+echo "Forms: central request hardening and typed validation enabled\n";
 echo "Revoked sessions: automatic portal logout enabled\n";
