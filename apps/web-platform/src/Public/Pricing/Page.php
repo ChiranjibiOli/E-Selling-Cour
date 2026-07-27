@@ -15,32 +15,20 @@ final class PricingPage
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="description" content="Understand CourseHub course pricing, lifetime access, discounts, and payment verification.">
-    <title>Course pricing explained | CourseHub</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet">
+    <title>Pricing | CourseHub</title>
     <link rel="stylesheet" href="/assets/css/app.css">
-    <link rel="stylesheet" href="/assets/css/public-pricing.css?v=20260728-1">
-    <link rel="stylesheet" href="/assets/css/public-unified.css?v=20260728-1">
+    <link rel="stylesheet" href="/room-assets/Public/Pricing/page.css">
 </head>
-<body class="pricing-body public-page-body">
-<header class="public-nav" data-public-nav>
-    <a class="public-brand" href="/" aria-label="CourseHub home"><span class="public-brand-mark"><img src="/assets/images/coursehub-robot.svg" alt=""></span><strong>CourseHub</strong></a>
-    <button class="public-menu" type="button" aria-label="Open navigation" aria-expanded="false" data-public-menu><span></span><span></span></button>
-    <nav class="public-links" aria-label="Primary navigation" data-public-links>
-        <a href="/">Home</a>
-        <a class="active" href="/courses">Courses</a>
-        <a href="/#categories">Categories</a>
-        <a href="/about">About</a>
-        <a href="/contact">Contact</a>
-    </nav>
-    <div class="public-account"><a class="public-login" href="/login">Log in</a><a class="public-create" href="/register/student">Create account</a></div>
+<body class="pricing-body">
+<header class="pricing-header">
+    <a href="/">CourseHub</a>
+    <nav><a href="/courses">Courses</a><a class="active" href="/pricing">Pricing</a><a href="/about">About</a><a href="/contact">Contact</a><a class="pricing-signin" href="/learn/sign-in">Student sign in</a></nav>
 </header>
 <main>
     <section class="pricing-hero">
-        <span>HOW COURSE PRICING WORKS</span>
+        <span>COURSEHUB PRICING</span>
         <h1>Pay for the course you choose. Keep access for life.</h1>
-        <p>CourseHub does not use a platform-wide monthly subscription. Every published course has its own price, and a verified purchase unlocks only that course.</p>
+        <p>CourseHub does not use a platform-wide monthly subscription. Each published course has its own price, and a verified purchase unlocks only that course.</p>
         <div class="pricing-actions"><a href="/courses">Browse course prices →</a><a href="/faq">Read payment FAQ</a></div>
     </section>
 
@@ -55,7 +43,7 @@ final class PricingPage
 
     <section class="pricing-flow">
         <div><span>PAYMENT WORKFLOW</span><h2>Access begins after verification, not after a browser celebrates.</h2></div>
-        <ol><li><b>01</b><strong>Choose</strong><span>Add a published course to the student cart.</span></li><li><b>02</b><strong>Calculate</strong><span>The server calculates price and eligible discounts.</span></li><li><b>03</b><strong>Pay</strong><span>Use an available manual or configured gateway method.</span></li><li><b>04</b><strong>Verify</strong><span>The transaction is checked against the order.</span></li><li><b>05</b><strong>Enroll</strong><span>Lifetime course access and course earnings are recorded atomically.</span></li></ol>
+        <ol><li><b>01</b><strong>Choose</strong><span>Add a published course to the student cart.</span></li><li><b>02</b><strong>Calculate</strong><span>The server calculates price and eligible discounts.</span></li><li><b>03</b><strong>Pay</strong><span>Use an available manual or configured gateway method.</span></li><li><b>04</b><strong>Verify</strong><span>The transaction is checked against the order.</span></li><li><b>05</b><strong>Enroll</strong><span>Lifetime course access and instructor earnings are recorded atomically.</span></li></ol>
     </section>
 
     <section class="pricing-methods">
@@ -63,12 +51,11 @@ final class PricingPage
         <div class="pricing-method-grid"><article><b>Manual payment</b><p>Students submit a transaction reference and private proof. An administrator verifies it before enrollment.</p><span class="available">Workflow available</span></article><article><b>eSewa</b><p>Automatic gateway access requires merchant credentials, signed callbacks, transaction lookup, and webhook verification.</p><span class="configuration">Credentials required</span></article><article><b>Khalti</b><p>Automatic gateway access requires production keys, amount verification, callbacks, and idempotent enrollment.</p><span class="configuration">Credentials required</span></article></div>
     </section>
 
-    <section class="pricing-clarity"><div><span>BEFORE YOU BUY</span><h2>Every course page should tell you what you are paying for.</h2></div><ul><li>Course title and creator</li><li>Curriculum and preview lessons</li><li>Level, language, and duration</li><li>Current price and discount</li><li>Lifetime-access statement</li><li>Support and access-removal policy</li></ul></section>
+    <section class="pricing-clarity"><div><span>BEFORE YOU BUY</span><h2>Every course page should tell you what you are paying for.</h2></div><ul><li>Course title and instructor</li><li>Curriculum and preview lessons</li><li>Level, language, and duration</li><li>Current price and discount</li><li>Lifetime-access statement</li><li>Support and access-removal policy</li></ul></section>
 
     <section class="pricing-closing"><div><span>START CAREFULLY</span><h2>Compare the course, then purchase with context.</h2></div><a href="/courses">Explore the catalog →</a></section>
 </main>
 <footer class="pricing-footer"><a href="/">CourseHub</a><div><a href="/about">About</a><a href="/contact">Support</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></div><span>One course. One verified purchase. Lifetime access.</span></footer>
-<script src="/assets/js/public-nav.js?v=20260728-1" defer></script>
 </body>
 </html>
 HTML;
