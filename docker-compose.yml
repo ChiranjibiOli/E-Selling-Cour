@@ -133,7 +133,7 @@ services:
   reporting-service:
     <<: *domain-service
     working_dir: /repo/services/reporting-service
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/router.php"]
 
   db:
     image: mysql:8.4
