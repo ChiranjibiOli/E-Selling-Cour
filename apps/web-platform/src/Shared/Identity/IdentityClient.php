@@ -20,6 +20,13 @@ final class IdentityClient
         ]);
     }
 
+    public function googleLogin(string $credential): array
+    {
+        return $this->request('/api/v1/auth/google', [
+            'credential' => $credential,
+        ]);
+    }
+
     private function request(string $path, array $payload): array
     {
         $baseUrl = rtrim(Environment::string('API_BASE_URL', 'http://127.0.0.1:9000'), '/');
