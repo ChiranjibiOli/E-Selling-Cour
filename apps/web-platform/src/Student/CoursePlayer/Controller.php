@@ -82,9 +82,14 @@ return static function (Request $request): Response {
 
         $changes = $courseId > 0 ? ($client->get('/api/v1/courses/' . $courseId . '/change-log')['data'] ?? []) : [];
     } catch (DomainException $exception) {
+        $exceptionMessage = trim($exception->getMessage());
+        if ($courseId > 0 && str_contains(strtolower($exceptionMessage), 'active enrollment is required')) {
+            return Response::redirect('/student/courses?course=' . $courseId . '&access=required');
+        }
+
         $course = [];
         $changes = [];
-        $message = $exception->getMessage();
+        $message = $exceptionMessage;
         $success = false;
     }
 
