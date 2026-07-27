@@ -13,22 +13,26 @@ final class LoginPage
             : '';
 
         $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            . '<meta name="description" content="Enter the correct CourseHub learning or teaching portal."><title>Choose portal | CourseHub</title>'
-            . '<link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/room-assets/Public/Login/page.css"></head>'
+            . '<meta name="description" content="Choose the correct CourseHub student or teaching portal."><title>Log in | CourseHub</title>'
+            . '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+            . '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet">'
+            . '<link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/room-assets/Public/Login/page.css"><link rel="stylesheet" href="/assets/css/public-unified.css?v=20260728-1"></head>'
             . '<body class="access-body"><div class="access-grain" aria-hidden="true"></div>'
-            . '<header class="access-header"><a class="access-brand" href="/"><span>CH</span><strong>CourseHub</strong></a>'
-            . '<nav aria-label="Public navigation"><a href="/courses">Courses</a><a href="/instructors">Published instructors</a><a href="/contact">Support</a></nav></header>'
+            . '<header class="public-nav" data-public-nav><a class="public-brand" href="/" aria-label="CourseHub home"><span class="public-brand-mark"><img src="/assets/images/coursehub-robot.svg" alt=""></span><strong>CourseHub</strong></a>'
+            . '<button class="public-menu" type="button" aria-label="Open navigation" aria-expanded="false" data-public-menu><span></span><span></span></button>'
+            . '<nav class="public-links" aria-label="Primary navigation" data-public-links><a href="/">Home</a><a href="/courses">Courses</a><a href="/#categories">Categories</a><a href="/about">About</a><a href="/contact">Contact</a></nav>'
+            . '<div class="public-account"><a class="public-login active" href="/login">Log in</a><a class="public-create" href="/register/student">Create account</a></div></header>'
             . '<main class="access-main">' . $notice
             . '<section class="access-intro"><div><span>COURSEHUB ACCESS</span><h1>Enter the space built for your work.</h1></div>'
-            . '<p>Students learn through one entrance. Approved instructors build and manage courses through another. Each account type stays inside its own dedicated portal.</p></section>'
+            . '<p>Students learn through one entrance. Approved course creators manage teaching through another. The public site now keeps one clear login route instead of scattering role links across every navbar.</p></section>'
             . '<section class="access-portals" aria-label="CourseHub portals">'
             . '<a class="access-portal access-student" href="/learn/sign-in"><div class="access-portal-index">01</div><div class="access-portal-copy"><span>STUDENT LEARNING</span><h2>Continue your courses.</h2><p>Sign in to purchase courses, open protected lessons, track progress and manage your learning account.</p><ul><li>Purchased course library</li><li>Lesson progress</li><li>Payments and notifications</li></ul></div><span class="access-arrow" aria-hidden="true">↗</span></a>'
-            . '<a class="access-portal access-instructor" href="/teach/studio-access"><div class="access-portal-index">02</div><div class="access-portal-copy"><span>INSTRUCTOR STUDIO</span><h2>Build and manage teaching.</h2><p>Approved instructors sign in here. New Instructor applications are available only from inside this dedicated portal.</p><ul><li>Complete course authoring</li><li>Course review workflow</li><li>Students, sales and payouts</li></ul></div><span class="access-arrow" aria-hidden="true">↗</span></a>'
+            . '<a class="access-portal access-instructor" href="/teach/studio-access"><div class="access-portal-index">02</div><div class="access-portal-copy"><span>TEACHING STUDIO</span><h2>Build and manage courses.</h2><p>Approved creators sign in here. New teaching applications stay inside this dedicated portal rather than cluttering the public landing page.</p><ul><li>Complete course authoring</li><li>Course review workflow</li><li>Students, sales and payouts</li></ul></div><span class="access-arrow" aria-hidden="true">↗</span></a>'
             . '</section>'
             . '<section class="access-shortcuts" aria-label="Useful public actions"><a href="/courses"><span>Browse</span><strong>Explore published courses</strong><i>→</i></a>'
-            . '<a href="/instructors"><span>People</span><strong>View published instructors</strong><i>→</i></a>'
+            . '<a href="/about"><span>About</span><strong>Understand how CourseHub works</strong><i>→</i></a>'
             . '<a href="/contact"><span>Help</span><strong>Contact CourseHub support</strong><i>→</i></a></section>'
-            . '<footer class="access-footer"><a href="/">Return to CourseHub home</a></footer></main></body></html>';
+            . '<footer class="access-footer"><a href="/">Return to CourseHub home</a></footer></main><script src="/assets/js/public-nav.js?v=20260728-1" defer></script></body></html>';
 
         return Response::html($html);
     }
