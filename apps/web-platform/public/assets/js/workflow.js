@@ -34,6 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     proofForm?.addEventListener('submit', (event) => {
+        const paymentMethod = event.submitter instanceof HTMLButtonElement ? event.submitter.value : 'manual';
+        if (paymentMethod === 'esewa' || paymentMethod === 'khalti') return;
         proofForm.querySelectorAll('[data-error]').forEach((control) => control.setCustomValidity(''));
         if (!proofInput?.files?.[0]) {
             proofInput?.setCustomValidity(proofInput.dataset.error || 'Upload the actual payment receipt.');
