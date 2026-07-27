@@ -34,12 +34,12 @@ final class CourseDetailsPage
             $curriculum .= '<article class="curriculum-section"><header><span>SECTION ' . str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) . '</span><h3>' . $e($section['title'] ?? 'Section') . '</h3></header><ul>' . $lessons . '</ul></article>';
         }
         if ($curriculum === '') {
-            $curriculum = '<div class="detail-empty">Curriculum will be added by the instructor.</div>';
+            $curriculum = '<div class="detail-empty">Curriculum will be added before the course is ready for learning.</div>';
         }
 
         $list = static function (mixed $items, callable $escape): string {
             if (!is_array($items) || $items === []) {
-                return '<li>Details will be added by the instructor.</li>';
+                return '<li>Details will be added before publishing is complete.</li>';
             }
             $html = '';
             foreach ($items as $item) {
@@ -66,13 +66,19 @@ final class CourseDetailsPage
                 ? '<a class="buy-button" href="/student/cart?add=' . (int) $course['id'] . '">Buy once · NPR ' . number_format($price, 0) . '</a>'
                 : '<a class="buy-button" href="/student/cart?add=' . (int) $course['id'] . '">Enroll free</a>';
         } else {
-            $action = '<a class="buy-button" href="/learn/sign-in">Sign in to enrol</a>';
+            $action = '<a class="buy-button" href="/login">Log in to enrol</a>';
         }
-        $accountLink = $viewerRole === 'student' ? '/student/my-courses' : '/learn/sign-in';
-        $accountLabel = $viewerRole === 'student' ? 'My courses' : 'Student sign in';
+        $accountLink = $viewerRole === 'student' ? '/student/my-courses' : '/login';
+        $accountLabel = $viewerRole === 'student' ? 'My courses' : 'Log in';
 
-        $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' . $e($course['title'] ?? 'Course') . ' | CourseHub</title><link rel="stylesheet" href="/room-assets/Public/CourseDetails/page.css"></head><body class="detail-body">'
-            . '<header class="detail-header"><a href="/">CourseHub</a><nav><a href="/courses">All courses</a><a href="/instructors">Instructors</a><a href="/pricing">Pricing</a><a href="' . $e($accountLink) . '">' . $e($accountLabel) . '</a></nav></header><main>'
+        $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>' . $e($course['title'] ?? 'Course') . ' | CourseHub</title>'
+            . '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+            . '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet">'
+            . '<link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/room-assets/Public/CourseDetails/page.css"><link rel="stylesheet" href="/assets/css/public-unified.css?v=20260728-1"></head><body class="detail-body">'
+            . '<header class="public-nav" data-public-nav><a class="public-brand" href="/" aria-label="CourseHub home"><span class="public-brand-mark"><img src="/assets/images/coursehub-robot.svg" alt=""></span><strong>CourseHub</strong></a>'
+            . '<button class="public-menu" type="button" aria-label="Open navigation" aria-expanded="false" data-public-menu><span></span><span></span></button>'
+            . '<nav class="public-links" aria-label="Primary navigation" data-public-links><a href="/">Home</a><a class="active" href="/courses">Courses</a><a href="/#categories">Categories</a><a href="/about">About</a><a href="/contact">Contact</a></nav>'
+            . '<div class="public-account"><a class="public-login' . ($viewerRole === 'student' ? ' active' : '') . '" href="' . $e($accountLink) . '">' . $e($accountLabel) . '</a><a class="public-create" href="/register/student">Create account</a></div></header><main>'
             . '<section class="detail-hero"><div class="detail-copy"><a href="/courses">← Back to catalog</a><span>' . $e($course['category_name'] ?? 'Course') . '</span><h1>' . $e($course['title'] ?? 'Untitled course') . '</h1>'
             . ($subtitle !== '' ? '<h2>' . $e($subtitle) . '</h2>' : '') . '<p>' . $e($course['short_description'] ?? '') . '</p>' . $introLink
             . '<div class="detail-meta"><div><small>Instructor</small><strong>' . $e($course['instructor_name'] ?? 'CourseHub instructor') . '</strong></div><div><small>Level</small><strong>' . $e(ucfirst((string) ($course['level'] ?? 'beginner'))) . '</strong></div><div><small>Language</small><strong>' . $e($course['language'] ?? 'English') . '</strong></div></div></div>'
@@ -80,7 +86,7 @@ final class CourseDetailsPage
             . '<section class="detail-content"><article class="detail-description"><span>ABOUT THIS COURSE</span><h2>Course overview</h2><div>' . nl2br($e($course['full_description'] ?? 'Course details will be added soon.')) . '</div></article><aside class="detail-facts"><h3>Course information</h3><dl><div><dt>Duration</dt><dd>' . $e($course['duration'] ?? 'Self-paced') . '</dd></div><div><dt>Access</dt><dd>Lifetime</dd></div><div><dt>Status</dt><dd>Published</dd></div><div><dt>Tags</dt><dd>' . $e($course['tags'] ?? 'CourseHub learning') . '</dd></div></dl></aside></section>'
             . '<section class="course-promise"><article><span>LEARNING OUTCOMES</span><h2>What you will be able to do</h2><ul>' . $outcomes . '</ul></article><article><span>REQUIREMENTS</span><h2>What you need first</h2><ul>' . $requirements . '</ul></article><article><span>TARGET AUDIENCE</span><h2>Who this course is for</h2><ul>' . $audience . '</ul></article></section>'
             . '<section class="curriculum"><div class="curriculum-heading"><span>CURRICULUM</span><h2>Course structure</h2><p>Preview lessons are available before enrollment. Full lessons unlock after verified payment.</p></div><div class="curriculum-list">' . $curriculum . '</div></section>'
-            . '</main><footer class="detail-footer"><a href="/">CourseHub</a><span>Learn with structure.</span></footer></body></html>';
+            . '</main><footer class="detail-footer"><a href="/">CourseHub</a><span>Learn with structure.</span></footer><script src="/assets/js/public-nav.js?v=20260728-1" defer></script></body></html>';
         return Response::html($html);
     }
 }
