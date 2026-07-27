@@ -1,4 +1,12 @@
 (() => {
+  if (!document.querySelector('link[data-public-site-fixes]')) {
+    const polish = document.createElement('link');
+    polish.rel = 'stylesheet';
+    polish.href = '/assets/css/public-site-fixes.css?v=20260728-1';
+    polish.dataset.publicSiteFixes = 'true';
+    document.head.appendChild(polish);
+  }
+
   const nav = document.querySelector('[data-public-site-nav]');
   if (!nav) return;
 
