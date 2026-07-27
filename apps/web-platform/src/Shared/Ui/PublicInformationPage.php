@@ -20,7 +20,7 @@ final class PublicInformationPage
 
         $noticeHtml = $notice !== '' ? '<div class="info-notice">' . $e($notice) . '</div>' : '';
         $currentPath = rtrim(parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/', '/') ?: '/';
-        $active = static fn (string $path): string => $currentPath === $path ? ' class="active"' : '';
+        $active = static fn (string $path): string => $currentPath === $path ? ' class="active" aria-current="page"' : '';
 
         $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f7f0e5"><title>' . $e($title) . ' | CourseHub</title>'
             . '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
@@ -33,7 +33,7 @@ final class PublicInformationPage
             . '<main><section class="info-hero"><span>' . $e($eyebrow) . '</span><h1>' . $e($title) . '</h1><p>' . $e($intro) . '</p></section>' . $noticeHtml
             . '<section class="info-content">' . $articles . '</section><section class="info-closing"><div><span>NEED HELP?</span><h2>Clear information should still leave room for a real question.</h2></div><a href="/contact">Contact CourseHub support →</a></section></main>'
             . '<footer class="info-footer"><a href="/">CourseHub</a><div><a href="/faq">FAQ</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/contact">Support</a></div><span>Education that moves with you.</span></footer>'
-            . '<script src="/assets/js/public-site.js?v=20260728-1" defer></script></body></html>';
+            . '<script src="/assets/js/public-site.js?v=20260728-2" defer></script></body></html>';
         return Response::html($html);
     }
 }
