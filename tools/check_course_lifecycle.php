@@ -25,17 +25,18 @@ $checks = [
         '/api/v1/auth/register/instructor',
     ],
     'services/identity-service/public/instructor-registration.php' => [
-        "$applicationStatus === 'rejected'",
-        "$status !== 'blocked'",
-        "application_status='pending'",
+        '$applicationStatus !== \'rejected\'',
+        '$status !== \'blocked\'',
         'old_profile_image',
+        'old_identity_document',
+        'reapplication',
         'same email',
     ],
     'services/identity-service/public/instructor-decision.php' => [
         'sendInstructorRejection',
         'email_sent',
         'reapply with the same email',
-        "application_status='rejected'",
+        'application_status',
     ],
     'services/identity-service/src/Infrastructure/SmtpMailer.php' => [
         'SMTP_HOST',
