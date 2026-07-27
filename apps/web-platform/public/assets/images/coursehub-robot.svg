@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" role="img" aria-labelledby="title desc">
   <title id="title">CourseHub robot mascot</title>
-  <desc id="desc">A friendly black and gold learning robot with an antenna and book-shaped face.</desc>
+  <desc id="desc">A friendly black and coral learning robot with an antenna and book-shaped face.</desc>
   <style>
     .bot{transform-origin:40px 42px;animation:float 3.2s ease-in-out infinite}
     .antenna{transform-origin:48px 20px;animation:tilt 2.6s ease-in-out infinite}
@@ -13,13 +13,13 @@
   <g class="bot">
     <g class="antenna">
       <path d="M47 22c1-8 6-12 13-13" fill="none" stroke="#171611" stroke-width="4" stroke-linecap="round"/>
-      <circle cx="62" cy="9" r="6" fill="#c99a3f" stroke="#171611" stroke-width="3"/>
+      <circle cx="62" cy="9" r="6" fill="#ff7043" stroke="#171611" stroke-width="3"/>
     </g>
     <path d="M13 40c0-16 10-25 27-25s27 9 27 25-10 25-27 25S13 56 13 40Z" fill="#171611"/>
-    <path d="M21 32c7-5 13-5 19 0 6-5 12-5 19 0l-2 17c-7-3-12-2-17 3-5-5-10-6-17-3l-2-17Z" fill="#fff6e7"/>
-    <path d="M40 32v20" stroke="#d8c69d" stroke-width="2" stroke-linecap="round"/>
+    <path d="M21 32c7-5 13-5 19 0 6-5 12-5 19 0l-2 17c-7-3-12-2-17 3-5-5-10-6-17-3l-2-17Z" fill="#fff3e0"/>
+    <path d="M40 32v20" stroke="#e4c8ad" stroke-width="2" stroke-linecap="round"/>
     <ellipse class="eye" cx="31" cy="40" rx="4" ry="6" fill="#171611"/>
     <ellipse class="eye" cx="49" cy="40" rx="4" ry="6" fill="#171611"/>
-    <path d="M29 64c3 5 7 7 11 7s8-2 11-7" fill="none" stroke="#c99a3f" stroke-width="4" stroke-linecap="round"/>
+    <path d="M29 64c3 5 7 7 11 7s8-2 11-7" fill="none" stroke="#ff7043" stroke-width="4" stroke-linecap="round"/>
   </g>
 </svg>
