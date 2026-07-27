@@ -1,0 +1,597 @@
+/* Unified course presentation. Thumbnail first, image-derived transition, restrained controls. */
+:root {
+    --course-surface: #fffdf8;
+    --course-ink: #182033;
+    --course-muted: #667085;
+    --course-line: rgba(24, 32, 51, .11);
+    --course-shadow: 0 16px 36px rgba(20, 27, 45, .11);
+}
+
+/* Remove decorative readiness and crown ornaments. */
+.live-status,
+.course-card-crown,
+.catalog-card-crown,
+.provided-course-card::after,
+.learning-course-card::after,
+.provided-course-thumb > b {
+    display: none !important;
+}
+
+/* One course-card structure across public, Student and Instructor surfaces. */
+.course-card,
+.catalog-card,
+.provided-course-card,
+.learning-course-card,
+.instructor-course-card {
+    --course-tone: 27, 34, 51;
+    --course-glow: 126, 139, 166;
+    position: relative !important;
+    min-width: 0;
+    min-height: 0 !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column;
+    overflow: hidden !important;
+    isolation: isolate;
+    color: var(--course-ink) !important;
+    background: var(--course-surface) !important;
+    border: 1px solid var(--course-line) !important;
+    border-radius: 20px !important;
+    box-shadow: var(--course-shadow) !important;
+    transform: none !important;
+    transition: box-shadow .22s ease, border-color .22s ease !important;
+}
+
+.course-card:hover,
+.catalog-card:hover,
+.provided-course-card:hover,
+.learning-course-card:hover,
+.instructor-course-card:hover {
+    transform: none !important;
+    border-color: rgba(var(--course-glow), .32) !important;
+    box-shadow: 0 20px 44px rgba(20, 27, 45, .14) !important;
+}
+
+.course-card::before,
+.catalog-card::before,
+.provided-course-card::before,
+.learning-course-card::before,
+.instructor-course-card::before {
+    content: "";
+    position: absolute;
+    left: 12%;
+    right: 12%;
+    top: 42%;
+    z-index: 1;
+    height: 78px;
+    border-radius: 50%;
+    background: rgba(var(--course-glow), .30);
+    filter: blur(30px);
+    pointer-events: none;
+}
+
+.course-card-media,
+.catalog-media,
+.provided-course-thumb,
+.learning-course-media,
+.instructor-course-card-media {
+    position: relative !important;
+    inset: auto !important;
+    z-index: 0;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    aspect-ratio: 16 / 9;
+    display: block !important;
+    overflow: hidden;
+    flex: 0 0 auto;
+    border-radius: 0 !important;
+    background: linear-gradient(145deg, #20283a, #45516b) !important;
+}
+
+.course-card-media img,
+.catalog-media img,
+.provided-course-thumb img,
+.learning-course-media img,
+.instructor-course-card-media img {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    object-fit: cover !important;
+    object-position: center;
+    filter: saturate(.98) contrast(1.02) !important;
+    transform: none !important;
+    transition: transform .35s ease !important;
+}
+
+.course-card:hover .course-card-media img,
+.catalog-card:hover .catalog-media img,
+.provided-course-card:hover .provided-course-thumb img,
+.learning-course-card:hover .learning-course-media img,
+.instructor-course-card:hover .instructor-course-card-media img {
+    transform: scale(1.018) !important;
+}
+
+.course-card-media::after,
+.catalog-media::after,
+.provided-course-thumb::after,
+.learning-course-media::after,
+.instructor-course-card-media::after {
+    content: "" !important;
+    position: absolute !important;
+    inset: auto 0 0 0 !important;
+    z-index: 1;
+    height: 34% !important;
+    background: linear-gradient(to bottom, rgba(var(--course-tone), 0), rgba(var(--course-tone), .18) 38%, rgba(var(--course-tone), .72)) !important;
+    backdrop-filter: blur(1.5px);
+    pointer-events: none;
+}
+
+.course-card-placeholder,
+.catalog-fallback,
+.provided-course-thumb > div,
+.learning-course-media > span,
+.instructor-course-card-media .course-card-placeholder {
+    width: 100% !important;
+    height: 100% !important;
+    min-height: 0 !important;
+    display: grid !important;
+    place-items: center;
+    color: rgba(255, 255, 255, .9) !important;
+    background: linear-gradient(145deg, rgb(var(--course-tone)), rgba(var(--course-glow), .78)) !important;
+    font-size: 1.5rem !important;
+    font-weight: 800 !important;
+}
+
+.course-card-body,
+.catalog-card-body,
+.provided-course-body,
+.learning-course-copy,
+.instructor-course-card-body {
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    z-index: 3;
+    min-width: 0;
+    min-height: 0 !important;
+    margin-top: -28px !important;
+    padding: 26px 20px 20px !important;
+    display: flex !important;
+    flex: 1 1 auto;
+    flex-direction: column;
+    color: var(--course-ink) !important;
+    border: 0 !important;
+    border-radius: 28px 28px 0 0 !important;
+    background:
+        linear-gradient(180deg, rgba(var(--course-glow), .24) 0, rgba(255, 253, 248, .96) 72px, var(--course-surface) 150px) !important;
+    box-shadow: 0 -12px 28px rgba(var(--course-tone), .14) !important;
+    backdrop-filter: blur(18px) saturate(1.04);
+    -webkit-backdrop-filter: blur(18px) saturate(1.04);
+}
+
+.course-card-body > span,
+.catalog-meta span,
+.provided-course-body > span,
+.learning-course-copy > span,
+.instructor-course-card-body > small {
+    color: var(--course-muted) !important;
+    font-size: .7rem !important;
+    font-weight: 700 !important;
+    letter-spacing: .045em !important;
+    text-transform: uppercase;
+}
+
+.course-card-body h3,
+.catalog-card h2,
+.provided-course-body h3,
+.learning-course-copy h3,
+.instructor-course-card h2 {
+    min-height: 0 !important;
+    margin: 8px 0 8px !important;
+    display: -webkit-box !important;
+    overflow: hidden !important;
+    color: var(--course-ink) !important;
+    font-family: inherit !important;
+    font-size: clamp(1.28rem, 2.2vw, 1.65rem) !important;
+    font-weight: 780 !important;
+    line-height: 1.16 !important;
+    letter-spacing: -.025em !important;
+    overflow-wrap: anywhere;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.course-card-body h3 a,
+.catalog-card h2 a {
+    color: var(--course-ink) !important;
+    text-decoration: none;
+}
+
+.catalog-card h3,
+.course-card-body > p,
+.catalog-card-body > p,
+.provided-course-body > p,
+.learning-course-copy > p,
+.instructor-course-card p {
+    min-height: 0 !important;
+    margin: 0 0 14px !important;
+    display: -webkit-box !important;
+    overflow: hidden !important;
+    color: var(--course-muted) !important;
+    font-size: .86rem !important;
+    line-height: 1.52 !important;
+    overflow-wrap: anywhere;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.course-card-meta,
+.catalog-card-tags,
+.provided-course-meta,
+.instructor-course-card-meta {
+    margin: 0 0 15px !important;
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 0 14px !important;
+}
+
+.course-card-meta small,
+.catalog-card-tags small,
+.provided-course-meta small,
+.instructor-course-card-meta span {
+    position: relative;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    color: #475467 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    font-size: .72rem !important;
+    font-weight: 700 !important;
+}
+
+.course-card-meta small:not(:last-child)::after,
+.catalog-card-tags small:not(:last-child)::after,
+.provided-course-meta small:not(:last-child)::after,
+.instructor-course-card-meta span:not(:last-child)::after {
+    content: "·";
+    position: absolute;
+    right: -9px;
+    color: #98a2b3;
+}
+
+.course-card-body footer,
+.catalog-card footer,
+.provided-course-body footer {
+    margin: auto 0 14px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: end !important;
+    justify-content: space-between !important;
+    gap: 12px;
+    border: 0 !important;
+}
+
+.course-card-body footer small,
+.catalog-card footer > small,
+.provided-course-body footer small,
+.learning-course-copy > small {
+    color: var(--course-muted) !important;
+    font-size: .7rem !important;
+}
+
+.course-card-body footer strong,
+.catalog-card footer strong,
+.provided-course-body footer > b,
+.provided-course-body footer strong {
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    color: var(--course-ink) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    font-size: .9rem !important;
+    font-weight: 800 !important;
+}
+
+.course-card-action,
+.catalog-action,
+.instructor-course-card .portal-button,
+.learning-course-copy footer .portal-button {
+    min-height: 42px;
+    margin: 0 !important;
+    padding: 11px 14px !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 1px solid rgba(24, 32, 51, .13) !important;
+    border-radius: 9px !important;
+    color: var(--course-ink) !important;
+    background: #fffaf2 !important;
+    box-shadow: none !important;
+    font-size: .8rem !important;
+    font-weight: 760 !important;
+    text-decoration: none;
+    transform: none !important;
+}
+
+.course-card-action:hover,
+.catalog-action:hover,
+.instructor-course-card .portal-button:hover,
+.learning-course-copy footer .portal-button:hover {
+    background: #f4eee4 !important;
+    transform: none !important;
+    filter: none !important;
+}
+
+.instructor-course-card .portal-button:not(.secondary),
+.learning-course-copy footer .portal-button:not(.secondary) {
+    color: #fff !important;
+    border-color: #24324a !important;
+    background: #24324a !important;
+}
+
+.instructor-course-card-top {
+    position: absolute !important;
+    top: 14px !important;
+    left: 14px !important;
+    right: 14px !important;
+    z-index: 5;
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.instructor-course-card .status-badge,
+.learning-course-media .status-badge,
+.workflow-record .status-badge {
+    position: static !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 22px !important;
+    padding: 4px 7px !important;
+    display: inline-flex !important;
+    align-items: center;
+    border: 0 !important;
+    border-radius: 5px !important;
+    color: #116149 !important;
+    background: rgba(232, 247, 239, .95) !important;
+    box-shadow: 0 3px 10px rgba(17, 97, 73, .14) !important;
+    backdrop-filter: blur(8px);
+    font-size: .63rem !important;
+    font-weight: 800 !important;
+    letter-spacing: .035em;
+    text-transform: uppercase;
+}
+
+.instructor-course-card .secure-pill {
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    color: rgba(255, 255, 255, .92) !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    font-size: .68rem !important;
+    font-weight: 760 !important;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, .45);
+}
+
+.instructor-course-card .course-row-actions {
+    margin-top: auto !important;
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 8px !important;
+}
+
+.instructor-course-card .course-edit-request {
+    width: 100%;
+    color: #315efb !important;
+}
+
+.instructor-course-card .course-edit-request summary {
+    padding: 8px 0;
+    list-style: none;
+    font-size: .76rem;
+    font-weight: 760;
+}
+
+.instructor-course-card .course-row-note {
+    margin: 8px 0 12px !important;
+    padding: 10px 12px !important;
+    color: #475467 !important;
+    background: rgba(var(--course-glow), .10) !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+}
+
+.learning-progress {
+    margin: 2px 0 14px !important;
+}
+
+.learning-progress > span {
+    background: #e6e9ef !important;
+}
+
+.learning-progress i {
+    background: rgb(var(--course-tone)) !important;
+}
+
+.learning-progress b {
+    color: var(--course-ink) !important;
+}
+
+.learning-course-copy footer {
+    margin-top: auto !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px !important;
+}
+
+/* Admin course review records follow the same restrained visual language. */
+.portal-role-admin .workflow-record,
+.portal-role-admin .workflow-permission,
+.portal-role-admin .revision-record {
+    --course-tone: 27, 34, 51;
+    --course-glow: 126, 139, 166;
+    margin: 0 0 14px !important;
+    overflow: hidden !important;
+    background: #fff !important;
+    border: 1px solid var(--course-line) !important;
+    border-radius: 14px !important;
+    box-shadow: none !important;
+}
+
+.portal-role-admin .workflow-record > summary,
+.portal-role-admin .revision-record > summary {
+    padding: 14px !important;
+    gap: 16px !important;
+    background: linear-gradient(90deg, rgba(var(--course-glow), .11), #fff 38%) !important;
+    border: 0 !important;
+}
+
+.portal-role-admin .workflow-course-thumb {
+    width: 176px !important;
+    min-width: 176px !important;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 10px !important;
+    background: #e7eaf0 !important;
+}
+
+.portal-role-admin .workflow-course-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.portal-role-admin .workflow-record-body {
+    background: #fff !important;
+    border-top: 1px solid var(--course-line) !important;
+}
+
+.portal-role-admin .workflow-record .status-badge,
+.portal-role-admin .workflow-permission .status-badge {
+    border-radius: 5px !important;
+}
+
+/* Public course detail purchase area uses the thumbnail and sampled bottom colour. */
+.detail-purchase {
+    --course-tone: 27, 34, 51;
+    --course-glow: 126, 139, 166;
+    overflow: hidden !important;
+    background: var(--course-surface) !important;
+    border: 1px solid var(--course-line) !important;
+    border-radius: 20px !important;
+    box-shadow: var(--course-shadow) !important;
+}
+
+.detail-image {
+    position: relative !important;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #20283a;
+}
+
+.detail-image img,
+.detail-image-fallback {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
+
+.detail-image::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 34%;
+    background: linear-gradient(to bottom, transparent, rgba(var(--course-tone), .72));
+    pointer-events: none;
+}
+
+.purchase-body {
+    position: relative;
+    z-index: 2;
+    margin-top: -26px !important;
+    padding: 28px 22px 22px !important;
+    border-radius: 28px 28px 0 0 !important;
+    background: linear-gradient(180deg, rgba(var(--course-glow), .24), rgba(255, 253, 248, .97) 72px, var(--course-surface) 150px) !important;
+    box-shadow: 0 -12px 28px rgba(var(--course-tone), .14) !important;
+    backdrop-filter: blur(18px);
+}
+
+.detail-purchase .buy-button {
+    border-radius: 9px !important;
+    box-shadow: none !important;
+}
+
+/* Course player keeps the same quiet edges and hierarchy rather than dashboard tiles. */
+.player-status-strip {
+    overflow: hidden;
+    background: #fff !important;
+    border: 1px solid var(--course-line) !important;
+    border-radius: 14px !important;
+    box-shadow: none !important;
+}
+
+.course-player-stage,
+.player-curriculum {
+    overflow: hidden;
+    background: #fff !important;
+    border: 1px solid var(--course-line) !important;
+    border-radius: 16px !important;
+    box-shadow: none !important;
+}
+
+.player-lesson-heading {
+    background: linear-gradient(120deg, rgba(78, 92, 122, .10), #fff 48%) !important;
+    border-bottom: 1px solid var(--course-line) !important;
+}
+
+.lesson-content-stage,
+.lesson-video-wrap,
+.lesson-pdf-wrap,
+.lesson-image-wrap {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+@media (max-width: 760px) {
+    .course-card,
+    .catalog-card,
+    .provided-course-card,
+    .learning-course-card,
+    .instructor-course-card {
+        border-radius: 17px !important;
+    }
+
+    .course-card-body,
+    .catalog-card-body,
+    .provided-course-body,
+    .learning-course-copy,
+    .instructor-course-card-body {
+        margin-top: -22px !important;
+        padding: 22px 16px 16px !important;
+        border-radius: 22px 22px 0 0 !important;
+    }
+
+    .learning-course-copy footer {
+        grid-template-columns: 1fr;
+    }
+
+    .portal-role-admin .workflow-record > summary,
+    .portal-role-admin .revision-record > summary {
+        align-items: stretch !important;
+        grid-template-columns: 1fr !important;
+    }
+
+    .portal-role-admin .workflow-course-thumb {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+}
