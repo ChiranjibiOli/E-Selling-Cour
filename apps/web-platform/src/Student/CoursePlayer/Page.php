@@ -62,6 +62,10 @@ final class StudentCoursePlayerPage
         }
 
         $courseId = (int) ($course['id'] ?? 0);
+        $thumbnail = trim((string) ($course['thumbnail_url'] ?? ''));
+        $courseCover = $thumbnail !== ''
+            ? '<div class="player-course-cover"><img src="' . $e($thumbnail) . '" alt="" loading="eager"><div><small>Current course</small><strong>' . $e($course['title'] ?? 'Course') . '</strong></div></div>'
+            : '';
         $contentStage = self::lessonContent($selectedLesson, $courseId, $e);
         $previous = $flatLessons[$selectedIndex - 1] ?? null;
         $next = $flatLessons[$selectedIndex + 1] ?? null;
@@ -94,7 +98,7 @@ final class StudentCoursePlayerPage
 
         $content = $alert
             . '<section class="player-status-strip"><div><small>Course progress</small><strong>' . $percent . '%</strong><span>' . $done . ' of ' . $total . ' lessons</span></div><div class="player-status-track"><i style="width:' . $percent . '%"></i></div><div><small>Current section</small><strong>' . $e($selectedLesson['section_title'] ?? '—') . '</strong><span>Lesson ' . (int) ($selectedLesson['lesson_number'] ?? 0) . '</span></div><div><small>Instructor</small><strong>' . $e($course['instructor_name'] ?? 'CourseHub') . '</strong><span>Version ' . (int) ($course['content_version'] ?? 1) . '</span></div></section>'
-            . '<div class="course-player-shell"><section class="course-player-stage"><header class="player-lesson-heading"><div><span>NOW LEARNING · LESSON ' . str_pad((string) ($selectedLesson['lesson_number'] ?? 0), 2, '0', STR_PAD_LEFT) . '</span><h2>' . $e($selectedLesson['title'] ?? $course['title'] ?? 'Course') . '</h2><p>' . $e($course['title'] ?? '') . ' · ' . $e($selectedLesson['section_title'] ?? '') . '</p></div>' . $changeButton . '</header><div class="lesson-content-stage lesson-type-' . $e($selectedLesson['content_type'] ?? 'text') . '">' . $contentStage . '</div>' . $navigation . '</section><aside class="player-curriculum"><div class="data-card-head"><div><span>CURRICULUM</span><h3>' . $e($course['title'] ?? 'Course lessons') . '</h3></div><strong>' . $percent . '%</strong></div>' . $curriculum . '</aside></div>'
+            . '<div class="course-player-shell"><section class="course-player-stage">' . $courseCover . '<header class="player-lesson-heading"><div><span>NOW LEARNING · LESSON ' . str_pad((string) ($selectedLesson['lesson_number'] ?? 0), 2, '0', STR_PAD_LEFT) . '</span><h2>' . $e($selectedLesson['title'] ?? $course['title'] ?? 'Course') . '</h2><p>' . $e($course['title'] ?? '') . ' · ' . $e($selectedLesson['section_title'] ?? '') . '</p></div>' . $changeButton . '</header><div class="lesson-content-stage lesson-type-' . $e($selectedLesson['content_type'] ?? 'text') . '">' . $contentStage . '</div>' . $navigation . '</section><aside class="player-curriculum"><div class="data-card-head"><div><span>CURRICULUM</span><h3>' . $e($course['title'] ?? 'Course lessons') . '</h3></div><strong>' . $percent . '%</strong></div>' . $curriculum . '</aside></div>'
             . $changeDialog;
         return PortalPage::render('student', 'Course player', $content, '<a class="portal-button secondary" href="/student/my-courses">My courses</a>');
     }
