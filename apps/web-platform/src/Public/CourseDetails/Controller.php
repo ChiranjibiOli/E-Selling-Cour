@@ -21,10 +21,12 @@ return static function (Request $request): Response {
         $course = is_array($response['data'] ?? null) ? $response['data'] : [];
         $course['owned'] = false;
         $course['viewer_role'] = AuthSession::role();
+        $course['ownership_checked'] = AuthSession::role() !== 'student';
 
         if (AuthSession::role() === 'student') {
             try {
                 $enrollments = (new ApiClient())->get('/api/v1/enrollments/mine')['data'] ?? [];
+                $course['ownership_checked'] = true;
                 foreach ((array) $enrollments as $enrollment) {
                     if ((int) ($enrollment['course_id'] ?? 0) === $input->courseId
                         && (string) ($enrollment['status'] ?? '') === 'active'
@@ -34,7 +36,8 @@ return static function (Request $request): Response {
                     }
                 }
             } catch (DomainException) {
-                // The public course page still works when enrollment status is temporarily unavailable.
+                // A signed-in Student is not offered another purchase until ownership can be checked safely.
+                $course['ownership_checked'] = false;
             }
         }
 
