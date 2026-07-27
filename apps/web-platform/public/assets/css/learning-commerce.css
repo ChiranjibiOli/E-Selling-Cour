@@ -1,0 +1,57 @@
+/* Payment proof and purchased-learning workflows. */
+.payment-proof-preview {
+    min-height: 86px;
+    padding: 12px;
+    display: grid;
+    place-items: center;
+    gap: 9px;
+    overflow: hidden;
+    color: var(--ink-soft);
+    background: #f7f9fd;
+    border: 1px dashed var(--line-strong);
+    border-radius: 10px;
+}
+.payment-proof-preview img { width: min(320px, 100%); max-height: 230px; object-fit: contain; border-radius: 8px; }
+.payment-proof-preview strong { max-width: 100%; font-size: .7rem; overflow-wrap: anywhere; }
+.payment-review-console { overflow: hidden; background: #fff; border: 1px solid var(--line); border-radius: 14px; }
+.payment-review-console > header { padding: 24px; display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; background: linear-gradient(135deg, #fff, #f5f8ff); border-bottom: 1px solid var(--line); }
+.payment-review-console > header > div:first-child > span { color: var(--blue); font-size: .64rem; font-weight: 900; letter-spacing: .13em; }
+.payment-review-console > header h2 { margin: 7px 0 6px; }
+.payment-review-console > header p { max-width: 700px; margin: 0; color: var(--ink-soft); font-size: .75rem; line-height: 1.6; }
+.payment-review-console > header > div:last-child { display: grid; justify-items: end; gap: 4px; }
+.payment-review-console > header > div:last-child strong { font-size: 1.55rem; }
+.payment-review-console > header > div:last-child span { color: var(--ink-soft); font-size: .7rem; }
+.payment-review-list { display: grid; }
+.payment-review-row { padding: 20px 24px; display: grid; grid-template-columns: minmax(180px, .7fr) minmax(280px, 1fr) auto; gap: 17px; align-items: start; border-bottom: 1px solid var(--line); }
+.payment-review-row:last-child { border-bottom: 0; }
+.payment-review-row h2 { margin: 9px 0 4px; }
+.payment-review-row p { margin: 0; color: var(--ink-soft); overflow-wrap: anywhere; }
+.payment-review-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.payment-review-facts span { padding: 11px; display: grid; gap: 5px; background: #f7f9fd; border-radius: 9px; }
+.payment-review-facts small { color: var(--ink-soft); font-size: .6rem; text-transform: uppercase; }
+.payment-review-facts strong { font-size: .72rem; overflow-wrap: anywhere; }
+.payment-review-row > form,
+.payment-review-row > .payment-student-note { grid-column: 1 / -1; }
+.payment-student-note { padding: 13px 15px; background: #fffaf1; border: 1px solid #eadbc0; border-radius: 9px; }
+.payment-student-note p { margin-top: 6px; }
+.payment-proof-dialog { width: min(980px, calc(100% - 28px)); max-width: none; padding: 0; border: 0; border-radius: 16px; background: transparent; }
+.payment-proof-dialog::backdrop { background: rgba(5, 11, 27, .78); backdrop-filter: blur(5px); }
+.payment-proof-dialog-shell { overflow: hidden; background: #fff; border-radius: 16px; box-shadow: 0 28px 90px rgba(3, 9, 25, .38); }
+.payment-proof-dialog-shell > header,
+.payment-proof-dialog-shell > footer { padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #f7f9fd; }
+.payment-proof-dialog-shell h2 { margin: 0; font-size: 1rem; }
+.payment-proof-dialog-shell header button { width: 38px; height: 38px; border: 0; border-radius: 50%; background: #e8edf8; cursor: pointer; }
+.payment-proof-dialog-shell > div { height: min(72vh, 760px); background: #263249; }
+.payment-proof-dialog-shell iframe { width: 100%; height: 100%; border: 0; background: #fff; }
+.payment-proof-dialog-shell > footer { justify-content: flex-end; }
+
+@media (max-width: 900px) {
+    .payment-review-row { grid-template-columns: 1fr; }
+    .payment-review-row > form,
+    .payment-review-row > .payment-student-note { grid-column: auto; }
+}
+@media (max-width: 650px) {
+    .payment-review-console > header { flex-direction: column; }
+    .payment-review-console > header > div:last-child { justify-items: start; }
+    .payment-review-facts { grid-template-columns: 1fr; }
+}
