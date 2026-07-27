@@ -60,6 +60,9 @@ return static function (Request $request) {
         $payload['identity_document'] = $identityDocument;
         $result = (new ApiClient())->post('/api/v1/auth/register/instructor', $payload);
 
+        SecureUpload::delete((string) ($result['old_profile_image'] ?? ''));
+        SecureUpload::delete((string) ($result['old_identity_document'] ?? ''));
+
         return RegistrationPage::render('instructor', [], (string) ($result['message'] ?? 'Application submitted.'), true, 201);
     } catch (DomainException $exception) {
         SecureUpload::delete($profileImage);
