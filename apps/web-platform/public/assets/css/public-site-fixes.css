@@ -1,0 +1,36 @@
+/* Final shared-public fixes, loaded after public-site.css. */
+.public-site-links a{isolation:isolate}
+.public-site-links a::before{z-index:-1}
+.public-site-account a,.catalog-toolbar button,.catalog-toolbar>a,.info-closing>a,.student-login-card button,.student-login-copy>a:last-child,.form-card button,.buy-button,.intro-video-link,.detail-copy>a:first-child,.recovery-card button,.recovery-button,.portal-button{isolation:isolate}
+
+.catalog-footer,.detail-footer,.info-footer{
+  box-sizing:border-box;
+  width:100%;
+  min-height:88px;
+  padding:28px clamp(22px,6vw,86px);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:20px;
+  flex-wrap:wrap;
+  background:#171611!important;
+  color:#dcd2c6!important;
+}
+.catalog-footer a,.detail-footer a,.info-footer a{
+  color:#fff!important;
+  text-decoration:none;
+  font-family:"Playfair Display",Georgia,serif;
+  font-size:1.1rem;
+  font-weight:600;
+}
+.info-footer>div{display:flex;gap:16px;flex-wrap:wrap}
+.info-footer>div a{font-family:"DM Sans",Inter,system-ui,sans-serif;font-size:.82rem}
+
+.public-site-account a:focus-visible,.public-site-links a:focus-visible,.catalog-toolbar button:focus-visible,.catalog-toolbar>a:focus-visible,.student-login-card button:focus-visible,.form-card button:focus-visible,.buy-button:focus-visible{
+  outline:3px solid rgba(255,112,67,.32);
+  outline-offset:3px;
+}
+
+@media(max-width:620px){
+  .catalog-footer,.detail-footer,.info-footer{align-items:flex-start;flex-direction:column}
+}
