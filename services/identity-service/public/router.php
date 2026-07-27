@@ -5,6 +5,11 @@ declare(strict_types=1);
 $path = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/';
 $method = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
 
+if ($method === 'POST' && $path === '/api/v1/auth/google') {
+    require __DIR__ . '/google-login.php';
+    exit;
+}
+
 if ($method === 'POST' && $path === '/api/v1/auth/register/instructor') {
     require __DIR__ . '/instructor-registration.php';
     exit;
