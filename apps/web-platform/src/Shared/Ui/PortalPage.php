@@ -13,14 +13,20 @@ final class PortalPage
     {
         $e = static fn (mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         $navigation = self::navigation($role);
-        $currentPath = parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/';
+        $currentPath = rtrim(parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/', '/') ?: '/';
         $nav = '';
 
         foreach ($navigation as $group => $links) {
             $nav .= '<div class="portal-nav-group"><span class="portal-nav-label">' . $e($group) . '</span>';
             foreach ($links as $href => [$label, $icon]) {
-                $active = $currentPath === $href ? ' active' : '';
-                $current = $currentPath === $href ? ' aria-current="page"' : '';
+                $normalHref = rtrim($href, '/') ?: '/';
+                $activeMatch = $currentPath === $normalHref;
+                if (!$activeMatch && $normalHref !== '/' && str_starts_with($currentPath, $normalHref . '/')) {
+                    $activeMatch = !in_array($normalHref, ['/instructor/courses', '/student/payment'], true)
+                        || !array_key_exists($currentPath, $links);
+                }
+                $active = $activeMatch ? ' active' : '';
+                $current = $activeMatch ? ' aria-current="page"' : '';
                 $nav .= '<a class="portal-nav-link' . $active . '" href="' . $e($href) . '"' . $current . '><span class="portal-nav-icon">' . $e($icon) . '</span><span>' . $e($label) . '</span></a>';
             }
             $nav .= '</div>';
@@ -28,7 +34,6 @@ final class PortalPage
 
         $user = AuthSession::user();
         $name = (string) ($user['name'] ?? ucfirst($role) . ' account');
-        $email = (string) ($user['email'] ?? '');
         $profileImage = trim((string) ($user['profile_image'] ?? ''));
         $initials = self::initials($name);
         $roleName = match ($role) {
@@ -60,16 +65,14 @@ final class PortalPage
         $contextActions = trim($action) !== '' ? '<div class="portal-context-actions">' . $action . '</div>' : '';
         $logout = '<form class="portal-logout-form" method="post" action="/logout" data-logout-form>' . Csrf::field()
             . '<button class="portal-logout-button" type="submit"><span class="portal-nav-icon">↪</span><span>Log out</span></button></form>';
-        $sidebarUser = '<a class="portal-sidebar-user portal-profile-link" href="' . $e($profile) . '" aria-label="Open your profile"><span class="portal-avatar">' . $avatarContent . '</span><div><strong>' . $e($name) . '</strong><small>' . $e($email !== '' ? $email : ucfirst($role)) . '</small></div><span class="portal-profile-chevron" aria-hidden="true">›</span></a>';
         $brand = '<a class="portal-brand" href="' . $e($dashboard) . '"><span class="coursehub-brand-mark"><img src="/assets/images/coursehub-robot.svg" alt=""></span><strong>CourseHub</strong></a>';
 
         $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            . '<meta name="theme-color" content="#f4ede2"><title>' . $e($title) . ' | CourseHub</title><link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/assets/css/commerce.css"><link rel="stylesheet" href="/assets/css/portal-fixes.css"><link rel="stylesheet" href="/assets/css/admin-console.css"><link rel="stylesheet" href="/assets/css/profile-links.css"><link rel="stylesheet" href="/assets/css/profile-dialog.css"><link rel="stylesheet" href="/assets/css/instructor-console.css"><link rel="stylesheet" href="/assets/css/instructor-identity.css"><link rel="stylesheet" href="/assets/css/workflow-console.css"><link rel="stylesheet" href="/assets/css/learning-commerce.css"><link rel="stylesheet" href="/assets/css/instructor-communication.css"><link rel="stylesheet" href="/assets/css/course-card-theme.css"><link rel="stylesheet" href="/assets/css/portal-headless.css"><link rel="stylesheet" href="/assets/css/coursehub-coral.css"><link rel="stylesheet" href="/assets/css/coursehub-editorial.css"></head>'
+            . '<meta name="theme-color" content="#f4ede2"><title>' . $e($title) . ' | CourseHub</title><link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/assets/css/commerce.css"><link rel="stylesheet" href="/assets/css/portal-fixes.css"><link rel="stylesheet" href="/assets/css/admin-console.css"><link rel="stylesheet" href="/assets/css/profile-links.css"><link rel="stylesheet" href="/assets/css/profile-dialog.css"><link rel="stylesheet" href="/assets/css/instructor-console.css"><link rel="stylesheet" href="/assets/css/instructor-identity.css"><link rel="stylesheet" href="/assets/css/workflow-console.css"><link rel="stylesheet" href="/assets/css/learning-commerce.css"><link rel="stylesheet" href="/assets/css/instructor-communication.css"><link rel="stylesheet" href="/assets/css/course-card-theme.css"><link rel="stylesheet" href="/assets/css/portal-headless.css"><link rel="stylesheet" href="/assets/css/coursehub-coral.css"><link rel="stylesheet" href="/assets/css/coursehub-editorial.css"><link rel="stylesheet" href="/assets/css/coursehub-instructor-polish.css"></head>'
             . '<body class="portal-shell portal-role-' . $e($role) . '" data-portal-role="' . $e($role) . '"><button class="portal-mobile-toggle" type="button" data-portal-toggle aria-label="Open navigation" aria-expanded="false"><span></span><span></span><span></span></button>'
             . '<div class="portal-overlay" data-portal-overlay></div><aside class="portal-sidebar" data-portal-sidebar>' . $brand
             . $workspace . '<nav class="portal-sidebar-nav" data-portal-nav>' . $nav . '</nav>'
-            . '<div class="portal-sidebar-foot"><a href="/contact"><span class="portal-nav-icon">?</span><span>Help & support</span></a>' . $logout
-            . $sidebarUser . '</div></aside>'
+            . '<div class="portal-sidebar-foot"><a href="/contact"><span class="portal-nav-icon">?</span><span>Help & support</span></a>' . $logout . '</div></aside>'
             . '<div class="portal-stage"><header class="portal-topbar">' . $crumb . '<div class="portal-top-actions"><label class="portal-search"><span>⌕</span><input type="search" placeholder="Search this page" aria-label="Search this page"></label><a class="portal-icon-button" href="/' . $e($role) . '/notifications" aria-label="Notifications"><span>◔</span><i></i></a><a class="portal-top-avatar portal-top-profile" href="' . $e($profile) . '" aria-label="Open your profile" title="Open profile">' . $avatarContent . '</a></div></header>'
             . '<main class="portal-main">' . $contextActions . $content . '</main><footer class="portal-footer"><span>CourseHub</span><span>Secure role-based access</span></footer></div>'
             . '<dialog class="portal-confirm-dialog" data-logout-dialog aria-labelledby="logout-confirm-title"><div class="portal-confirm-content"><span class="portal-confirm-icon">↪</span><div><h2 id="logout-confirm-title">Log out of CourseHub?</h2><p>Your current session will end on this device.</p></div><div class="portal-confirm-actions"><button class="portal-button secondary" type="button" data-logout-cancel>No, stay signed in</button><button class="portal-button danger" type="button" data-logout-confirm>Yes, log out</button></div></div></dialog>'
@@ -93,12 +96,11 @@ final class PortalPage
                 'Workspace' => ['/instructor/dashboard' => ['Overview', 'OV'], '/instructor/notifications' => ['Notifications', 'NT'], '/instructor/messaging' => ['Messages', 'MS']],
                 'Courses' => ['/instructor/courses' => ['All courses', 'CR'], '/instructor/courses/create' => ['Complete authoring', 'NW'], '/instructor/courses/drafts' => ['Drafts', 'DR'], '/instructor/courses/pending' => ['Pending review', 'PN'], '/instructor/courses/published' => ['Published', 'PB']],
                 'Business' => ['/instructor/students' => ['Students', 'ST'], '/instructor/sales' => ['Sales', 'SL'], '/instructor/coupons' => ['Coupons', 'CP'], '/instructor/withdrawals' => ['Withdrawals', 'WD'], '/instructor/bank-details' => ['Payout details', 'BK']],
-                'Account' => ['/instructor/profile' => ['Profile', 'PR']],
             ],
             default => [
                 'Learning' => ['/student/dashboard' => ['Overview', 'OV'], '/student/my-courses' => ['My courses', 'CR'], '/student/course-player' => ['Course player', 'PL'], '/student/progress' => ['Progress', 'PG']],
                 'Purchases' => ['/student/cart' => ['My cart', 'CT'], '/student/checkout' => ['Checkout', 'CK'], '/student/payment' => ['Payment', 'PY'], '/student/payment-history' => ['Payment history', 'PH']],
-                'Account' => ['/student/notifications' => ['Notifications', 'NT'], '/student/reviews' => ['My reviews', 'RV'], '/student/unsubscribe' => ['Access requests', 'AR'], '/student/profile' => ['Profile', 'PR']],
+                'Account' => ['/student/notifications' => ['Notifications', 'NT'], '/student/reviews' => ['My reviews', 'RV'], '/student/unsubscribe' => ['Access requests', 'AR']],
             ],
         };
     }
