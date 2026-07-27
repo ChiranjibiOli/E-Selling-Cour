@@ -13,10 +13,10 @@ final class RegistrationPage
     {
         $instructor = $role === 'instructor';
         $e = static fn (mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $title = $instructor ? 'Create an instructor account' : 'Create your student account';
+        $title = $instructor ? 'Create an Instructor account' : 'Create your Student account';
         $intro = $instructor
-            ? 'Submit your teaching details, passport-size profile photo and identity document. Your instructor account opens only after administrator approval.'
-            : 'Create one account to purchase courses, keep lifetime access and track every completed lesson.';
+            ? 'Submit your teaching details, passport-size profile photo and identity document. Your Instructor account opens only after administrator approval.'
+            : 'Use a Gmail address. CourseHub sends a six-digit code, and the Student account activates only after that code is verified.';
         $alert = $message !== '' ? '<div class="form-alert ' . ($success ? 'success' : 'error') . '">' . $e($message) . '</div>' : '';
 
         $instructorFields = '';
@@ -36,18 +36,22 @@ final class RegistrationPage
 
         $enctype = $instructor ? ' enctype="multipart/form-data"' : '';
         $signInPath = $instructor ? '/teach/studio-access' : '/learn/sign-in';
+        $emailLabel = $instructor ? 'Email address' : 'Gmail address';
+        $emailPlaceholder = $instructor ? 'name@example.com' : 'yourname@gmail.com';
+        $emailHelp = $instructor ? '' : '<small>Student accounts require an address ending in @gmail.com. A verification code will be sent before activation.</small>';
+        $emailPattern = $instructor ? '' : ' pattern="[A-Za-z0-9._%+\\-]+@[Gg][Mm][Aa][Ii][Ll]\\.[Cc][Oo][Mm]"';
         $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             . '<title>' . $e($title) . ' | CourseHub</title><link rel="stylesheet" href="/assets/css/app.css"></head><body>'
             . '<header class="house-header"><a href="/">CourseHub</a><nav><a href="' . $signInPath . '">' . ($instructor ? 'Instructor sign in' : 'Student sign in') . '</a></nav></header>'
             . '<main class="form-shell"><section class="form-intro"><span>' . ($instructor ? 'SEPARATE INSTRUCTOR APPLICATION' : 'STUDENT ACCOUNT') . '</span><h1>' . $e($title) . '</h1><p>' . $e($intro) . '</p></section>'
             . '<section class="form-card">' . $alert . '<form method="post" action="/register/' . $role . '"' . $enctype . '>' . Csrf::field()
             . '<label>Full name<input name="full_name" value="' . $e($values['full_name'] ?? '') . '" maxlength="100" autocomplete="name" required></label>'
-            . '<label>Email address<input type="email" name="email" value="' . $e($values['email'] ?? '') . '" maxlength="150" autocomplete="email" required></label>'
+            . '<label>' . $emailLabel . '<input type="email" name="email" value="' . $e($values['email'] ?? '') . '" maxlength="150" autocomplete="email" placeholder="' . $emailPlaceholder . '"' . $emailPattern . ' required>' . $emailHelp . '</label>'
             . '<label>Phone number<input name="phone" value="' . $e($values['phone'] ?? '') . '" maxlength="20" autocomplete="tel" required></label>'
             . $instructorFields
             . '<div class="form-columns"><label>Password<input type="password" name="password" minlength="8" maxlength="200" autocomplete="new-password" required></label>'
             . '<label>Confirm password<input type="password" name="password_confirmation" minlength="8" maxlength="200" autocomplete="new-password" required></label></div>'
-            . '<button type="submit">' . ($instructor ? 'Submit Instructor account for approval' : 'Create student account') . '</button></form>'
+            . '<button type="submit">' . ($instructor ? 'Submit Instructor account for approval' : 'Send Gmail verification code') . '</button></form>'
             . '<p class="form-foot">Already registered? <a href="' . $signInPath . '">' . ($instructor ? 'Open Instructor sign in' : 'Open Student sign in') . '</a></p></section></main></body></html>';
 
         return Response::html($html, $status);
