@@ -30,6 +30,13 @@ final class HouseRouter
             }
 
             $requiredRole = (string) ($metadata['role'] ?? 'guest');
+            if ($requiredRole === 'guest' && $key !== 'Public/Logout') {
+                $signedInRedirect = $this->signedInRedirect($request);
+                if ($signedInRedirect !== null) {
+                    return $signedInRedirect;
+                }
+            }
+
             if (in_array($requiredRole, ['student', 'instructor', 'admin'], true)) {
                 try {
                     SessionGuard::verify($requiredRole);
@@ -63,6 +70,34 @@ final class HouseRouter
         }
 
         return Response::html('<h1>Room not found</h1>', 404);
+    }
+
+    private function signedInRedirect(Request $request): ?Response
+    {
+        $role = AuthSession::role();
+        if (!in_array($role, ['student', 'instructor', 'admin'], true) || AuthSession::token() === '') {
+            return null;
+        }
+
+        if ($role === 'student') {
+            if (in_array($request->path, ['/courses', '/search'], true)) {
+                $filters = array_filter([
+                    'q' => mb_substr(trim((string) ($request->query['q'] ?? '')), 0, 120),
+                    'category' => mb_substr(trim((string) ($request->query['category'] ?? '')), 0, 120),
+                    'level' => mb_substr(trim((string) ($request->query['level'] ?? '')), 0, 30),
+                ], static fn (string $value): bool => $value !== '');
+                return Response::redirect('/student/courses' . ($filters !== [] ? '?' . http_build_query($filters, '', '&', PHP_QUERY_RFC3986) : ''));
+            }
+
+            if ($request->path === '/course') {
+                $courseId = filter_var($request->query['id'] ?? 0, FILTER_VALIDATE_INT);
+                return Response::redirect('/student/courses' . ($courseId !== false && $courseId > 0 ? '?course=' . (int) $courseId : ''));
+            }
+
+            return Response::redirect('/student/dashboard');
+        }
+
+        return Response::redirect($role === 'instructor' ? '/instructor/dashboard' : '/admin/dashboard');
     }
 
     private function sessionStatus(): Response
