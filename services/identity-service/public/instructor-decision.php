@@ -5,7 +5,6 @@ declare(strict_types=1);
 use CourseHub\Identity\Features\Session\SessionAuthenticationException;
 use CourseHub\Identity\Features\Session\SessionHandler;
 use CourseHub\Identity\Infrastructure\Database;
-use CourseHub\Identity\Infrastructure\EmailDeliveryException;
 use CourseHub\Identity\Infrastructure\SmtpMailer;
 
 require_once dirname(__DIR__) . '/src/Infrastructure/Database.php';
@@ -134,7 +133,7 @@ try {
     try {
         SmtpMailer::sendInstructorRejection($email, $name, $note);
         $emailSent = true;
-    } catch (EmailDeliveryException $exception) {
+    } catch (Throwable $exception) {
         $warning = 'The rejection was saved, but the email could not be sent. Check SMTP settings and the identity-service logs.';
         error_log('Instructor rejection email failure [' . $requestId . ']: ' . $exception->getMessage());
     }
