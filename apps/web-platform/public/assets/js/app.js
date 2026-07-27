@@ -67,6 +67,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target === logoutDialog) logoutDialog.close();
     });
 
+    document.querySelectorAll('[data-profile-photo-remove]').forEach((form) => {
+        form.addEventListener('submit', (event) => {
+            if (!window.confirm('Remove this profile photo and return to the initials avatar?')) {
+                event.preventDefault();
+            }
+        });
+    });
+
     let toastTimer = 0;
     const showToast = (message) => {
         if (!toast) return;
