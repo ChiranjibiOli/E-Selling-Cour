@@ -38,6 +38,34 @@ final class SmtpMailer
         self::send($recipient, $subject, $body);
     }
 
+    public static function sendInstructorRejection(
+        string $recipient,
+        string $recipientName,
+        string $reason,
+    ): void {
+        if (!self::isConfigured()) {
+            throw new EmailDeliveryException('Instructor decision email is not configured. Add the SMTP settings to .env.');
+        }
+
+        $recipientName = trim($recipientName) !== '' ? trim($recipientName) : 'Instructor applicant';
+        $reason = trim($reason);
+        if ($reason === '') {
+            throw new EmailDeliveryException('A rejection reason is required before the Instructor email can be sent.');
+        }
+
+        $subject = 'Your CourseHub Instructor application decision';
+        $body = "Hello {$recipientName},\n\n"
+            . "Your CourseHub Instructor application was reviewed and was not approved.\n\n"
+            . "Reason provided by the CourseHub administrator:\n"
+            . "{$reason}\n\n"
+            . "You may correct the application and submit it again using this same email address. "
+            . "Your account will remain unavailable until a new application is approved.\n\n"
+            . "Please contact CourseHub support if you need clarification.\n\n"
+            . "CourseHub";
+
+        self::send($recipient, $subject, $body);
+    }
+
     private static function send(string $recipient, string $subject, string $body): void
     {
         $host = trim((string) getenv('SMTP_HOST'));
