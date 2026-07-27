@@ -62,6 +62,7 @@ $requiredFiles = [
     'services/identity-service/src/Features/Session/SessionHandler.php',
     'services/reporting-service/public/admin-console.php',
     'services/reporting-service/public/router.php',
+    'tools/check_form_security.php',
 ];
 foreach ($requiredFiles as $file) {
     if (!is_file($root . '/' . $file) || filesize($root . '/' . $file) < 100) {
@@ -95,7 +96,7 @@ $contracts = [
         'data-portal-nav',
         'data-logout-dialog',
         'Yes, log out',
-        "$role === 'student'",
+        '$role === \'student\'',
         'portal-crumb-simple',
         "'admin' => '/admin/profile'",
         "'instructor' => '/instructor/profile'",
@@ -200,6 +201,11 @@ $contracts = [
         'ServiceAuth::requireUser($database, $authorization, \'admin\')',
         'UPDATE identity_sessions SET revoked_at',
         'ON DUPLICATE KEY UPDATE setting_value=VALUES(setting_value)',
+    ],
+    'tools/check_form_security.php' => [
+        'FORM SECURITY CHECK',
+        'POST form has no visible CSRF token contract',
+        'Semantic input warnings',
     ],
 ];
 foreach ($contracts as $file => $needles) {
