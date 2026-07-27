@@ -27,7 +27,7 @@ final class PortalPage
                 }
                 $active = $activeMatch ? ' active' : '';
                 $current = $activeMatch ? ' aria-current="page"' : '';
-                $nav .= '<a class="portal-nav-link' . $active . '" href="' . $e($href) . '"' . $current . '><span class="portal-nav-icon">' . $e($icon) . '</span><span>' . $e($label) . '</span></a>';
+                $nav .= '<a class="portal-nav-link' . $active . '" href="' . $e($href) . '"' . $current . '><span>' . $e($label) . '</span></a>';
             }
             $nav .= '</div>';
         }
