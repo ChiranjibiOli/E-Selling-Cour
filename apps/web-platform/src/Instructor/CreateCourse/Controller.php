@@ -222,6 +222,7 @@ return static function (Request $request) {
         if ($courseId < 1) {
             throw new DomainException('The course service did not return the course identifier.');
         }
+        $client->post('/api/v1/courses/' . $courseId . '/duration', ['duration' => $course['duration']]);
         foreach ((array) ($result['retired_files'] ?? []) as $retired) {
             SecureUpload::delete(is_string($retired) ? $retired : null);
         }
