@@ -76,6 +76,45 @@ document.addEventListener('DOMContentLoaded', () => {
         toastTimer = window.setTimeout(() => toast.classList.remove('visible'), 3200);
     };
 
+    if (shell) {
+        let checkingSession = false;
+        let sessionEnded = false;
+        const checkSession = async () => {
+            if (checkingSession || sessionEnded || document.visibilityState === 'hidden') return;
+            checkingSession = true;
+            try {
+                const response = await fetch('/session-status', {
+                    method: 'GET',
+                    credentials: 'same-origin',
+                    cache: 'no-store',
+                    headers: { Accept: 'application/json' },
+                });
+                if (response.status !== 401) return;
+
+                const payload = await response.json().catch(() => ({}));
+                const loginUrl = typeof payload.login_url === 'string' && payload.login_url.startsWith('/')
+                    ? payload.login_url
+                    : '/login';
+                sessionEnded = true;
+                showToast('This session was revoked or expired. Redirecting to sign in.');
+                window.setTimeout(() => {
+                    const separator = loginUrl.includes('?') ? '&' : '?';
+                    window.location.replace(`${loginUrl}${separator}session=ended`);
+                }, 500);
+            } catch (error) {
+                // A temporary network or service outage must not destroy a valid local browser session.
+            } finally {
+                checkingSession = false;
+            }
+        };
+
+        window.setTimeout(checkSession, 1500);
+        window.setInterval(checkSession, 12000);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') checkSession();
+        });
+    }
+
     document.querySelectorAll('[data-demo-action]').forEach((button) => {
         button.addEventListener('click', () => showToast(button.dataset.demoAction || 'This action is ready for service integration.'));
     });
