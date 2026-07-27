@@ -37,7 +37,7 @@ CREATE TABLE course_revisions (
     revision_snapshot JSON NOT NULL,
     change_summary JSON NOT NULL,
     student_summary VARCHAR(1000) NOT NULL,
-    revision_status ENUM('pending', 'approved', 'rejected') NOT NULL DEFAULT 'pending',
+    revision_status ENUM('draft', 'pending', 'approved', 'rejected') NOT NULL DEFAULT 'draft',
     review_note VARCHAR(1000) DEFAULT NULL,
     reviewed_by BIGINT UNSIGNED DEFAULT NULL,
     reviewed_at DATETIME DEFAULT NULL,
