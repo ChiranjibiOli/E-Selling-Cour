@@ -12,6 +12,17 @@
         card.style.setProperty('--course-glow', '92, 102, 184');
     };
 
+    const normaliseCardControls = (card) => {
+        card.querySelectorAll('.status-badge').forEach((badge) => {
+            if (!(badge instanceof HTMLElement)) return;
+            badge.style.width = 'auto';
+            badge.style.height = 'auto';
+            badge.style.minHeight = '0';
+            badge.style.display = 'inline-flex';
+            badge.style.placeItems = 'initial';
+        });
+    };
+
     const sampleBottomTone = (image, card) => {
         if (!(image instanceof HTMLImageElement) || !(card instanceof HTMLElement)) return;
         if (!image.complete || image.naturalWidth < 1 || image.naturalHeight < 1) return;
@@ -86,6 +97,7 @@
 
     const wireCard = (card) => {
         if (!(card instanceof HTMLElement)) return;
+        normaliseCardControls(card);
         applyFallback(card);
 
         const image = card.querySelector(imageSelector) || card.querySelector('img');
