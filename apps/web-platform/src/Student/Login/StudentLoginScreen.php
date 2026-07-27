@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use CourseHub\WebPlatform\Shared\Http\Response;
 use CourseHub\WebPlatform\Shared\Security\Csrf;
+use CourseHub\WebPlatform\Shared\Ui\PublicNavbar;
 
 final class StudentLoginScreen
 {
@@ -30,18 +31,14 @@ final class StudentLoginScreen
             . '<meta name="theme-color" content="#f5efe5"><title>Student sign in | CourseHub</title>'
             . '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
             . '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600&display=swap" rel="stylesheet">'
-            . '<link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/room-assets/Student/Login/page.css?v=20260728-3"><link rel="stylesheet" href="/assets/css/public-site.css?v=20260728-2">'
+            . '<link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/room-assets/Student/Login/page.css?v=20260728-3"><link rel="stylesheet" href="/assets/css/public-site.css?v=20260728-2">' . PublicNavbar::styles()
             . $googleScript . '</head><body class="student-login-body">'
-            . '<header class="public-site-nav" data-public-site-nav><a class="public-site-brand" href="/" aria-label="CourseHub home"><img src="/assets/images/coursehub-robot.svg" alt=""><strong>CourseHub</strong></a>'
-            . '<button class="public-site-menu" type="button" data-public-site-menu aria-label="Open navigation" aria-expanded="false"><span></span><span></span></button>'
-            . '<nav class="public-site-links" aria-label="Public navigation"><a href="/">Home</a><a href="/courses">Courses</a><a href="/#categories">Categories</a><a href="/about">About</a><a href="/contact">Contact</a></nav>'
-            . '<div class="public-site-account"><a class="public-login active" href="/learn/sign-in" aria-current="page">Log in</a><a class="public-create" href="/register/student">Create account</a></div></header>'
+            . PublicNavbar::render('login')
             . '<main class="student-login-shell">'
             . '<section class="student-login-copy" aria-labelledby="student-login-heading"><div class="student-copy-inner">'
             . '<span class="student-kicker">STUDENT SIGN IN</span><h1 id="student-login-heading">Return to the course,<br><em>not the setup.</em></h1>'
             . '<p>Your purchased courses, completed lessons and progress stay connected to this account.</p>'
             . '<dl class="student-access-facts"><div><dt>Access</dt><dd>Lifetime after verified enrolment</dd></div><div><dt>Progress</dt><dd>Saved lesson by lesson</dd></div><div><dt>Account</dt><dd>One place for courses and payments</dd></div></dl>'
-            . '<div class="student-role-link"><span>Teaching on CourseHub?</span><a href="/teach/studio-access">Open Instructor sign in</a></div>'
             . '</div></section>'
             . '<section class="student-login-form-section"><div class="student-login-card">'
             . '<header><span>WELCOME BACK</span><h2>Sign in to keep learning</h2><p>Use the same email connected to your CourseHub purchases.</p></header>'
@@ -53,7 +50,7 @@ final class StudentLoginScreen
             . $googleHtml
             . '<footer><span>New to CourseHub?</span><a href="/register/student">Create a Student account</a></footer>'
             . '</div></section></main>'
-            . '<script src="/assets/js/public-site.js?v=20260728-2" defer></script><script src="/room-assets/Student/Login/page.js" defer></script></body></html>';
+            . PublicNavbar::script() . '<script src="/room-assets/Student/Login/page.js" defer></script></body></html>';
 
         return Response::html($html, $status);
     }
