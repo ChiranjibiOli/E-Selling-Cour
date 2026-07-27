@@ -6,6 +6,7 @@ use CourseHub\WebPlatform\Shared\Http\ApiClient;
 use CourseHub\WebPlatform\Shared\Http\Request;
 use CourseHub\WebPlatform\Shared\Room\RoomRuntime;
 use CourseHub\WebPlatform\Shared\Security\Csrf;
+use CourseHub\WebPlatform\Shared\Security\FormInput;
 
 require_once __DIR__ . '/Page.php';
 
@@ -14,21 +15,30 @@ return static function (Request $request) {
     $client = new ApiClient();
     $message = '';
     $success = true;
+
     try {
         if ($request->method === 'POST') {
             Csrf::assertValid((string) ($request->body['_token'] ?? ''));
-            $courseId = filter_var($request->body['course_id'] ?? null, FILTER_VALIDATE_INT);
-            if ($courseId === false || $courseId < 1) {
-                throw new DomainException('Choose a valid course.');
+            $courseId = FormInput::integer($request->body, 'course_id', 'Course', 1, PHP_INT_MAX);
+            $action = FormInput::enum($request->body, 'action', 'Course action', ['submit_course', 'request_edit']);
+            if ($action === 'request_edit') {
+                $reason = FormInput::multiline($request->body, 'reason', 'Edit reason', 20, 1000);
+                $result = $client->post('/api/v1/courses/' . $courseId . '/edit-permission/request', ['reason' => $reason]);
+            } else {
+                $result = $client->post('/api/v1/courses/' . $courseId . '/submit', []);
             }
-            $result = $client->post('/api/v1/courses/' . $courseId . '/submit', []);
-            $message = (string) ($result['message'] ?? 'Course submitted.');
+            $message = (string) ($result['message'] ?? 'Course updated.');
         }
         $courses = $client->get('/api/v1/courses/mine')['data'] ?? [];
     } catch (DomainException $exception) {
         $courses = [];
+        try {
+            $courses = $client->get('/api/v1/courses/mine')['data'] ?? [];
+        } catch (DomainException) {
+        }
         $message = $exception->getMessage();
         $success = false;
     }
-    return InstructorCoursesPage::render($courses, $message, $success);
+
+    return InstructorCoursesPage::render(is_array($courses) ? $courses : [], $message, $success);
 };
