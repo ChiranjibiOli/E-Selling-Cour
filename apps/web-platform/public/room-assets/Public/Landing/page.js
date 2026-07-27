@@ -7,9 +7,49 @@
   const links = document.querySelector('[data-landing-links]');
   const heroVisual = document.querySelector('[data-hero-visual]');
   const revealItems = Array.from(document.querySelectorAll('[data-reveal]'));
+  const navLinks = Array.from(document.querySelectorAll('.landing-links a[data-nav-section]'));
+  const trackedSections = Array.from(document.querySelectorAll('[data-public-section]'));
+
+  const setActiveSection = (sectionId) => {
+    if (!(nav instanceof HTMLElement)) return;
+
+    let changed = false;
+    navLinks.forEach((link) => {
+      const active = link.getAttribute('data-nav-section') === sectionId;
+      if (link.classList.contains('active') !== active) changed = true;
+      link.classList.toggle('active', active);
+      if (active) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    });
+
+    if (changed && !reducedMotion) {
+      nav.classList.remove('nav-active-shift');
+      void nav.offsetWidth;
+      nav.classList.add('nav-active-shift');
+      window.setTimeout(() => nav.classList.remove('nav-active-shift'), 320);
+    }
+  };
+
+  const findCurrentSection = () => {
+    const marker = window.scrollY + Math.min(window.innerHeight * 0.34, 310);
+    let current = 'top';
+
+    trackedSections.forEach((section) => {
+      if (!(section instanceof HTMLElement)) return;
+      if (section.offsetTop <= marker) {
+        current = section.getAttribute('data-public-section') || current;
+      }
+    });
+
+    return current;
+  };
 
   const updateNavigation = () => {
-    nav?.classList.toggle('is-compact', window.scrollY > 52);
+    if (nav instanceof HTMLElement) {
+      nav.classList.toggle('is-compact', window.scrollY > 52);
+      setActiveSection(findCurrentSection());
+    }
+
     if (!reducedMotion && heroVisual instanceof HTMLElement) {
       const movement = Math.min(22, window.scrollY * 0.035);
       heroVisual.style.transform = `translate3d(0, ${movement}px, 0)`;
@@ -59,20 +99,5 @@
       }
       observer.observe(item);
     });
-  }
-
-  const sections = Array.from(document.querySelectorAll('section[id]'));
-  const navLinks = Array.from(document.querySelectorAll('.landing-links a[href^="#"]'));
-  if ('IntersectionObserver' in window && navLinks.length > 0) {
-    const sectionObserver = new IntersectionObserver((entries) => {
-      const visible = entries
-        .filter((entry) => entry.isIntersecting)
-        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-      if (!visible) return;
-      navLinks.forEach((link) => {
-        link.classList.toggle('active', link.getAttribute('href') === `#${visible.target.id}`);
-      });
-    }, { threshold: [0.25, 0.45, 0.65], rootMargin: '-20% 0px -55% 0px' });
-    sections.forEach((section) => sectionObserver.observe(section));
   }
 })();
