@@ -64,7 +64,7 @@ final class RoomRuntime
 
         $body = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             . '<title>' . $title . ' | CourseHub</title><link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="' . $assetBase . '/page.css"></head><body>'
-            . '<header class="house-header"><a href="/">CourseHub</a><nav><a href="/courses">Courses</a><a href="/learn/sign-in">Student</a><a href="/teach/studio-access">Instructor</a></nav></header>'
+            . '<header class="house-header"><a href="/">CourseHub</a><nav><a href="/courses">Courses</a><a href="/login">Sign in</a></nav></header>'
             . '<main class="room-page" data-floor="' . $floor . '" data-room="' . $room . '"><span class="floor-label">' . $floor . ' floor</span><h1>' . $title . '</h1>'
             . '<dl><div><dt>Status</dt><dd>' . $escape($metadata['status']) . '</dd></div><div><dt>Backend owner</dt><dd>' . $escape($metadata['service']) . '</dd></div></dl>'
             . '<p>This feature is being implemented inside its owned room and backend domain.</p></main><script src="/assets/js/app.js" defer></script><script src="' . $assetBase . '/page.js" defer></script></body></html>';
