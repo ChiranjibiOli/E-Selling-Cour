@@ -1,0 +1,177 @@
+/* Compact Admin support inbox and course-governance workflow. */
+.support-inbox,
+.course-workflow-console,
+.instructor-course-list {
+    min-width: 0;
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+}
+.support-inbox > header,
+.course-workflow-console > header,
+.instructor-course-list > header {
+    padding: 24px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    background: linear-gradient(135deg, #fff, #f5f8ff);
+    border-bottom: 1px solid var(--line);
+}
+.support-inbox > header span,
+.course-workflow-console > header > div > span,
+.instructor-course-list > header span {
+    color: var(--blue);
+    font-size: .64rem;
+    font-weight: 900;
+    letter-spacing: .13em;
+}
+.support-inbox > header h2,
+.course-workflow-console > header h2,
+.instructor-course-list > header h2 { margin: 7px 0 6px; }
+.support-inbox > header p,
+.course-workflow-console > header p,
+.instructor-course-list > header p { max-width: 720px; margin: 0; color: var(--ink-soft); font-size: .76rem; line-height: 1.6; }
+.support-inbox > header > strong,
+.instructor-course-list > header > strong {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: var(--blue);
+    border-radius: 13px;
+}
+.support-message-list,
+.workflow-record-list { display: grid; }
+.support-message-row,
+.workflow-record { border-bottom: 1px solid var(--line); }
+.support-message-row:last-child,
+.workflow-record:last-child { border-bottom: 0; }
+.support-message-row > summary,
+.workflow-record > summary {
+    padding: 18px 22px;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    list-style: none;
+}
+.support-message-row > summary::-webkit-details-marker,
+.workflow-record > summary::-webkit-details-marker { display: none; }
+.support-message-row > summary div,
+.workflow-record > summary div { min-width: 0; }
+.support-message-row > summary strong,
+.workflow-record > summary h3 { display: block; margin: 0 0 4px; overflow-wrap: anywhere; }
+.support-message-row > summary small,
+.workflow-record > summary p,
+.support-message-row > summary time { color: var(--ink-soft); font-size: .68rem; overflow-wrap: anywhere; }
+.support-message-content,
+.workflow-record-body { padding: 0 22px 22px; display: grid; gap: 17px; }
+.support-original-message,
+.support-reply-history,
+.support-destination,
+.revision-student-summary,
+.course-row-note {
+    padding: 15px 16px;
+    overflow: hidden;
+    background: #f7f9fd;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+.support-original-message > span,
+.support-reply-history > span,
+.support-destination > span { color: var(--blue); font-size: .62rem; font-weight: 900; letter-spacing: .1em; }
+.support-original-message p,
+.support-reply-history p { margin: 9px 0 0; line-height: 1.65; overflow-wrap: anywhere; }
+.support-reply-history strong { display: block; margin-top: 7px; }
+.support-reply-history small { color: var(--ink-soft); }
+.support-destination { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
+.support-destination strong { overflow-wrap: anywhere; }
+.support-reply-form { padding: 18px; background: #fff; border: 1px solid var(--line); border-radius: 11px; }
+.support-status-form { display: flex; align-items: end; flex-wrap: wrap; gap: 10px; }
+.support-status-form label { min-width: 180px; }
+
+.course-workflow-counts { display: flex; flex-wrap: wrap; gap: 8px; }
+.course-workflow-counts span { padding: 8px 10px; color: #58647a; background: #fff; border: 1px solid var(--line); border-radius: 9px; font-size: .68rem; }
+.course-workflow-counts strong { color: var(--ink); }
+.course-workflow-group { border-bottom: 1px solid var(--line); }
+.course-workflow-group:last-child { border-bottom: 0; }
+.workflow-group-title { padding: 20px 24px; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; background: #fafbfe; }
+.workflow-group-title > span { width: 32px; height: 32px; display: grid; place-items: center; color: #fff; background: var(--blue); border-radius: 9px; font-size: .67rem; font-weight: 900; }
+.workflow-group-title h3 { margin: 0 0 3px; }
+.workflow-group-title p { margin: 0; color: var(--ink-soft); font-size: .72rem; }
+.workflow-empty { padding: 22px 24px; color: var(--ink-soft); }
+.workflow-course-thumb { width: 72px; height: 48px; overflow: hidden; display: grid; place-items: center; color: #fff; background: #51627b; border-radius: 8px; font-size: .55rem; }
+.workflow-course-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.workflow-record > summary > strong { white-space: nowrap; }
+.course-review-copy,
+.complete-curriculum-review { padding: 18px; background: #fafbfe; border: 1px solid var(--line); border-radius: 11px; }
+.course-review-copy h4,
+.complete-curriculum-review h4 { margin: 0 0 12px; }
+.course-review-copy > p { line-height: 1.65; }
+.course-review-lists { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.course-review-lists > div { padding: 13px; background: #fff; border: 1px solid var(--line); border-radius: 9px; }
+.course-review-lists ul { margin: 9px 0 0; padding-left: 18px; }
+.complete-curriculum-review { display: grid; gap: 12px; }
+.complete-curriculum-review article { overflow: hidden; background: #fff; border: 1px solid var(--line); border-radius: 9px; }
+.complete-curriculum-review article > header { padding: 12px 14px; display: flex; gap: 10px; background: #f2f5fb; }
+.complete-curriculum-review article > header span { color: var(--blue); font-size: .62rem; font-weight: 900; }
+.complete-curriculum-review ol { margin: 0; padding: 0; list-style: none; }
+.complete-curriculum-review li { padding: 11px 14px; display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 9px; border-top: 1px solid var(--line); }
+.complete-curriculum-review li b { color: var(--blue); font-size: .65rem; }
+.complete-curriculum-review li span { display: grid; gap: 3px; }
+.complete-curriculum-review li small { color: var(--ink-soft); overflow-wrap: anywhere; }
+.workflow-decision-form { padding: 18px; background: #fff; border: 1px solid var(--line); border-radius: 11px; }
+.workflow-decision-form > div,
+.workflow-permission form > div { display: flex; flex-wrap: wrap; gap: 10px; }
+.workflow-permission { padding: 20px 24px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 20px; border-bottom: 1px solid var(--line); }
+.workflow-permission:last-child { border-bottom: 0; }
+.workflow-permission h3 { margin: 9px 0 4px; }
+.workflow-permission p { line-height: 1.65; }
+.revision-diff-table { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; }
+.revision-diff-table table { width: 100%; min-width: 720px; border-collapse: collapse; }
+.revision-diff-table th,
+.revision-diff-table td { padding: 11px 12px; vertical-align: top; text-align: left; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+.revision-diff-table thead { background: #f2f5fb; }
+.revision-diff-table tbody th { width: 24%; color: #344664; }
+
+.instructor-course-row { padding: 20px 24px; display: grid; grid-template-columns: 110px minmax(0, 1fr) minmax(220px, auto); gap: 18px; align-items: start; border-bottom: 1px solid var(--line); }
+.instructor-course-row:last-child { border-bottom: 0; }
+.instructor-course-status { display: grid; gap: 7px; justify-items: start; }
+.instructor-course-status small { color: var(--ink-soft); }
+.instructor-course-copy h2 { margin: 0 0 7px; overflow-wrap: anywhere; }
+.instructor-course-copy > p { margin: 0 0 9px; color: var(--ink-soft); line-height: 1.55; }
+.instructor-course-copy > small { color: #6f7b91; }
+.course-row-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 9px; }
+.course-row-actions form { margin: 0; }
+.course-edit-request { width: 100%; }
+.course-edit-request summary { color: var(--blue); font-size: .72rem; font-weight: 850; cursor: pointer; }
+.course-edit-request form { margin-top: 10px; }
+.course-row-note { margin-top: 12px; }
+.course-row-note strong { font-size: .72rem; }
+.course-row-note p { margin: 5px 0 0; font-size: .72rem; }
+.course-row-note.denied { background: #fff6f5; border-color: #f0cbc6; }
+
+@media (max-width: 900px) {
+    .workflow-permission,
+    .instructor-course-row { grid-template-columns: 1fr; }
+    .course-row-actions { justify-content: flex-start; }
+    .course-review-lists { grid-template-columns: 1fr; }
+}
+@media (max-width: 650px) {
+    .support-inbox > header,
+    .course-workflow-console > header,
+    .instructor-course-list > header { flex-direction: column; }
+    .support-message-row > summary,
+    .workflow-record > summary { grid-template-columns: 1fr; }
+    .workflow-course-thumb { width: 100%; height: 130px; }
+    .workflow-permission,
+    .instructor-course-row,
+    .workflow-group-title,
+    .support-message-content,
+    .workflow-record-body { padding-left: 16px; padding-right: 16px; }
+    .support-destination { align-items: flex-start; flex-direction: column; }
+}
