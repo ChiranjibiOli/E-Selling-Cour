@@ -45,20 +45,26 @@ final class PortalPage
             'instructor' => '/instructor/dashboard',
             default => '/student/dashboard',
         };
+        $profile = match ($role) {
+            'admin' => '/admin/profile',
+            'instructor' => '/instructor/profile',
+            default => '/student/profile',
+        };
         $workspace = $role === 'admin'
             ? ''
             : '<div class="portal-workspace"><span>' . $e(ucfirst($role)) . '</span><strong>' . $e($roleName) . '</strong></div>';
         $logout = '<form class="portal-logout-form" method="post" action="/logout" data-logout-form>' . Csrf::field()
             . '<button class="portal-logout-button" type="submit"><span class="portal-nav-icon">↪</span><span>Log out</span></button></form>';
+        $sidebarUser = '<a class="portal-sidebar-user portal-profile-link" href="' . $e($profile) . '" aria-label="Open your profile"><span class="portal-avatar">' . $e($initials) . '</span><div><strong>' . $e($name) . '</strong><small>' . $e($email !== '' ? $email : ucfirst($role)) . '</small></div><span class="portal-profile-chevron" aria-hidden="true">›</span></a>';
 
         $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            . '<meta name="theme-color" content="#07122d"><title>' . $e($title) . ' | CourseHub</title><link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/assets/css/commerce.css"><link rel="stylesheet" href="/assets/css/portal-fixes.css"><link rel="stylesheet" href="/assets/css/admin-console.css"><link rel="stylesheet" href="/assets/css/instructor-identity.css"></head>'
+            . '<meta name="theme-color" content="#07122d"><title>' . $e($title) . ' | CourseHub</title><link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/assets/css/commerce.css"><link rel="stylesheet" href="/assets/css/portal-fixes.css"><link rel="stylesheet" href="/assets/css/admin-console.css"><link rel="stylesheet" href="/assets/css/profile-links.css"><link rel="stylesheet" href="/assets/css/instructor-identity.css"></head>'
             . '<body class="portal-shell portal-role-' . $e($role) . '" data-portal-role="' . $e($role) . '"><button class="portal-mobile-toggle" type="button" data-portal-toggle aria-label="Open navigation" aria-expanded="false"><span></span><span></span><span></span></button>'
             . '<div class="portal-overlay" data-portal-overlay></div><aside class="portal-sidebar" data-portal-sidebar><a class="portal-brand" href="' . $e($dashboard) . '"><span>CH</span><strong>CourseHub</strong></a>'
             . $workspace . '<nav class="portal-sidebar-nav" data-portal-nav>' . $nav . '</nav>'
             . '<div class="portal-sidebar-foot"><a href="/contact"><span class="portal-nav-icon">?</span><span>Help & support</span></a>' . $logout
-            . '<div class="portal-sidebar-user"><span class="portal-avatar">' . $e($initials) . '</span><div><strong>' . $e($name) . '</strong><small>' . $e($email !== '' ? $email : ucfirst($role)) . '</small></div></div></div></aside>'
-            . '<div class="portal-stage"><header class="portal-topbar"><div class="portal-crumb"><span>' . $e(ucfirst($role)) . '</span><i>/</i><strong>' . $e($title) . '</strong></div><div class="portal-top-actions"><label class="portal-search"><span>⌕</span><input type="search" placeholder="Search this page" aria-label="Search this page"></label><a class="portal-icon-button" href="/' . $e($role) . '/notifications" aria-label="Notifications"><span>◔</span><i></i></a><span class="portal-top-avatar">' . $e($initials) . '</span></div></header>'
+            . $sidebarUser . '</div></aside>'
+            . '<div class="portal-stage"><header class="portal-topbar"><div class="portal-crumb"><span>' . $e(ucfirst($role)) . '</span><i>/</i><strong>' . $e($title) . '</strong></div><div class="portal-top-actions"><label class="portal-search"><span>⌕</span><input type="search" placeholder="Search this page" aria-label="Search this page"></label><a class="portal-icon-button" href="/' . $e($role) . '/notifications" aria-label="Notifications"><span>◔</span><i></i></a><a class="portal-top-avatar portal-top-profile" href="' . $e($profile) . '" aria-label="Open your profile" title="Open profile">' . $e($initials) . '</a></div></header>'
             . '<main class="portal-main"><header class="portal-head"><div><span class="portal-eyebrow">' . strtoupper($e($roleName)) . '</span><h1>' . $e($title) . '</h1><p>' . $e($subtitle) . '</p></div><div class="portal-head-action">' . $action . '</div></header>'
             . $content . '</main><footer class="portal-footer"><span>CourseHub</span><span>Secure role-based access</span></footer></div>'
             . '<dialog class="portal-confirm-dialog" data-logout-dialog aria-labelledby="logout-confirm-title"><div class="portal-confirm-content"><span class="portal-confirm-icon">↪</span><div><h2 id="logout-confirm-title">Log out of CourseHub?</h2><p>Your current session will end on this device.</p></div><div class="portal-confirm-actions"><button class="portal-button secondary" type="button" data-logout-cancel>No, stay signed in</button><button class="portal-button danger" type="button" data-logout-confirm>Yes, log out</button></div></div></dialog>'
