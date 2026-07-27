@@ -13,17 +13,22 @@ final class ControlRoomScreen
         $errorHtml = $error !== '' ? '<div class="control-error" role="alert">' . $e($error) . '</div>' : '';
 
         $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            . '<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#171611"><title>Restricted control entry</title>'
-            . '<link rel="stylesheet" href="/room-assets/Admin/Login/page.css"><link rel="stylesheet" href="/assets/css/coursehub-editorial.css"></head><body class="control-body">'
-            . '<main class="control-shell"><section class="control-mark"><img class="coursehub-control-logo" src="/assets/images/coursehub-robot.svg" alt=""><span>COURSEHUB</span><strong>CONTROL<br>ROOM</strong><small>Restricted administration surface</small></section>'
-            . '<section class="control-terminal"><div class="control-status"><i></i> SECURE ENTRY</div><h1>Administrator challenge</h1>'
-            . '<p>This entrance is intentionally absent from public navigation. Access still requires an administrator account, entry code, valid session and server-side role verification.</p>'
+            . '<meta name="robots" content="noindex,nofollow,noarchive"><meta name="theme-color" content="#101722"><title>Restricted administration | CourseHub</title>'
+            . '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+            . '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet">'
+            . '<link rel="stylesheet" href="/room-assets/Admin/Login/page.css?v=20260728-3"></head><body class="control-body">'
+            . '<main class="control-shell">'
+            . '<section class="control-mark" aria-labelledby="control-heading"><div class="control-brand"><img class="coursehub-control-logo" src="/assets/images/coursehub-robot.svg" alt=""><strong>CourseHub</strong></div>'
+            . '<div class="control-intro"><span>RESTRICTED ADMINISTRATION</span><h1 id="control-heading">Private access.<br>No public shortcut.</h1><p>This entrance is intentionally excluded from public navigation and requires the administrator account, entry challenge and server-side role verification.</p></div>'
+            . '<dl class="control-facts"><div><dt>Identity</dt><dd>Administrator account required</dd></div><div><dt>Challenge</dt><dd>Separate entry code required</dd></div><div><dt>Session</dt><dd>Role checked again after sign in</dd></div></dl></section>'
+            . '<section class="control-form-section"><div class="control-terminal"><header><span>SECURE ENTRY</span><h2>Administrator sign in</h2><p>Enter the credentials assigned to the restricted administration surface.</p></header>'
             . $errorHtml . '<form method="post" action="' . $e($action) . '">' . Csrf::field()
-            . '<label>Control identity<input type="email" name="control_identity" value="' . $e($identity) . '" autocomplete="username" required></label>'
-            . '<label>Account secret<input type="password" name="control_secret" autocomplete="current-password" required></label>'
-            . '<label>Entry challenge<input type="password" name="control_entry_code" autocomplete="one-time-code" required></label>'
-            . '<button type="submit">Authenticate control access</button></form></section></main>'
-            . '<script src="/room-assets/Admin/Login/page.js" defer></script></body></html>';
+            . '<label><span>Administrator email</span><input type="email" name="control_identity" value="' . $e($identity) . '" autocomplete="username" inputmode="email" placeholder="admin@example.com" required></label>'
+            . '<label><span>Account password</span><input type="password" name="control_secret" autocomplete="current-password" placeholder="Account password" required></label>'
+            . '<label><span>Entry challenge</span><input type="password" name="control_entry_code" autocomplete="one-time-code" placeholder="Restricted entry code" required></label>'
+            . '<button type="submit">Authenticate access</button></form>'
+            . '<footer>Access attempts are validated by the server and recorded by the platform.</footer></div></section>'
+            . '</main><script src="/room-assets/Admin/Login/page.js" defer></script></body></html>';
 
         return Response::html($html, $status);
     }
