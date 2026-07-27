@@ -18,7 +18,7 @@ final class PortalPage
 
         foreach ($navigation as $group => $links) {
             $nav .= '<div class="portal-nav-group"><span class="portal-nav-label">' . $e($group) . '</span>';
-            foreach ($links as $href => [$label, $icon]) {
+            foreach ($links as $href => $label) {
                 $normalHref = rtrim($href, '/') ?: '/';
                 $activeMatch = $currentPath === $normalHref;
                 if (!$activeMatch && $normalHref !== '/' && str_starts_with($currentPath, $normalHref . '/')) {
@@ -81,26 +81,26 @@ final class PortalPage
         return Response::html($html);
     }
 
-    /** @return array<string, array<string, array{string, string}>> */
+    /** @return array<string, array<string, string>> */
     private static function navigation(string $role): array
     {
         return match ($role) {
             'admin' => [
-                'Workspace' => ['/admin/dashboard' => ['Overview', 'OV'], '/admin/notifications' => ['Notifications', 'NT']],
-                'People' => ['/admin/instructor-approvals' => ['Instructor approvals', 'IA'], '/admin/students' => ['Students', 'ST'], '/admin/instructors' => ['Instructors', 'IN'], '/admin/users' => ['All users', 'US']],
-                'Learning' => ['/admin/course-approvals' => ['Course approvals', 'CA'], '/admin/categories' => ['Categories', 'CT'], '/admin/enrollments' => ['Enrollments', 'EN']],
-                'Commerce' => ['/admin/orders' => ['Orders', 'OR'], '/admin/payments' => ['Payments', 'PY'], '/admin/refunds' => ['Refunds', 'RF'], '/admin/withdrawals' => ['Withdrawals', 'WD'], '/admin/coupons' => ['Coupons', 'CP']],
-                'Operations' => ['/admin/reports' => ['Reports', 'RP'], '/admin/contact-messages' => ['Messages', 'MS'], '/admin/audit-logs' => ['Audit logs', 'AL'], '/admin/security' => ['Security', 'SC'], '/admin/settings' => ['Settings', 'SE']],
+                'Workspace' => ['/admin/dashboard' => 'Overview', '/admin/notifications' => 'Notifications'],
+                'People' => ['/admin/instructor-approvals' => 'Instructor approvals', '/admin/students' => 'Students', '/admin/instructors' => 'Instructors', '/admin/users' => 'All users'],
+                'Learning' => ['/admin/course-approvals' => 'Course approvals', '/admin/categories' => 'Categories', '/admin/enrollments' => 'Enrollments'],
+                'Commerce' => ['/admin/orders' => 'Orders', '/admin/payments' => 'Payments', '/admin/refunds' => 'Refunds', '/admin/withdrawals' => 'Withdrawals', '/admin/coupons' => 'Coupons'],
+                'Operations' => ['/admin/reports' => 'Reports', '/admin/contact-messages' => 'Messages', '/admin/audit-logs' => 'Audit logs', '/admin/security' => 'Security', '/admin/settings' => 'Settings'],
             ],
             'instructor' => [
-                'Workspace' => ['/instructor/dashboard' => ['Overview', 'OV'], '/instructor/notifications' => ['Notifications', 'NT'], '/instructor/messaging' => ['Messages', 'MS']],
-                'Courses' => ['/instructor/courses' => ['All courses', 'CR'], '/instructor/courses/create' => ['Complete authoring', 'NW'], '/instructor/courses/drafts' => ['Drafts', 'DR'], '/instructor/courses/pending' => ['Pending review', 'PN'], '/instructor/courses/published' => ['Published', 'PB']],
-                'Business' => ['/instructor/students' => ['Students', 'ST'], '/instructor/sales' => ['Sales', 'SL'], '/instructor/coupons' => ['Coupons', 'CP'], '/instructor/withdrawals' => ['Withdrawals', 'WD'], '/instructor/bank-details' => ['Payout details', 'BK']],
+                'Workspace' => ['/instructor/dashboard' => 'Overview', '/instructor/notifications' => 'Notifications', '/instructor/messaging' => 'Messages'],
+                'Courses' => ['/instructor/courses' => 'All courses', '/instructor/courses/create' => 'Complete authoring', '/instructor/courses/drafts' => 'Drafts', '/instructor/courses/pending' => 'Pending review', '/instructor/courses/published' => 'Published'],
+                'Business' => ['/instructor/students' => 'Students', '/instructor/sales' => 'Sales', '/instructor/coupons' => 'Coupons', '/instructor/withdrawals' => 'Withdrawals', '/instructor/bank-details' => 'Payout details'],
             ],
             default => [
-                'Learning' => ['/student/dashboard' => ['Overview', 'OV'], '/student/my-courses' => ['My courses', 'CR'], '/student/course-player' => ['Course player', 'PL'], '/student/progress' => ['Progress', 'PG']],
-                'Purchases' => ['/student/cart' => ['My cart', 'CT'], '/student/checkout' => ['Checkout', 'CK'], '/student/payment' => ['Payment', 'PY'], '/student/payment-history' => ['Payment history', 'PH']],
-                'Account' => ['/student/notifications' => ['Notifications', 'NT'], '/student/reviews' => ['My reviews', 'RV'], '/student/unsubscribe' => ['Access requests', 'AR']],
+                'Learning' => ['/student/dashboard' => 'Overview', '/student/my-courses' => 'My courses', '/student/course-player' => 'Course player', '/student/progress' => 'Progress'],
+                'Purchases' => ['/student/cart' => 'My cart', '/student/checkout' => 'Checkout', '/student/payment' => 'Payment', '/student/payment-history' => 'Payment history'],
+                'Account' => ['/student/notifications' => 'Notifications', '/student/reviews' => 'My reviews', '/student/unsubscribe' => 'Access requests'],
             ],
         };
     }
