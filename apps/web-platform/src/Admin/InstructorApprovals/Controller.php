@@ -48,6 +48,9 @@ return static function (Request $request) {
             }
             $result = $client->post('/api/v1/users/instructor-applications/' . $id . '/' . $decision, ['note' => (string) ($request->body['note'] ?? '')]);
             $message = (string) ($result['message'] ?? 'Instructor reviewed.');
+            if ($decision === 'reject' && array_key_exists('email_sent', $result) && ($result['email_sent'] ?? false) !== true) {
+                $success = false;
+            }
         }
         $applications = $client->get('/api/v1/users/instructor-applications')['data'] ?? [];
     } catch (DomainException $exception) {
