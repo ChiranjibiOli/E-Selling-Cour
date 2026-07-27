@@ -41,6 +41,8 @@ $requiredFiles = [
     'apps/web-platform/src/Shared/Ui/PanelFactory.php',
     'apps/web-platform/src/Shared/Ui/AdminConsole.php',
     'apps/web-platform/src/Shared/Room/RoomRuntime.php',
+    'apps/web-platform/src/Shared/Routing/HouseRouter.php',
+    'apps/web-platform/src/Shared/Session/SessionGuard.php',
     'apps/web-platform/public/assets/css/app.css',
     'apps/web-platform/public/assets/css/admin-console.css',
     'apps/web-platform/public/assets/js/app.js',
@@ -65,6 +67,23 @@ $contracts = [
         'sessionStorage.setItem',
         'data-logout-confirm',
         'showModal',
+        "fetch('/session-status'",
+        'window.setInterval(checkSession, 12000)',
+        'window.location.replace',
+    ],
+    'apps/web-platform/src/Shared/Routing/HouseRouter.php' => [
+        "'/session-status'",
+        'SessionGuard::verify($requiredRole)',
+        'SessionEndedException',
+        "Response::redirect($exception->loginPath() . '?session=ended')",
+    ],
+    'apps/web-platform/src/Shared/Session/SessionGuard.php' => [
+        "get('/api/v1/auth/session')",
+        'AuthSession::clear()',
+        "'/learn/sign-in'",
+        "'/teach/studio-access'",
+        'ADMIN_LOGIN_PATH',
+        'SessionValidationUnavailableException',
     ],
     'apps/web-platform/src/Shared/Ui/AdminConsole.php' => [
         "'Notifications' => 'notifications'",
@@ -119,3 +138,4 @@ echo "PANEL COVERAGE CHECK: PASS\n";
 echo "Panel routes: 54\n";
 echo "Authenticated panels: 49\n";
 echo "Admin navigation rooms: implemented\n";
+echo "Revoked sessions: automatic portal logout enabled\n";
