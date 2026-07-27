@@ -25,6 +25,21 @@ final class Response
         return new self(json_encode($payload, JSON_THROW_ON_ERROR | JSON_UNESCAPED_SLASHES), $status, ['Content-Type' => 'application/json; charset=utf-8']);
     }
 
+    public static function binary(string $body, string $contentType, int $status = 200): self
+    {
+        if (preg_match('#^[a-z0-9.+-]+/[a-z0-9.+-]+$#i', $contentType) !== 1) {
+            throw new InvalidArgumentException('Invalid binary response content type.');
+        }
+
+        return new self($body, $status, [
+            'Content-Type' => $contentType,
+            'Content-Length' => (string) strlen($body),
+            'Cache-Control' => 'private, no-store, max-age=0',
+            'X-Content-Type-Options' => 'nosniff',
+            'Content-Security-Policy' => "default-src 'none'; sandbox",
+        ]);
+    }
+
     public static function redirect(string $location, int $status = 303): self
     {
         // Redirects are restricted to local absolute paths to prevent open redirects.
