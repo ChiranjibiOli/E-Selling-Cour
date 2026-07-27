@@ -67,13 +67,147 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target === logoutDialog) logoutDialog.close();
     });
 
-    document.querySelectorAll('[data-profile-photo-remove]').forEach((form) => {
-        form.addEventListener('submit', (event) => {
-            if (!window.confirm('Remove this profile photo and return to the initials avatar?')) {
-                event.preventDefault();
-            }
+    const photoDialog = document.querySelector('[data-photo-dialog]');
+    const photoImage = photoDialog?.querySelector('[data-photo-image]');
+    let photoScale = 1;
+    const applyPhotoScale = () => {
+        if (photoImage) photoImage.style.transform = `scale(${photoScale})`;
+    };
+    const closePhoto = () => {
+        if (!photoDialog) return;
+        photoScale = 1;
+        applyPhotoScale();
+        photoDialog.close();
+    };
+    document.querySelectorAll('[data-photo-open]').forEach((button) => {
+        button.addEventListener('click', () => {
+            if (!photoDialog || typeof photoDialog.showModal !== 'function') return;
+            photoScale = 1;
+            applyPhotoScale();
+            photoDialog.showModal();
         });
     });
+    photoDialog?.querySelectorAll('[data-photo-close]').forEach((button) => button.addEventListener('click', closePhoto));
+    photoDialog?.querySelector('[data-photo-zoom-in]')?.addEventListener('click', () => {
+        photoScale = Math.min(3, photoScale + 0.25);
+        applyPhotoScale();
+    });
+    photoDialog?.querySelector('[data-photo-zoom-out]')?.addEventListener('click', () => {
+        photoScale = Math.max(0.75, photoScale - 0.25);
+        applyPhotoScale();
+    });
+    photoDialog?.querySelector('[data-photo-reset]')?.addEventListener('click', () => {
+        photoScale = 1;
+        applyPhotoScale();
+    });
+    photoDialog?.addEventListener('click', (event) => {
+        if (event.target === photoDialog) closePhoto();
+    });
+
+    const removeDialog = document.querySelector('[data-photo-remove-dialog]');
+    const removeCancel = document.querySelector('[data-photo-remove-cancel]');
+    const removeConfirm = document.querySelector('[data-photo-remove-confirm]');
+    let pendingRemoveForm = null;
+    let removeApproved = false;
+
+    document.querySelectorAll('[data-profile-photo-remove]').forEach((form) => {
+        form.addEventListener('submit', (event) => {
+            if (removeApproved) return;
+            if (!removeDialog || typeof removeDialog.showModal !== 'function') {
+                if (!window.confirm('Remove this profile photo and return to the initials avatar?')) event.preventDefault();
+                return;
+            }
+            event.preventDefault();
+            pendingRemoveForm = form;
+            removeDialog.showModal();
+            removeCancel?.focus();
+        });
+    });
+    removeCancel?.addEventListener('click', () => {
+        pendingRemoveForm = null;
+        removeDialog?.close();
+    });
+    removeConfirm?.addEventListener('click', () => {
+        if (!pendingRemoveForm) return;
+        removeApproved = true;
+        removeDialog?.close();
+        pendingRemoveForm.requestSubmit();
+    });
+    removeDialog?.addEventListener('click', (event) => {
+        if (event.target === removeDialog) {
+            pendingRemoveForm = null;
+            removeDialog.close();
+        }
+    });
+
+    document.querySelectorAll('input[type="number"]').forEach((input) => {
+        input.addEventListener('keydown', (event) => {
+            if (['e', 'E', '+', '-'].includes(event.key)) event.preventDefault();
+        });
+    });
+
+    const courseAuthoring = document.querySelector('[data-course-authoring]');
+    if (courseAuthoring) {
+        const titleInput = courseAuthoring.querySelector('[name="title"]');
+        const descriptionInput = courseAuthoring.querySelector('[name="short_description"]');
+        const categoryInput = courseAuthoring.querySelector('[name="category_id"]');
+        const priceInput = courseAuthoring.querySelector('[name="price"]');
+        const discountInput = courseAuthoring.querySelector('[name="discount_price"]');
+        const thumbnailInput = courseAuthoring.querySelector('[name="thumbnail"]');
+        const previewTitle = courseAuthoring.querySelector('[data-preview-title]');
+        const previewDescription = courseAuthoring.querySelector('[data-preview-description]');
+        const previewCategory = courseAuthoring.querySelector('[data-preview-category]');
+        const previewPrice = courseAuthoring.querySelector('[data-preview-price]');
+        const previewMedia = courseAuthoring.querySelector('[data-preview-media]');
+        let thumbnailObjectUrl = '';
+
+        const cleanPreviewText = (value, fallback) => {
+            const text = String(value || '').replace(/\s+/g, ' ').trim();
+            return text || fallback;
+        };
+        const updateCoursePreview = () => {
+            if (previewTitle) previewTitle.textContent = cleanPreviewText(titleInput?.value, 'Your course title');
+            if (previewDescription) previewDescription.textContent = cleanPreviewText(
+                descriptionInput?.value,
+                'Your short description will appear here and stay contained inside the course card.',
+            );
+            if (previewCategory && categoryInput instanceof HTMLSelectElement) {
+                previewCategory.textContent = cleanPreviewText(categoryInput.selectedOptions[0]?.textContent, 'Choose a category');
+            }
+            const discount = Number.parseFloat(discountInput?.value || '');
+            const standard = Number.parseFloat(priceInput?.value || '0');
+            const amount = Number.isFinite(discount) ? discount : standard;
+            if (previewPrice) {
+                previewPrice.textContent = Number.isFinite(amount) && amount > 0
+                    ? `NPR ${new Intl.NumberFormat('en-GB', { maximumFractionDigits: 0 }).format(amount)}`
+                    : 'Free';
+            }
+        };
+
+        [titleInput, descriptionInput, categoryInput, priceInput, discountInput].forEach((field) => {
+            field?.addEventListener('input', updateCoursePreview);
+            field?.addEventListener('change', updateCoursePreview);
+        });
+        thumbnailInput?.addEventListener('change', () => {
+            const file = thumbnailInput.files?.[0];
+            if (thumbnailObjectUrl) URL.revokeObjectURL(thumbnailObjectUrl);
+            thumbnailObjectUrl = '';
+            if (!previewMedia) return;
+            previewMedia.replaceChildren();
+            if (!file) {
+                const placeholder = document.createElement('span');
+                placeholder.textContent = 'CourseHub';
+                previewMedia.appendChild(placeholder);
+                return;
+            }
+            thumbnailObjectUrl = URL.createObjectURL(file);
+            const image = document.createElement('img');
+            image.src = thumbnailObjectUrl;
+            image.alt = 'Selected course thumbnail preview';
+            previewMedia.appendChild(image);
+        });
+        updateCoursePreview();
+    }
 
     let toastTimer = 0;
     const showToast = (message) => {
