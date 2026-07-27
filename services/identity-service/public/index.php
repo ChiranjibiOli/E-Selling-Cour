@@ -100,8 +100,11 @@ try {
             if ($socialProfileUrl !== '' && (!filter_var($socialProfileUrl, FILTER_VALIDATE_URL) || mb_strlen($socialProfileUrl) > 500)) {
                 throw new LoginValidationException('Enter a valid professional profile URL.');
             }
-            if ($profileImage === '' || mb_strlen($profileImage) > 255 || $identityDocument === '' || mb_strlen($identityDocument) > 255) {
-                throw new LoginValidationException('A personal photo and identity document are required.');
+            if (preg_match('#^private/instructor-profiles/[a-f0-9]{40}\.(?:jpg|png|webp)$#', $profileImage) !== 1) {
+                throw new LoginValidationException('A valid passport-size profile photo is required.');
+            }
+            if (preg_match('#^private/instructor-identity/[a-f0-9]{40}\.(?:jpg|png|webp|pdf)$#', $identityDocument) !== 1) {
+                throw new LoginValidationException('A valid identity document is required.');
             }
             if (!$agreedRules) {
                 throw new LoginValidationException('You must agree to the instructor and content rules.');
@@ -157,7 +160,7 @@ try {
         $respond([
             'message' => $role === 'student'
                 ? 'Student account created. You can sign in now.'
-                : 'Instructor application submitted for administrator approval.',
+                : 'Instructor account application submitted for administrator approval.',
             'status' => $status,
         ], 201);
     }
@@ -288,8 +291,16 @@ try {
             $database->rollBack();
             throw new LoginValidationException('The instructor application is no longer pending.');
         }
-        $statement = $database->prepare('UPDATE users SET status=:status WHERE id=:id AND role=\'instructor\' AND status=\'inactive\'');
-        $statement->execute(['status' => $action === 'approve' ? 'active' : 'blocked', 'id' => (int) $matches[1]]);
+        $statement = $database->prepare(
+            'UPDATE users SET status=:status, '
+            . 'profile_image_changed_at=CASE WHEN :approved=1 THEN COALESCE(profile_image_changed_at, NOW()) ELSE profile_image_changed_at END '
+            . 'WHERE id=:id AND role=\'instructor\' AND status=\'inactive\''
+        );
+        $statement->execute([
+            'status' => $action === 'approve' ? 'active' : 'blocked',
+            'approved' => $action === 'approve' ? 1 : 0,
+            'id' => (int) $matches[1],
+        ]);
         if ($statement->rowCount() !== 1) {
             $database->rollBack();
             throw new LoginValidationException('The instructor account state changed during review.');
@@ -299,11 +310,133 @@ try {
             'user_id' => (int) $matches[1],
             'title' => $action === 'approve' ? 'Instructor application approved' : 'Instructor application reviewed',
             'message' => $action === 'approve'
-                ? 'Your instructor studio is active. You can sign in and begin creating courses.'
-                : 'Your instructor application was not approved. Review note: ' . $note,
+                ? 'Your Instructor account is active. The accepted passport-size photo is now your profile photo and can be changed after 25 days.'
+                : 'Your Instructor application was not approved. Review note: ' . $note,
         ]);
         $database->commit();
-        $respond(['message' => $action === 'approve' ? 'Instructor approved.' : 'Instructor application rejected.']);
+        $respond(['message' => $action === 'approve' ? 'Instructor approved with the submitted profile photo.' : 'Instructor application rejected.']);
+    }
+
+    if ($path === '/api/v1/users/instructor-profile' && $method === 'GET') {
+        $session = $sessionHandler->verify($authorization);
+        if (($session['user']['role'] ?? '') !== 'instructor') {
+            throw new SessionAuthenticationException('Instructor access is required.');
+        }
+        $statement = $database->prepare(
+            'SELECT u.id, u.full_name, u.email, u.phone, u.bio, u.profile_image, u.profile_image_changed_at, '
+            . 'DATE_ADD(u.profile_image_changed_at, INTERVAL 25 DAY) AS profile_image_change_available_at, '
+            . 'a.professional_headline, a.expertise, a.teaching_experience, a.social_profile_url, a.course_subjects '
+            . 'FROM users u LEFT JOIN instructor_applications a ON a.instructor_id=u.id '
+            . 'WHERE u.id=:id AND u.role=\'instructor\' AND u.status=\'active\' LIMIT 1'
+        );
+        $statement->execute(['id' => (int) ($session['user']['id'] ?? 0)]);
+        $profile = $statement->fetch();
+        if (!is_array($profile)) {
+            throw new SessionAuthenticationException('The Instructor profile is unavailable.');
+        }
+        $profile['photo_change_allowed'] = $profile['profile_image_changed_at'] === null
+            || strtotime((string) $profile['profile_image_change_available_at']) <= time();
+        $respond(['data' => $profile]);
+    }
+
+    if ($path === '/api/v1/users/instructor-profile' && $method === 'POST') {
+        $session = $sessionHandler->verify($authorization);
+        if (($session['user']['role'] ?? '') !== 'instructor') {
+            throw new SessionAuthenticationException('Instructor access is required.');
+        }
+        $input = $jsonInput();
+        $fullName = trim((string) ($input['full_name'] ?? ''));
+        $phone = trim((string) ($input['phone'] ?? ''));
+        $bio = trim((string) ($input['bio'] ?? ''));
+        $professionalHeadline = trim((string) ($input['professional_headline'] ?? ''));
+        $expertise = trim((string) ($input['expertise'] ?? ''));
+        $teachingExperience = trim((string) ($input['teaching_experience'] ?? ''));
+        $socialProfileUrl = trim((string) ($input['social_profile_url'] ?? ''));
+        $courseSubjects = trim((string) ($input['course_subjects'] ?? ''));
+        $newProfileImage = trim((string) ($input['profile_image'] ?? ''));
+
+        if (mb_strlen($fullName) < 2 || mb_strlen($fullName) > 100) {
+            throw new LoginValidationException('Enter your full name.');
+        }
+        if ($phone !== '' && preg_match('/^[0-9+() -]{7,20}$/', $phone) !== 1) {
+            throw new LoginValidationException('Enter a valid phone number.');
+        }
+        if (mb_strlen($bio) < 40 || mb_strlen($bio) > 3000) {
+            throw new LoginValidationException('Instructor biography must contain between 40 and 3000 characters.');
+        }
+        if (mb_strlen($professionalHeadline) < 5 || mb_strlen($professionalHeadline) > 160) {
+            throw new LoginValidationException('Enter a professional headline between 5 and 160 characters.');
+        }
+        if (mb_strlen($expertise) < 10 || mb_strlen($expertise) > 1000) {
+            throw new LoginValidationException('Explain your areas of expertise.');
+        }
+        if (mb_strlen($teachingExperience) < 20 || mb_strlen($teachingExperience) > 2000) {
+            throw new LoginValidationException('Explain your teaching or mentoring experience.');
+        }
+        if (mb_strlen($courseSubjects) < 3 || mb_strlen($courseSubjects) > 1000) {
+            throw new LoginValidationException('List the course subjects you teach.');
+        }
+        if ($socialProfileUrl !== '' && (!filter_var($socialProfileUrl, FILTER_VALIDATE_URL) || mb_strlen($socialProfileUrl) > 500)) {
+            throw new LoginValidationException('Enter a valid professional profile URL.');
+        }
+        if ($newProfileImage !== '' && preg_match('#^private/instructor-profiles/[a-f0-9]{40}\.(?:jpg|png|webp)$#', $newProfileImage) !== 1) {
+            throw new LoginValidationException('The new profile photo reference is invalid.');
+        }
+
+        $database->beginTransaction();
+        $current = $database->prepare(
+            'SELECT profile_image, profile_image_changed_at, DATE_ADD(profile_image_changed_at, INTERVAL 25 DAY) AS available_at '
+            . 'FROM users WHERE id=:id AND role=\'instructor\' AND status=\'active\' LIMIT 1 FOR UPDATE'
+        );
+        $current->execute(['id' => (int) ($session['user']['id'] ?? 0)]);
+        $currentProfile = $current->fetch();
+        if (!is_array($currentProfile)) {
+            $database->rollBack();
+            throw new SessionAuthenticationException('The Instructor profile is unavailable.');
+        }
+        if ($newProfileImage !== '' && $currentProfile['profile_image_changed_at'] !== null && strtotime((string) $currentProfile['available_at']) > time()) {
+            $availableAt = date('F j, Y', strtotime((string) $currentProfile['available_at']));
+            $database->rollBack();
+            throw new LoginValidationException('Your profile photo can be changed again on ' . $availableAt . '.');
+        }
+
+        $updateUserSql = 'UPDATE users SET full_name=:full_name, phone=:phone, bio=:bio';
+        $userParameters = [
+            'full_name' => $fullName,
+            'phone' => $phone !== '' ? $phone : null,
+            'bio' => $bio,
+            'id' => (int) ($session['user']['id'] ?? 0),
+        ];
+        if ($newProfileImage !== '') {
+            $updateUserSql .= ', profile_image=:profile_image, profile_image_changed_at=NOW()';
+            $userParameters['profile_image'] = $newProfileImage;
+        }
+        $updateUserSql .= ' WHERE id=:id AND role=\'instructor\' AND status=\'active\'';
+        $updateUser = $database->prepare($updateUserSql);
+        $updateUser->execute($userParameters);
+
+        $updateApplication = $database->prepare(
+            'UPDATE instructor_applications SET application_note=:bio, professional_headline=:headline, expertise=:expertise, '
+            . 'teaching_experience=:experience, social_profile_url=:social, course_subjects=:subjects '
+            . 'WHERE instructor_id=:id AND application_status=\'approved\''
+        );
+        $updateApplication->execute([
+            'bio' => $bio,
+            'headline' => $professionalHeadline,
+            'expertise' => $expertise,
+            'experience' => $teachingExperience,
+            'social' => $socialProfileUrl !== '' ? $socialProfileUrl : null,
+            'subjects' => $courseSubjects,
+            'id' => (int) ($session['user']['id'] ?? 0),
+        ]);
+        $database->commit();
+
+        $respond([
+            'message' => $newProfileImage !== ''
+                ? 'Instructor profile updated. The new profile photo is locked for 25 days.'
+                : 'Instructor profile updated.',
+            'old_profile_image' => $newProfileImage !== '' ? (string) ($currentProfile['profile_image'] ?? '') : '',
+        ]);
     }
 
     if ($path === '/api/v1/auth/session' && $method === 'GET') {
@@ -321,10 +454,19 @@ try {
     header('Retry-After: 900');
     echo json_encode(['error' => $exception->getMessage(), 'request_id' => $requestId], JSON_THROW_ON_ERROR);
 } catch (LoginValidationException $exception) {
+    if (isset($database) && $database instanceof PDO && $database->inTransaction()) {
+        $database->rollBack();
+    }
     $respond(['error' => $exception->getMessage()], 422);
 } catch (LoginAuthenticationException|SessionAuthenticationException $exception) {
+    if (isset($database) && $database instanceof PDO && $database->inTransaction()) {
+        $database->rollBack();
+    }
     $respond(['error' => $exception->getMessage()], 401);
 } catch (JsonException) {
+    if (isset($database) && $database instanceof PDO && $database->inTransaction()) {
+        $database->rollBack();
+    }
     $respond(['error' => 'Malformed JSON request.'], 400);
 } catch (Throwable $exception) {
     if (isset($database) && $database instanceof PDO && $database->inTransaction()) {
