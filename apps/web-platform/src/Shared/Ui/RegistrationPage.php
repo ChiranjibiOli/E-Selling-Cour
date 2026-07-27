@@ -13,9 +13,9 @@ final class RegistrationPage
     {
         $instructor = $role === 'instructor';
         $e = static fn (mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
-        $title = $instructor ? 'Apply to teach' : 'Create your student account';
+        $title = $instructor ? 'Create an instructor account' : 'Create your student account';
         $intro = $instructor
-            ? 'Submit a complete teaching and identity application. Your studio opens only after administrator review.'
+            ? 'Submit your teaching details, passport-size profile photo and identity document. Your instructor account opens only after administrator approval.'
             : 'Create one account to purchase courses, keep lifetime access and track every completed lesson.';
         $alert = $message !== '' ? '<div class="form-alert ' . ($success ? 'success' : 'error') . '">' . $e($message) . '</div>' : '';
 
@@ -26,18 +26,20 @@ final class RegistrationPage
                 . '<label>Social or professional profile<input type="url" name="social_profile_url" value="' . $e($values['social_profile_url'] ?? '') . '" maxlength="500" placeholder="https://linkedin.com/in/..."></label></div>'
                 . '<label>Areas of expertise<textarea name="expertise" rows="4" minlength="10" maxlength="1000" placeholder="Web security, networking, PHP, UI design..." required>' . $e($values['expertise'] ?? '') . '</textarea></label>'
                 . '<label>Teaching experience<textarea name="teaching_experience" rows="5" minlength="20" maxlength="2000" placeholder="Explain where, what, and how long you have taught or mentored." required>' . $e($values['teaching_experience'] ?? '') . '</textarea></label>'
-                . '<label>Professional biography<textarea name="bio" rows="6" minlength="40" maxlength="3000" required>' . $e($values['bio'] ?? '') . '</textarea><small>At least 40 characters. This may appear beside approved published courses.</small></label>'
+                . '<label>Professional biography<textarea name="bio" rows="6" minlength="40" maxlength="3000" required>' . $e($values['bio'] ?? '') . '</textarea><small>At least 40 characters. This appears beside approved published courses.</small></label>'
                 . '<label>Course subjects<textarea name="course_subjects" rows="3" minlength="3" maxlength="1000" placeholder="Ethical hacking, frontend development, business, design..." required>' . $e($values['course_subjects'] ?? '') . '</textarea></label>'
-                . '<div class="form-columns"><label>Personal photo<input type="file" name="profile_photo" accept="image/jpeg,image/png,image/webp" required><small>JPG, PNG, or WebP. Maximum 3 MB.</small></label>'
-                . '<label>Citizenship, passport, or ID image<input type="file" name="identity_document" accept="image/jpeg,image/png,image/webp,application/pdf" required><small>JPG, PNG, WebP, or PDF. Maximum 6 MB. Stored privately.</small></label></div>'
-                . '<label class="check-line"><input type="checkbox" name="agree_instructor_rules" value="1"' . $checked . ' required> I confirm that the information is accurate and agree to the instructor, content-quality, copyright, payment, and platform rules.</label>';
+                . '<div class="form-columns"><label>Passport-size profile photo<input type="file" name="profile_photo" accept="image/jpeg,image/png,image/webp" required><small>Portrait JPG, PNG, or WebP, at least 300 × 400 pixels, maximum 3 MB. After approval, this becomes your Instructor profile photo.</small></label>'
+                . '<label>Government identity document<input type="file" name="identity_document" accept="image/jpeg,image/png,image/webp,application/pdf" required><small>Citizenship, passport, licence, or other valid ID. Maximum 6 MB and stored privately.</small></label></div>'
+                . '<div class="form-alert"><strong>Profile-photo rule:</strong> after your account is approved, the accepted photo can be changed only once every 25 days.</div>'
+                . '<label class="check-line"><input type="checkbox" name="agree_instructor_rules" value="1"' . $checked . ' required> I confirm that the information and documents are accurate and agree to the instructor, content-quality, copyright, payment, and platform rules.</label>';
         }
 
         $enctype = $instructor ? ' enctype="multipart/form-data"' : '';
+        $signInPath = $instructor ? '/teach/studio-access' : '/learn/sign-in';
         $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
             . '<title>' . $e($title) . ' | CourseHub</title><link rel="stylesheet" href="/assets/css/app.css"></head><body>'
-            . '<header class="house-header"><a href="/">CourseHub</a><nav><a href="/courses">Courses</a><a href="/login">Sign in</a></nav></header>'
-            . '<main class="form-shell"><section class="form-intro"><span>' . ($instructor ? 'INSTRUCTOR APPLICATION' : 'STUDENT ACCOUNT') . '</span><h1>' . $e($title) . '</h1><p>' . $e($intro) . '</p></section>'
+            . '<header class="house-header"><a href="/">CourseHub</a><nav><a href="' . $signInPath . '">' . ($instructor ? 'Instructor sign in' : 'Student sign in') . '</a></nav></header>'
+            . '<main class="form-shell"><section class="form-intro"><span>' . ($instructor ? 'SEPARATE INSTRUCTOR APPLICATION' : 'STUDENT ACCOUNT') . '</span><h1>' . $e($title) . '</h1><p>' . $e($intro) . '</p></section>'
             . '<section class="form-card">' . $alert . '<form method="post" action="/register/' . $role . '"' . $enctype . '>' . Csrf::field()
             . '<label>Full name<input name="full_name" value="' . $e($values['full_name'] ?? '') . '" maxlength="100" autocomplete="name" required></label>'
             . '<label>Email address<input type="email" name="email" value="' . $e($values['email'] ?? '') . '" maxlength="150" autocomplete="email" required></label>'
@@ -45,8 +47,8 @@ final class RegistrationPage
             . $instructorFields
             . '<div class="form-columns"><label>Password<input type="password" name="password" minlength="8" maxlength="200" autocomplete="new-password" required></label>'
             . '<label>Confirm password<input type="password" name="password_confirmation" minlength="8" maxlength="200" autocomplete="new-password" required></label></div>'
-            . '<button type="submit">' . ($instructor ? 'Submit application for review' : 'Create student account') . '</button></form>'
-            . '<p class="form-foot">Already registered? <a href="' . ($instructor ? '/teach/studio-access' : '/learn/sign-in') . '">Open your portal</a></p></section></main></body></html>';
+            . '<button type="submit">' . ($instructor ? 'Submit Instructor account for approval' : 'Create student account') . '</button></form>'
+            . '<p class="form-foot">Already registered? <a href="' . $signInPath . '">' . ($instructor ? 'Open Instructor sign in' : 'Open Student sign in') . '</a></p></section></main></body></html>';
 
         return Response::html($html, $status);
     }
