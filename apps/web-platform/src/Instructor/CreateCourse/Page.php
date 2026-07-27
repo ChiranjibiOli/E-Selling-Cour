@@ -44,7 +44,7 @@ final class CreateCoursePage
 
         $form = $alert
             . '<div class="course-authoring-layout" data-course-authoring>'
-            . '<form class="portal-form course-authoring-form" method="post" action="/instructor/courses/create" enctype="multipart/form-data" novalidate>' . Csrf::field()
+            . '<form class="portal-form course-authoring-form" method="post" action="/instructor/courses/create" enctype="multipart/form-data">' . Csrf::field()
             . '<section class="course-authoring-surface">'
             . '<header class="course-authoring-surface-head"><div><span>COURSE AUTHORING</span><h2>Create the public course information</h2><p>Save a private draft first, then add lessons and submit it for review.</p></div><strong>01</strong></header>'
             . '<div class="course-authoring-section"><div class="course-authoring-section-title"><span>Identity</span><h3>Title and positioning</h3></div>'
