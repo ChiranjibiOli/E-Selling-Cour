@@ -28,7 +28,7 @@ final class CourseCatalogPage
 
         $notice = $model->available ? '' : '<div class="catalog-notice">The catalog service is unavailable. Start the backend services and refresh.</div>';
         $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Explore courses | CourseHub</title>'
-            . '<link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/room-assets/Public/Courses/page.css"></head><body class="catalog-body">'
+            . '<link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/room-assets/Public/Courses/page.css"><link rel="stylesheet" href="/assets/css/course-card-theme.css"></head><body class="catalog-body">'
             . '<header class="catalog-header"><a href="/">CourseHub</a><nav><a class="active" href="/courses">Courses</a><a href="/instructors">Instructors</a><a href="/about">About</a></nav><a class="catalog-signin" href="/login">Sign in</a></header>'
             . '<main><section class="catalog-hero"><span>COURSE CATALOG</span><h1>Find the next skill worth learning.</h1><p>Browse approved courses from CourseHub instructors. Preview the course first, then purchase once for lifetime access.</p></section>'
             . '<section class="catalog-toolbar"><form method="get" action="/courses"><label>Search<input type="search" name="q" value="' . $e($model->filters->query) . '" placeholder="Web development, networking…"></label>'
@@ -36,7 +36,7 @@ final class CourseCatalogPage
             . '<option value="beginner"' . ($model->filters->level === 'beginner' ? ' selected' : '') . '>Beginner</option><option value="intermediate"' . ($model->filters->level === 'intermediate' ? ' selected' : '') . '>Intermediate</option><option value="advanced"' . ($model->filters->level === 'advanced' ? ' selected' : '') . '>Advanced</option></select></label>'
             . '<button type="submit">Apply filters</button><a href="/courses">Reset</a></form></section>' . $notice
             . '<section class="catalog-results"><div class="catalog-heading"><div><span>CURATED COURSEHUB LEARNING</span><h2>Available courses</h2></div><strong>' . count($model->courses) . ' shown</strong></div><div class="catalog-grid">' . $cards . '</div></section></main>'
-            . '<footer class="catalog-footer"><a href="/">CourseHub</a><span>Learn carefully. Build properly.</span></footer></body></html>';
+            . '<footer class="catalog-footer"><a href="/">CourseHub</a><span>Learn carefully. Build properly.</span></footer><script src="/assets/js/course-card-theme.js" defer></script></body></html>';
         return Response::html($html);
     }
 }
