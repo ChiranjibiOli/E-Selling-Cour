@@ -51,6 +51,16 @@ final class PortalPage
             'instructor' => '/instructor/profile',
             default => '/student/profile',
         };
+        $support = match ($role) {
+            'admin' => '/admin/contact-messages',
+            'instructor' => '/instructor/messaging',
+            default => '/student/notifications',
+        };
+        $supportLabel = match ($role) {
+            'admin' => 'Support messages',
+            'instructor' => 'Messages & support',
+            default => 'Help & updates',
+        };
         $avatarContent = $profileImage !== ''
             ? '<img src="' . $e($profile) . '?photo=1&amp;v=' . $e(hash('sha256', $profileImage)) . '" alt="">'
             : $e($initials);
@@ -72,7 +82,7 @@ final class PortalPage
             . '<body class="portal-shell portal-role-' . $e($role) . '" data-portal-role="' . $e($role) . '"><button class="portal-mobile-toggle" type="button" data-portal-toggle aria-label="Open navigation" aria-expanded="false"><span></span><span></span><span></span></button>'
             . '<div class="portal-overlay" data-portal-overlay></div><aside class="portal-sidebar" data-portal-sidebar>' . $brand
             . $workspace . '<nav class="portal-sidebar-nav" data-portal-nav>' . $nav . '</nav>'
-            . '<div class="portal-sidebar-foot"><a href="/contact"><span class="portal-nav-icon">?</span><span>Help & support</span></a>' . $logout . '</div></aside>'
+            . '<div class="portal-sidebar-foot"><a href="' . $e($support) . '"><span class="portal-nav-icon">?</span><span>' . $e($supportLabel) . '</span></a>' . $logout . '</div></aside>'
             . '<div class="portal-stage"><header class="portal-topbar">' . $crumb . '<div class="portal-top-actions"><label class="portal-search"><span>⌕</span><input type="search" placeholder="Search this page" aria-label="Search this page"></label><a class="portal-icon-button" href="/' . $e($role) . '/notifications" aria-label="Notifications"><span>◔</span><i></i></a><a class="portal-top-avatar portal-top-profile" href="' . $e($profile) . '" aria-label="Open your profile" title="Open profile">' . $avatarContent . '</a></div></header>'
             . '<main class="portal-main">' . $contextActions . $content . '</main><footer class="portal-footer"><span>CourseHub</span><span>Secure role-based access</span></footer></div>'
             . '<dialog class="portal-confirm-dialog" data-logout-dialog aria-labelledby="logout-confirm-title"><div class="portal-confirm-content"><span class="portal-confirm-icon">↪</span><div><h2 id="logout-confirm-title">Log out of CourseHub?</h2><p>Your current session will end on this device.</p></div><div class="portal-confirm-actions"><button class="portal-button secondary" type="button" data-logout-cancel>No, stay signed in</button><button class="portal-button danger" type="button" data-logout-confirm>Yes, log out</button></div></div></dialog>'
@@ -98,7 +108,7 @@ final class PortalPage
                 'Business' => ['/instructor/students' => 'Students', '/instructor/sales' => 'Sales', '/instructor/coupons' => 'Coupons', '/instructor/withdrawals' => 'Withdrawals', '/instructor/bank-details' => 'Payout details'],
             ],
             default => [
-                'Learning' => ['/student/dashboard' => 'Overview', '/student/my-courses' => 'My courses', '/student/course-player' => 'Course player', '/student/progress' => 'Progress'],
+                'Learning' => ['/student/dashboard' => 'Overview', '/student/courses' => 'All courses', '/student/my-courses' => 'My courses', '/student/course-player' => 'Course player', '/student/progress' => 'Progress'],
                 'Purchases' => ['/student/cart' => 'My cart', '/student/checkout' => 'Checkout', '/student/payment' => 'Payment', '/student/payment-history' => 'Payment history'],
                 'Account' => ['/student/notifications' => 'Notifications', '/student/reviews' => 'My reviews', '/student/unsubscribe' => 'Access requests'],
             ],
