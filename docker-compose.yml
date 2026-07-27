@@ -93,7 +93,7 @@ services:
   catalog-service:
     <<: *domain-service
     working_dir: /repo/services/catalog-service
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/router.php"]
 
   learning-service:
     <<: *domain-service
@@ -124,6 +124,15 @@ services:
     <<: *domain-service
     working_dir: /repo/services/notification-service
     command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
+    environment:
+      <<: *database-environment
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_ENCRYPTION: ${SMTP_ENCRYPTION:-tls}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM_ADDRESS: ${SMTP_FROM_ADDRESS:-}
+      SMTP_FROM_NAME: ${SMTP_FROM_NAME:-CourseHub}
 
   review-service:
     <<: *domain-service
