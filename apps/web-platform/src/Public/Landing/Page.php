@@ -56,6 +56,7 @@ final class LandingPage
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500;1,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/app.css">
     <link rel="stylesheet" href="/room-assets/Public/Landing/page.css?v=20260728-1">
+    <link rel="stylesheet" href="/room-assets/Public/Landing/hero-photo.css?v=20260728-1">
 </head>
 <body class="landing-body">
     <header class="landing-nav" data-landing-nav>
@@ -92,32 +93,10 @@ final class LandingPage
                 <div class="hero-trust"><span>Approved instructors</span><span>Lifetime access</span><span>Progress tracking</span></div>
             </div>
 
-            <div class="hero-visual" aria-hidden="true" data-hero-visual>
-                <span class="hero-orbit hero-orbit-one"></span>
-                <span class="hero-orbit hero-orbit-two"></span>
-                <svg class="hero-book" viewBox="0 0 620 640" role="presentation">
-                    <defs>
-                        <filter id="bookShadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="24" stdDeviation="22" flood-color="#4d3c2a" flood-opacity=".22"/></filter>
-                        <linearGradient id="pageLeft" x1="0" x2="1"><stop stop-color="#f5eddf"/><stop offset="1" stop-color="#fffdf7"/></linearGradient>
-                        <linearGradient id="pageRight" x1="1" x2="0"><stop stop-color="#f1e7d7"/><stop offset="1" stop-color="#fffdf8"/></linearGradient>
-                        <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a9613d"/><stop offset="1" stop-color="#7f432d"/></linearGradient>
-                    </defs>
-                    <g filter="url(#bookShadow)" transform="translate(32 42) rotate(-3 300 250)">
-                        <path d="M74 84C156 52 244 64 295 113v330c-72-40-145-49-231-17L74 84Z" fill="url(#pageLeft)" stroke="#cbbda9" stroke-width="3"/>
-                        <path d="M295 113c70-50 156-61 244-22l4 341c-86-35-162-28-248 11V113Z" fill="url(#pageRight)" stroke="#cbbda9" stroke-width="3"/>
-                        <path d="M294 112v332" stroke="#b5a68f" stroke-width="5"/>
-                        <path d="M82 96c84-28 156-20 212 25M82 111c78-24 149-17 211 23M534 103c-83-29-160-18-238 25M535 119c-83-26-158-15-239 27" fill="none" stroke="#ded3c3" stroke-width="4"/>
-                        <g stroke="#c8bba8" stroke-width="2" opacity=".68">
-                            <path d="M105 147h147M105 164h163M105 181h152M105 198h166M105 215h145M105 232h158M105 249h166M105 266h150M105 283h161M105 300h153M105 317h166M105 334h144M105 351h160M105 368h150"/>
-                            <path d="M331 149h158M331 166h145M331 183h166M331 200h152M331 217h162M331 234h145M331 251h164M331 268h153M331 285h166M331 302h142M331 319h160M331 336h151M331 353h164M331 370h146"/>
-                        </g>
-                    </g>
-                    <g class="hero-hand">
-                        <path d="M340 410c9-44 16-85 23-124 4-20 26-26 37-9 8 12 5 31 2 48l-4 27 18-85c4-21 28-26 39-8 7 12 2 32-1 47l-13 67 22-77c6-20 30-22 39-3 5 12-1 29-5 43l-19 69 20-43c8-17 30-17 38-1 7 14-1 31-8 46l-34 76c-17 38-43 70-78 91l-14 9-91-43 13-31c11-27 15-54 10-82l-9-53c-4-23 22-37 38-20 8 8 12 22 15 35l3 17Z" fill="url(#skin)"/>
-                        <path d="M286 516l98 46-34 73-98-45 34-74Z" fill="#171611"/>
-                        <path d="M279 537l83 38" stroke="#ff7043" stroke-width="8" opacity=".9"/>
-                    </g>
-                </svg>
+            <div class="hero-visual hero-photo-visual" data-hero-visual>
+                <span class="hero-orbit hero-orbit-one" aria-hidden="true"></span>
+                <span class="hero-orbit hero-orbit-two" aria-hidden="true"></span>
+                <img class="hero-book-photo" src="/assets/images/landing-book-photo.svg" alt="Open book with a hand turning a page">
                 <div class="hero-note"><span>COURSEHUB</span><strong>Learn clearly.<br>Build confidently.</strong></div>
             </div>
         </section>
