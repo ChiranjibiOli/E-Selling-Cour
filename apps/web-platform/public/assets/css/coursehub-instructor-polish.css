@@ -1,0 +1,47 @@
+/* Instructor workspace polish. Kept as the final override so the existing portal remains stable. */
+.portal-role-instructor .portal-main{background:radial-gradient(circle at 84% 8%,rgba(224,170,63,.13),transparent 25%),linear-gradient(180deg,#f8f2e8 0%,#f2eadf 100%)}
+.portal-role-instructor .metric-grid{gap:18px}
+.portal-role-instructor .metric-card{min-height:150px;padding:24px;border:1px solid rgba(68,45,20,.09)!important;border-radius:24px!important;background:rgba(255,252,247,.84)!important;box-shadow:0 18px 45px rgba(55,41,24,.09)!important;backdrop-filter:blur(18px)}
+.portal-role-instructor .metric-card:before{content:"";position:absolute;left:0;top:22px;bottom:22px;width:4px;border-radius:0 10px 10px 0;background:#daa936}
+.portal-role-instructor .metric-card strong{font-size:clamp(1.8rem,3vw,2.5rem);letter-spacing:-.045em}
+.portal-role-instructor .metric-card small{color:#8b7f70}
+.portal-role-instructor .panel-split{align-items:stretch;gap:20px}
+.portal-role-instructor .data-card,.portal-role-instructor .summary-card{border-radius:26px!important;box-shadow:0 22px 54px rgba(48,37,22,.1)!important}
+.portal-role-instructor .data-card{background:rgba(255,252,247,.9)!important}
+.portal-role-instructor .status-overview-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px!important;padding:22px!important}
+.portal-role-instructor .status-overview-grid a{min-height:116px;padding:20px!important;display:flex!important;flex-direction:column;justify-content:flex-end;border:0!important;border-radius:20px!important;background:linear-gradient(145deg,#fffaf0,#f4ead8)!important;box-shadow:inset 0 0 0 1px rgba(83,56,21,.07),0 12px 26px rgba(67,47,21,.07);text-decoration:none!important}
+.portal-role-instructor .status-overview-grid strong{font-size:2rem;line-height:1}
+.portal-role-instructor .status-overview-grid span{margin-top:9px;color:#645a4f;font-weight:750}
+.portal-role-instructor .accent-card{background:linear-gradient(145deg,#102557 0%,#202c77 62%,#35266d 100%)!important}
+.portal-role-instructor .portal-nav-link.active{background:linear-gradient(90deg,rgba(224,170,63,.2),rgba(224,170,63,.06))!important;box-shadow:inset 3px 0 0 #e0aa3f,0 8px 22px rgba(19,25,52,.08)!important}
+
+.instructor-course-list{border:0!important;background:transparent!important;box-shadow:none!important}
+.instructor-course-list>header{margin-bottom:20px;padding:24px 26px;border:1px solid rgba(57,46,34,.09);border-radius:24px;background:rgba(255,252,247,.82);box-shadow:0 16px 36px rgba(53,41,24,.07)}
+.instructor-course-list>header>strong{display:grid;width:50px;height:50px;place-items:center;border-radius:16px;background:#2f5dff;color:#fff}
+.instructor-course-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.instructor-course-card{position:relative;min-height:500px;overflow:hidden;border-radius:28px;background:#111827;box-shadow:0 24px 58px rgba(15,23,42,.22);isolation:isolate}
+.instructor-course-card-media{position:absolute;inset:0;z-index:0;background:linear-gradient(145deg,#182032,#33446b)}
+.instructor-course-card-media img{width:100%;height:100%;display:block;object-fit:cover}
+.instructor-course-card-media:after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(7,11,22,.08) 15%,rgba(10,15,27,.2) 38%,rgba(12,17,29,.86) 72%,#0b101d 100%);backdrop-filter:blur(0)}
+.instructor-course-card-body{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:150px 22px 22px;color:#fff;background:linear-gradient(to bottom,transparent,rgba(9,14,26,.5) 32%,rgba(9,14,26,.96) 74%);backdrop-filter:blur(8px)}
+.instructor-course-card-top{position:absolute;top:18px;left:18px;right:18px;z-index:3;display:flex;justify-content:space-between;align-items:center}
+.instructor-course-card .status-badge{border:0!important;border-radius:10px!important;box-shadow:0 8px 22px rgba(0,0,0,.24)!important}
+.instructor-course-card h2{margin:10px 0 8px;color:#fff;font-size:1.55rem;line-height:1.1;overflow-wrap:anywhere}
+.instructor-course-card p{display:-webkit-box;overflow:hidden;color:rgba(255,255,255,.78);line-height:1.5;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.instructor-course-card-meta{margin:14px 0;display:flex;flex-wrap:wrap;gap:7px}
+.instructor-course-card-meta span{padding:7px 10px;border-radius:9px;background:rgba(255,255,255,.11);font-size:.72rem;font-weight:750}
+.instructor-course-card .course-row-actions{margin-top:16px;display:flex;flex-wrap:wrap;gap:9px}
+.instructor-course-card .portal-button{flex:1;min-width:145px;justify-content:center}
+.instructor-course-card .course-edit-request{width:100%;color:#fff}
+.instructor-course-card .course-row-note{margin-top:12px;border:0;background:rgba(255,255,255,.08)}
+
+.notification-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.notification-toolbar form{margin:0}
+.notification-danger{background:#fff0f0!important;color:#b42331!important;box-shadow:inset 0 0 0 1px rgba(180,35,49,.15)!important}
+.notification-inbox-row{border-radius:18px;margin:10px 14px;border:1px solid rgba(46,57,86,.08)!important;box-shadow:0 9px 24px rgba(36,45,70,.055)}
+.notification-inbox-row.unread{background:linear-gradient(90deg,rgba(47,93,255,.07),rgba(255,255,255,.75))!important;box-shadow:inset 3px 0 0 #2f5dff,0 10px 28px rgba(36,45,70,.07)}
+.notification-row-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.notification-row-actions form{margin:0}
+
+@media(max-width:1100px){.instructor-course-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.portal-role-instructor .status-overview-grid,.instructor-course-grid{grid-template-columns:1fr}.instructor-course-card{min-height:460px}.notification-inbox-row{margin:8px}.notification-row-actions{justify-content:flex-start}}
