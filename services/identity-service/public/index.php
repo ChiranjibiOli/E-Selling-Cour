@@ -10,8 +10,11 @@ use CourseHub\Identity\Features\Login\LoginValidationException;
 use CourseHub\Identity\Features\Session\SessionAuthenticationException;
 use CourseHub\Identity\Features\Session\SessionHandler;
 use CourseHub\Identity\Infrastructure\Database;
+use CourseHub\Identity\Infrastructure\EmailDeliveryException;
+use CourseHub\Identity\Infrastructure\SmtpMailer;
 
 require_once dirname(__DIR__) . '/src/Infrastructure/Database.php';
+require_once dirname(__DIR__) . '/src/Infrastructure/SmtpMailer.php';
 require_once dirname(__DIR__) . '/src/Features/Login/LoginRateLimiter.php';
 require_once dirname(__DIR__) . '/src/Features/Login/LoginHandler.php';
 require_once dirname(__DIR__) . '/src/Features/Session/SessionHandler.php';
@@ -40,6 +43,48 @@ $jsonInput = static function (): array {
         throw new LoginValidationException('Request body must be a JSON object.');
     }
     return $decoded;
+};
+
+$isGmail = static function (string $email): bool {
+    return filter_var($email, FILTER_VALIDATE_EMAIL) !== false
+        && preg_match('/^[A-Z0-9._%+\-]+@gmail\.com$/i', $email) === 1
+        && mb_strlen($email) <= 150;
+};
+
+$emailFallbackAllowed = static function (): bool {
+    return (string) getenv('APP_ENV') === 'local'
+        && filter_var((string) (getenv('ALLOW_LOCAL_EMAIL_CODE') ?: 'false'), FILTER_VALIDATE_BOOLEAN);
+};
+
+$sendCode = static function (string $email, string $name, string $code, string $purpose) use ($emailFallbackAllowed): string {
+    if (SmtpMailer::isConfigured()) {
+        SmtpMailer::sendCode($email, $name, $code, $purpose);
+        return '';
+    }
+    if ($emailFallbackAllowed()) {
+        return $code;
+    }
+    throw new EmailDeliveryException('Gmail delivery is not configured. Add the SMTP settings to .env and restart the services.');
+};
+
+$createCode = static function (PDO $database, int $userId, string $purpose, string $requestedIp): string {
+    $code = (string) random_int(100000, 999999);
+    $expireOld = $database->prepare(
+        'UPDATE email_verification_codes SET used_at=NOW() '
+        . 'WHERE user_id=:user_id AND purpose=:purpose AND used_at IS NULL'
+    );
+    $expireOld->execute(['user_id' => $userId, 'purpose' => $purpose]);
+    $insert = $database->prepare(
+        'INSERT INTO email_verification_codes (user_id, purpose, code_hash, expires_at, requested_ip) '
+        . 'VALUES (:user_id, :purpose, :code_hash, DATE_ADD(NOW(), INTERVAL 10 MINUTE), :requested_ip)'
+    );
+    $insert->execute([
+        'user_id' => $userId,
+        'purpose' => $purpose,
+        'code_hash' => password_hash($code, PASSWORD_DEFAULT),
+        'requested_ip' => substr($requestedIp, 0, 64),
+    ]);
+    return $code;
 };
 
 try {
@@ -73,6 +118,9 @@ try {
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 150) {
             throw new LoginValidationException('Enter a valid email address.');
+        }
+        if ($role === 'student' && !$isGmail($email)) {
+            throw new LoginValidationException('Student accounts require a valid @gmail.com address.');
         }
         if ($phone !== '' && preg_match('/^[0-9+() -]{7,20}$/', $phone) !== 1) {
             throw new LoginValidationException('Enter a valid phone number.');
@@ -111,11 +159,12 @@ try {
             }
         }
 
-        $status = $role === 'student' ? 'active' : 'inactive';
+        $status = 'inactive';
         $statement = $database->prepare(
             'INSERT INTO users (full_name, email, password, phone, role, bio, profile_image, identity_document, status) '
             . 'VALUES (:full_name, :email, :password, :phone, :role, :bio, :profile_image, :identity_document, :status)'
         );
+        $developmentCode = '';
         try {
             $database->beginTransaction();
             $statement->execute([
@@ -145,6 +194,9 @@ try {
                     'social_profile_url' => $socialProfileUrl !== '' ? $socialProfileUrl : null,
                     'course_subjects' => $courseSubjects,
                 ]);
+            } else {
+                $code = $createCode($database, $userId, 'student_registration', (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+                $developmentCode = $sendCode($email, $fullName, $code, 'student_registration');
             }
             $database->commit();
         } catch (PDOException $exception) {
@@ -152,52 +204,178 @@ try {
                 $database->rollBack();
             }
             if ($exception->getCode() === '23000') {
-                throw new LoginValidationException('An account with that email already exists.');
+                throw new LoginValidationException('An account with that email already exists. Use the verification page or password recovery instead.');
             }
             throw $exception;
         }
 
-        $respond([
+        $payload = [
             'message' => $role === 'student'
-                ? 'Student account created. You can sign in now.'
+                ? 'A six-digit verification code was sent to your Gmail account.'
                 : 'Instructor account application submitted for administrator approval.',
             'status' => $status,
-        ], 201);
+            'verification_required' => $role === 'student',
+        ];
+        if ($developmentCode !== '') {
+            $payload['development_code'] = $developmentCode;
+        }
+        $respond($payload, 201);
+    }
+
+    if ($path === '/api/v1/auth/resend-student-verification' && $method === 'POST') {
+        $input = $jsonInput();
+        $email = strtolower(trim((string) ($input['email'] ?? '')));
+        if (!$isGmail($email)) {
+            throw new LoginValidationException('Enter the Gmail address used for the Student account.');
+        }
+        if (!SmtpMailer::isConfigured() && !$emailFallbackAllowed()) {
+            throw new EmailDeliveryException('Gmail delivery is not configured. Add the SMTP settings to .env and restart the services.');
+        }
+
+        $result = ['message' => 'If the Student account is awaiting verification, a new code has been created.'];
+        $statement = $database->prepare(
+            'SELECT id, full_name FROM users WHERE email=:email AND role=\'student\' '
+            . 'AND status=\'inactive\' AND email_verified_at IS NULL LIMIT 1'
+        );
+        $statement->execute(['email' => $email]);
+        $user = $statement->fetch();
+        if (is_array($user)) {
+            $database->beginTransaction();
+            $code = $createCode($database, (int) $user['id'], 'student_registration', (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+            $developmentCode = $sendCode($email, (string) $user['full_name'], $code, 'student_registration');
+            $database->commit();
+            if ($developmentCode !== '') {
+                $result['development_code'] = $developmentCode;
+            }
+        }
+        $respond($result, 202);
+    }
+
+    if ($path === '/api/v1/auth/verify-student-email' && $method === 'POST') {
+        $input = $jsonInput();
+        $email = strtolower(trim((string) ($input['email'] ?? '')));
+        $code = trim((string) ($input['code'] ?? ''));
+        if (!$isGmail($email) || preg_match('/^[0-9]{6}$/', $code) !== 1) {
+            throw new LoginValidationException('Enter the Gmail address and six-digit verification code.');
+        }
+
+        $database->beginTransaction();
+        $userStatement = $database->prepare(
+            'SELECT id FROM users WHERE email=:email AND role=\'student\' '
+            . 'AND status=\'inactive\' AND email_verified_at IS NULL LIMIT 1 FOR UPDATE'
+        );
+        $userStatement->execute(['email' => $email]);
+        $user = $userStatement->fetch();
+        if (!is_array($user)) {
+            $database->rollBack();
+            throw new LoginValidationException('This Student account is already verified or is unavailable.');
+        }
+        $codeStatement = $database->prepare(
+            'SELECT id, code_hash, attempts FROM email_verification_codes '
+            . 'WHERE user_id=:user_id AND purpose=\'student_registration\' AND used_at IS NULL '
+            . 'AND expires_at>NOW() AND attempts<5 ORDER BY id DESC LIMIT 1 FOR UPDATE'
+        );
+        $codeStatement->execute(['user_id' => (int) $user['id']]);
+        $record = $codeStatement->fetch();
+        if (!is_array($record) || !password_verify($code, (string) $record['code_hash'])) {
+            if (is_array($record)) {
+                $attempt = $database->prepare('UPDATE email_verification_codes SET attempts=attempts+1 WHERE id=:id');
+                $attempt->execute(['id' => (int) $record['id']]);
+                $database->commit();
+            } else {
+                $database->rollBack();
+            }
+            throw new LoginValidationException('The verification code is invalid, expired, or has too many failed attempts.');
+        }
+        $activate = $database->prepare(
+            'UPDATE users SET status=\'active\', email_verified_at=NOW() '
+            . 'WHERE id=:id AND role=\'student\' AND status=\'inactive\''
+        );
+        $activate->execute(['id' => (int) $user['id']]);
+        $markUsed = $database->prepare('UPDATE email_verification_codes SET used_at=NOW() WHERE id=:id');
+        $markUsed->execute(['id' => (int) $record['id']]);
+        $database->commit();
+        $respond(['message' => 'Gmail verified. Your Student account is now active.']);
     }
 
     if ($path === '/api/v1/auth/forgot-password' && $method === 'POST') {
         $input = $jsonInput();
         $email = strtolower(trim((string) ($input['email'] ?? '')));
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL) || mb_strlen($email) > 150) {
-            throw new LoginValidationException('Enter a valid email address.');
+        if (!$isGmail($email)) {
+            throw new LoginValidationException('Enter the Gmail address attached to your Student account.');
+        }
+        if (!SmtpMailer::isConfigured() && !$emailFallbackAllowed()) {
+            throw new EmailDeliveryException('Gmail delivery is not configured. Add the SMTP settings to .env and restart the services.');
         }
 
-        $result = ['message' => 'If an eligible account exists, password-reset instructions have been created.'];
-        $statement = $database->prepare('SELECT id FROM users WHERE email = :email AND status <> \'blocked\' LIMIT 1');
+        $result = ['message' => 'If an eligible Student account exists, a six-digit reset code was sent.'];
+        $statement = $database->prepare(
+            'SELECT id, full_name FROM users WHERE email=:email AND role=\'student\' '
+            . 'AND status=\'active\' AND email_verified_at IS NOT NULL LIMIT 1'
+        );
         $statement->execute(['email' => $email]);
         $user = $statement->fetch();
         if (is_array($user)) {
-            $rawToken = bin2hex(random_bytes(32));
             $database->beginTransaction();
-            $expireOld = $database->prepare('UPDATE password_reset_tokens SET used_at = NOW() WHERE user_id = :user_id AND used_at IS NULL');
-            $expireOld->execute(['user_id' => (int) $user['id']]);
-            $insert = $database->prepare(
-                'INSERT INTO password_reset_tokens (user_id, token_hash, expires_at, requested_ip) '
-                . 'VALUES (:user_id, :token_hash, DATE_ADD(NOW(), INTERVAL 30 MINUTE), :requested_ip)'
-            );
-            $insert->execute([
-                'user_id' => (int) $user['id'],
-                'token_hash' => hash('sha256', $rawToken),
-                'requested_ip' => substr((string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'), 0, 64),
-            ]);
+            $code = $createCode($database, (int) $user['id'], 'student_password_reset', (string) ($_SERVER['REMOTE_ADDR'] ?? 'unknown'));
+            $developmentCode = $sendCode($email, (string) $user['full_name'], $code, 'student_password_reset');
             $database->commit();
-
-            $allowLocalToken = filter_var((string) (getenv('ALLOW_LOCAL_RESET_TOKEN') ?: 'false'), FILTER_VALIDATE_BOOLEAN);
-            if ((string) getenv('APP_ENV') === 'local' && $allowLocalToken) {
-                $result['development_reset_url'] = '/reset-password?token=' . $rawToken;
+            if ($developmentCode !== '') {
+                $result['development_code'] = $developmentCode;
             }
         }
         $respond($result, 202);
+    }
+
+    if ($path === '/api/v1/auth/reset-password-code' && $method === 'POST') {
+        $input = $jsonInput();
+        $email = strtolower(trim((string) ($input['email'] ?? '')));
+        $code = trim((string) ($input['code'] ?? ''));
+        $password = (string) ($input['password'] ?? '');
+        $passwordConfirmation = (string) ($input['password_confirmation'] ?? '');
+        if (!$isGmail($email) || preg_match('/^[0-9]{6}$/', $code) !== 1) {
+            throw new LoginValidationException('Enter the Student Gmail address and six-digit reset code.');
+        }
+        if (strlen($password) < 8 || strlen($password) > 200 || !hash_equals($password, $passwordConfirmation)) {
+            throw new LoginValidationException('Use a matching password with at least 8 characters.');
+        }
+
+        $database->beginTransaction();
+        $userStatement = $database->prepare(
+            'SELECT id FROM users WHERE email=:email AND role=\'student\' '
+            . 'AND status=\'active\' AND email_verified_at IS NOT NULL LIMIT 1 FOR UPDATE'
+        );
+        $userStatement->execute(['email' => $email]);
+        $user = $userStatement->fetch();
+        if (!is_array($user)) {
+            $database->rollBack();
+            throw new LoginValidationException('The reset code is invalid or expired.');
+        }
+        $codeStatement = $database->prepare(
+            'SELECT id, code_hash, attempts FROM email_verification_codes '
+            . 'WHERE user_id=:user_id AND purpose=\'student_password_reset\' AND used_at IS NULL '
+            . 'AND expires_at>NOW() AND attempts<5 ORDER BY id DESC LIMIT 1 FOR UPDATE'
+        );
+        $codeStatement->execute(['user_id' => (int) $user['id']]);
+        $record = $codeStatement->fetch();
+        if (!is_array($record) || !password_verify($code, (string) $record['code_hash'])) {
+            if (is_array($record)) {
+                $attempt = $database->prepare('UPDATE email_verification_codes SET attempts=attempts+1 WHERE id=:id');
+                $attempt->execute(['id' => (int) $record['id']]);
+                $database->commit();
+            } else {
+                $database->rollBack();
+            }
+            throw new LoginValidationException('The reset code is invalid, expired, or has too many failed attempts.');
+        }
+        $updateUser = $database->prepare('UPDATE users SET password=:password WHERE id=:id AND role=\'student\'');
+        $updateUser->execute(['password' => password_hash($password, PASSWORD_DEFAULT), 'id' => (int) $user['id']]);
+        $markUsed = $database->prepare('UPDATE email_verification_codes SET used_at=NOW() WHERE id=:id');
+        $markUsed->execute(['id' => (int) $record['id']]);
+        $revoke = $database->prepare('UPDATE identity_sessions SET revoked_at=NOW() WHERE user_id=:user_id AND revoked_at IS NULL');
+        $revoke->execute(['user_id' => (int) $user['id']]);
+        $database->commit();
+        $respond(['message' => 'Student password changed. Sign in with your new password.']);
     }
 
     if ($path === '/api/v1/auth/reset-password' && $method === 'POST') {
@@ -214,8 +392,9 @@ try {
 
         $database->beginTransaction();
         $statement = $database->prepare(
-            'SELECT id, user_id FROM password_reset_tokens WHERE token_hash = :token_hash '
-            . 'AND used_at IS NULL AND expires_at > NOW() LIMIT 1 FOR UPDATE'
+            'SELECT p.id, p.user_id FROM password_reset_tokens p INNER JOIN users u ON u.id=p.user_id '
+            . 'WHERE p.token_hash=:token_hash AND p.used_at IS NULL AND p.expires_at>NOW() '
+            . 'AND u.role=\'student\' LIMIT 1 FOR UPDATE'
         );
         $statement->execute(['token_hash' => hash('sha256', $token)]);
         $reset = $statement->fetch();
@@ -223,14 +402,14 @@ try {
             $database->rollBack();
             throw new LoginValidationException('The password-reset link is invalid or expired.');
         }
-        $updateUser = $database->prepare('UPDATE users SET password = :password WHERE id = :user_id');
+        $updateUser = $database->prepare('UPDATE users SET password=:password WHERE id=:user_id AND role=\'student\'');
         $updateUser->execute(['password' => password_hash($password, PASSWORD_DEFAULT), 'user_id' => (int) $reset['user_id']]);
-        $markUsed = $database->prepare('UPDATE password_reset_tokens SET used_at = NOW() WHERE id = :id');
+        $markUsed = $database->prepare('UPDATE password_reset_tokens SET used_at=NOW() WHERE id=:id');
         $markUsed->execute(['id' => (int) $reset['id']]);
-        $revoke = $database->prepare('UPDATE identity_sessions SET revoked_at = NOW() WHERE user_id = :user_id AND revoked_at IS NULL');
+        $revoke = $database->prepare('UPDATE identity_sessions SET revoked_at=NOW() WHERE user_id=:user_id AND revoked_at IS NULL');
         $revoke->execute(['user_id' => (int) $reset['user_id']]);
         $database->commit();
-        $respond(['message' => 'Password changed. Sign in with your new password.']);
+        $respond(['message' => 'Student password changed. Sign in with your new password.']);
     }
 
     if ($path === '/api/v1/auth/login' && $method === 'POST') {
@@ -458,6 +637,12 @@ try {
         $database->rollBack();
     }
     $respond(['error' => $exception->getMessage()], 422);
+} catch (EmailDeliveryException $exception) {
+    if (isset($database) && $database instanceof PDO && $database->inTransaction()) {
+        $database->rollBack();
+    }
+    error_log('Email delivery failure [' . $requestId . ']: ' . $exception->getMessage());
+    $respond(['error' => $exception->getMessage()], 503);
 } catch (LoginAuthenticationException|SessionAuthenticationException $exception) {
     if (isset($database) && $database instanceof PDO && $database->inTransaction()) {
         $database->rollBack();
