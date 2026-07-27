@@ -43,15 +43,20 @@ html{background:#efe7db}
 }
 .header-utility{color:#8c7859}
 .public-brand{color:#171611}
+.brand-monogram,
 .brand-robot{
   width:48px;
   height:48px;
   padding:3px;
   display:block;
   flex:0 0 48px;
+  overflow:hidden;
+  border:0;
   border-radius:16px;
-  background:#f4c552;
+  background:#f4c552 url('/assets/images/coursehub-robot.svg') center/94% no-repeat;
   box-shadow:0 10px 22px rgba(50,37,17,.16);
+  color:transparent;
+  font-size:0;
 }
 .header-account{color:#594f42}
 .student-join{background:linear-gradient(135deg,#e4b85b,#c99a3f);color:#171611;box-shadow:0 9px 20px rgba(157,111,34,.18)}
@@ -91,5 +96,5 @@ html{background:#efe7db}
 .text-link,.section-heading span,.editorial-heading span{color:#a97724}
 
 @media(max-width:900px){
-  .brand-robot{width:40px;height:40px;flex-basis:40px;border-radius:13px}
+  .brand-monogram,.brand-robot{width:40px;height:40px;flex-basis:40px;border-radius:13px}
 }
