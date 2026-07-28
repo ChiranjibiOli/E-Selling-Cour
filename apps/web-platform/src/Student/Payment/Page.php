@@ -31,9 +31,14 @@ final class StudentPaymentPage
         $gatewayButton = static function (string $provider, string $icon, array $state) use ($e): string {
             $available = ($state['available'] ?? false) === true;
             $mode = strtolower((string) ($state['mode'] ?? 'sandbox'));
-            $label = ucfirst($provider) . ($mode === 'sandbox' ? ' sandbox' : '');
+            $modeLabel = match ($mode) {
+                'local-demo' => ' local demo',
+                'sandbox' => ' sandbox',
+                default => '',
+            };
+            $label = ucfirst($provider) . $modeLabel;
             $copy = $available
-                ? 'Pay the platform merchant and verify automatically'
+                ? ($mode === 'local-demo' ? 'Complete a safe local test payment' : 'Pay the platform merchant and verify automatically')
                 : (($state['configured'] ?? false) === true ? 'Disabled by the platform administrator' : 'Merchant connection is not configured');
             return '<button class="payment-method" type="' . ($available ? 'submit' : 'button') . '" name="payment_method" value="' . $e($provider) . '"'
                 . ($available ? ' formnovalidate' : ' disabled') . '><i>' . $e($icon) . '</i><span><strong>' . $e($label) . '</strong><small>' . $e($copy) . '</small></span><b>' . ($available ? '→' : '×') . '</b></button>';
