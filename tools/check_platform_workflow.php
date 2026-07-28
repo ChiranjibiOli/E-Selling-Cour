@@ -103,8 +103,8 @@ $checks = [
         'course-changes-dialog',
     ],
     'apps/web-platform/src/Public/CourseDetails/Page.php' => [
-        'Open purchased course',
-        'Access active',
+        'Continue learning',
+        'Already purchased',
     ],
     'apps/web-platform/src/Instructor/Notifications/Page.php' => [
         'INSTRUCTOR INBOX',
