@@ -20,11 +20,46 @@
 .portal-role-instructor .authoring-sheet-head{
   min-height:290px!important;
 }
+
+/* Each authoring title belongs above its own fields, not in a space-consuming side rail. */
 .portal-role-instructor .authoring-block{
-  min-height:250px!important;
+  min-height:auto!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  align-items:stretch!important;
+  gap:18px!important;
+}
+.portal-role-instructor .authoring-block-title{
+  position:static!important;
+  top:auto!important;
+  width:100%!important;
+  grid-column:1/-1!important;
+  grid-template-columns:42px minmax(0,1fr)!important;
+  align-items:center!important;
+  padding-bottom:16px!important;
+  border-bottom:1px solid #dfe4ee!important;
+}
+.portal-role-instructor .authoring-block-title>div{
+  min-width:0!important;
+}
+.portal-role-instructor .authoring-block-title h3{
+  margin:0 0 4px!important;
+}
+.portal-role-instructor .authoring-block-title p{
+  max-width:760px!important;
+  margin:0!important;
+}
+.portal-role-instructor .authoring-block>:not(.authoring-block-title){
+  grid-column:1/-1!important;
+  width:100%!important;
+}
+.portal-role-instructor .authoring-block>.form-columns{
+  width:100%!important;
 }
 .portal-role-instructor .curriculum-authoring-block{
-  min-height:600px!important;
+  min-height:auto!important;
+}
+.portal-role-instructor .curriculum-section-list{
+  width:100%!important;
 }
 .portal-role-instructor .course-design-preview{
   position:sticky!important;
@@ -47,7 +82,9 @@
 }
 @media(max-width:760px){
   .portal-role-instructor .authoring-sheet-head{min-height:220px!important}
-  .portal-role-instructor .authoring-block{min-height:auto!important}
+  .portal-role-instructor .authoring-block{min-height:auto!important;padding:18px!important}
+  .portal-role-instructor .authoring-block-title{grid-template-columns:36px minmax(0,1fr)!important;align-items:start!important}
+  .portal-role-instructor .authoring-block-title>span{width:36px!important;height:36px!important}
   .portal-role-instructor .curriculum-authoring-block{min-height:auto!important}
   .portal-role-instructor .complete-authoring-actions{position:static!important;margin:0!important;border-radius:0 0 24px 24px!important}
 }
