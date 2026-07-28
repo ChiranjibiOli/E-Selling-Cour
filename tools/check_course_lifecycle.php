@@ -9,9 +9,6 @@ $checks = [
         '/api/v1/auth/register/',
         'instructor-applications',
         'password_hash',
-        '/api/v1/users/instructor-profile',
-        'profile_image_changed_at',
-        'INTERVAL 25 DAY',
         '/api/v1/auth/verify-student-email',
         '/api/v1/auth/resend-student-verification',
         '/api/v1/auth/reset-password-code',
@@ -22,7 +19,17 @@ $checks = [
     'services/identity-service/public/router.php' => [
         'instructor-registration.php',
         'instructor-decision.php',
+        'instructor-profile.php',
         '/api/v1/auth/register/instructor',
+        '/api/v1/users/instructor-profile',
+    ],
+    'services/identity-service/public/instructor-profile.php' => [
+        "['save_profile', 'remove_photo']",
+        'photo_change_allowed',
+        'profile_image_changed_at=NOW()',
+        'profile_image=NULL',
+        'FOR UPDATE',
+        'old_profile_image',
     ],
     'services/identity-service/public/instructor-registration.php' => [
         '$applicationStatus !== \'rejected\'',
@@ -63,6 +70,7 @@ $checks = [
     'apps/web-platform/src/Public/VerifyOtp/Controller.php' => ['verify-student-email', 'reset-password-code', 'resend-student-verification'],
     'apps/web-platform/src/Public/ForgotPassword/Page.php' => ['STUDENT ACCOUNT RECOVERY', 'Student sign in', 'Send six-digit code'],
     'apps/web-platform/src/Instructor/Profile/Controller.php' => ['/api/v1/users/instructor-profile', 'PrivateMedia', 'SecureUpload'],
+    'apps/web-platform/src/Instructor/Profile/Page.php' => ['at any time', 'Remove photo', 'profile_photo'],
     'apps/web-platform/src/Admin/InstructorApprovals/Controller.php' => ['PrivateMedia', 'instructor-applications'],
     'apps/web-platform/src/Admin/InstructorApprovals/Page.php' => ['instructor-review-summary', 'Review application', 'instructor-review-body'],
     'apps/web-platform/public/assets/css/portal-fixes.css' => ['overflow-wrap: anywhere', 'instructor-approval-list', 'instructor-review-card[open]'],
@@ -82,6 +90,13 @@ foreach ($checks as $relative => $needles) {
         if (!str_contains($content, $needle)) {
             $errors[] = 'Missing lifecycle contract in ' . $relative . ': ' . $needle;
         }
+    }
+}
+
+$instructorProfileService = (string) file_get_contents($root . '/services/identity-service/public/instructor-profile.php');
+foreach (['INTERVAL 25 DAY', '$photoLocked', 'photo cooldown', 'changed again on'] as $removedCooldownContract) {
+    if (str_contains($instructorProfileService, $removedCooldownContract)) {
+        $errors[] = 'Instructor profile photos must remain changeable at any time: ' . $removedCooldownContract;
     }
 }
 
