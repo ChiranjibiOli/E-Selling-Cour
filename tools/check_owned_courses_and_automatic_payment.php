@@ -23,7 +23,8 @@ $files = [
     'admin_settings_page' => 'apps/web-platform/src/Admin/Settings/Page.php',
     'compose' => 'docker-compose.yml',
     'env' => '.env.example',
-    'migration' => 'database/migrations/010_remove_access_removal_requests.sql',
+    'removal_migration' => 'database/migrations/010_remove_access_removal_requests.sql',
+    'permanent_access_migration' => 'database/migrations/011_restore_permanent_paid_enrollments.sql',
     'migration_runner' => 'tools/run_migrations.php',
 ];
 
@@ -51,12 +52,22 @@ foreach (['unsubscribe/pending', '/unsubscribe$', 'approve|reject'] as $forbidde
 if (!str_contains($content['enrollment'], 'Purchased-course removal requests are no longer supported.')) {
     $errors[] = 'Enrollment removal shutdown is missing.';
 }
-if (!str_contains($content['migration'], 'DROP TABLE IF EXISTS unsubscribe_requests')) {
+if (!str_contains($content['removal_migration'], 'DROP TABLE IF EXISTS unsubscribe_requests')) {
     $errors[] = 'The obsolete unsubscribe table is not removed by migration.';
 }
 foreach (['010_remove_access_removal_requests', 'database/migrations/010_remove_access_removal_requests.sql'] as $needle) {
     if (!str_contains($content['migration_runner'], $needle)) {
-        $errors[] = 'The permanence migration is not registered: ' . $needle;
+        $errors[] = 'The removal shutdown migration is not registered: ' . $needle;
+    }
+}
+foreach (["e.status = 'active'", "p.payment_status = 'paid'", "o.order_status = 'paid'", 'e.revoked_by_admin = NULL', 'e.revoked_at = NULL'] as $needle) {
+    if (!str_contains($content['permanent_access_migration'], $needle)) {
+        $errors[] = 'Permanent paid-enrollment repair is incomplete: ' . $needle;
+    }
+}
+foreach (['011_restore_permanent_paid_enrollments', 'database/migrations/011_restore_permanent_paid_enrollments.sql'] as $needle) {
+    if (!str_contains($content['migration_runner'], $needle)) {
+        $errors[] = 'The paid-enrollment repair migration is not registered: ' . $needle;
     }
 }
 foreach (['request_id', 'decision', '/unsubscribe/'] as $forbidden) {
@@ -128,6 +139,7 @@ if ($errors !== []) {
 
 echo "PERMANENT ACCESS AND AUTOMATIC PAYMENT CHECK: PASS\n";
 echo "Purchased courses: permanent Student access, no removal request workflow\n";
+echo "Old revoked paid enrollments: restored to active lifetime access\n";
 echo "Owned courses: hidden from browse and blocked from repeat cart purchase\n";
 echo "Student checkout: eSewa/Khalti automatic verification with manual fallback\n";
 echo "Commission: calculated per verified order item\n";
