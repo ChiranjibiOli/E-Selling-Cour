@@ -13,8 +13,6 @@ final class InstructorProfilePage
         $e = static fn (mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         $alert = $message !== '' ? '<div class="form-alert ' . ($success ? 'success' : 'error') . '">' . $e($message) . '</div>' : '';
         $hasPhoto = trim((string) ($profile['profile_image'] ?? '')) !== '';
-        $canChangePhoto = (bool) ($profile['photo_change_allowed'] ?? false);
-        $availableAt = trim((string) ($profile['profile_image_change_available_at'] ?? ''));
         $name = trim((string) ($profile['full_name'] ?? 'Instructor'));
         $parts = preg_split('/\s+/', $name) ?: [];
         $initials = '';
@@ -30,24 +28,21 @@ final class InstructorProfilePage
             ? '<button class="portal-button secondary" type="button" data-photo-open>View photo</button>'
             : '';
         $removeButton = $hasPhoto
-            ? '<form method="post" data-profile-photo-remove>' . Csrf::field() . '<input type="hidden" name="action" value="remove_photo"><button class="portal-button danger" type="submit"' . ($canChangePhoto ? '' : ' disabled') . '>Remove photo</button></form>'
+            ? '<form method="post" data-profile-photo-remove>' . Csrf::field() . '<input type="hidden" name="action" value="remove_photo"><button class="portal-button danger" type="submit">Remove photo</button></form>'
             : '';
-        $photoRule = $canChangePhoto
-            ? '<span class="profile-policy available">Photo change and removal are available.</span>'
-            : '<span class="profile-policy locked">Photo controls unlock after ' . $e($availableAt !== '' ? $availableAt : 'the cooldown period') . '.</span>';
-        $disabled = $canChangePhoto ? '' : ' disabled';
+        $photoRule = '<span class="profile-policy available">You can change or remove your profile photo at any time.</span>';
 
         $photoDialog = $hasPhoto
             ? '<dialog class="profile-photo-dialog" data-photo-dialog aria-labelledby="profile-photo-title"><div class="profile-photo-dialog-shell"><header><div><span>PROFILE PHOTO</span><h2 id="profile-photo-title">' . $e($name) . '</h2></div><button type="button" data-photo-close aria-label="Close photo viewer">×</button></header><div class="profile-photo-stage"><img src="' . $photoUrl . '" alt="' . $e($name) . ' profile photo" data-photo-image></div><footer><button class="portal-button secondary" type="button" data-photo-zoom-out aria-label="Zoom out">−</button><button class="portal-button secondary" type="button" data-photo-reset>Reset</button><button class="portal-button secondary" type="button" data-photo-zoom-in aria-label="Zoom in">+</button><button class="portal-button" type="button" data-photo-close>Close</button></footer></div></dialog>'
             : '';
         $removeDialog = $hasPhoto
-            ? '<dialog class="portal-confirm-dialog" data-photo-remove-dialog aria-labelledby="remove-photo-title"><div class="portal-confirm-content"><span class="portal-confirm-icon">×</span><div><h2 id="remove-photo-title">Remove Instructor photo?</h2><p>The initials avatar will replace the photo. You can upload a new verified portrait afterward.</p></div><div class="portal-confirm-actions"><button class="portal-button secondary" type="button" data-photo-remove-cancel>No, keep photo</button><button class="portal-button danger" type="button" data-photo-remove-confirm>Yes, remove photo</button></div></div></dialog>'
+            ? '<dialog class="portal-confirm-dialog" data-photo-remove-dialog aria-labelledby="remove-photo-title"><div class="portal-confirm-content"><span class="portal-confirm-icon">×</span><div><h2 id="remove-photo-title">Remove Instructor photo?</h2><p>The initials avatar will replace the photo. You can upload a new verified portrait immediately afterward.</p></div><div class="portal-confirm-actions"><button class="portal-button secondary" type="button" data-photo-remove-cancel>No, keep photo</button><button class="portal-button danger" type="button" data-photo-remove-confirm>Yes, remove photo</button></div></div></dialog>'
             : '';
 
         $content = $alert
             . '<section class="instructor-profile-surface">'
             . '<div class="instructor-profile-hero">' . $photo . '<div class="instructor-profile-heading"><span>APPROVED INSTRUCTOR</span><h2>' . $e($name) . '</h2><p>' . $e($profile['professional_headline'] ?? '') . '</p><small>' . $e($profile['email'] ?? '') . '</small><div class="instructor-profile-photo-actions">' . $viewButton . $removeButton . '</div>' . $photoRule . '</div></div>'
-            . '<div class="instructor-profile-note"><strong>Verified teaching identity</strong><p>Your identity document remains private. The public profile photo can be viewed here, replaced or removed only when the 25-day photo cooldown permits it.</p></div>'
+            . '<div class="instructor-profile-note"><strong>Verified teaching identity</strong><p>Your identity document remains private. Your public profile photo can be changed or removed whenever you need.</p></div>'
             . '<form class="portal-form instructor-profile-form" method="post" action="/instructor/profile" enctype="multipart/form-data">' . Csrf::field() . '<input type="hidden" name="action" value="save_profile">'
             . '<div class="instructor-profile-section"><div><span>ACCOUNT</span><h3>Personal information</h3></div><div class="form-columns"><label>Full name<input type="text" inputmode="text" name="full_name" value="' . $e($profile['full_name'] ?? '') . '" minlength="2" maxlength="100" autocomplete="name" required></label>'
             . '<label>Email address<input type="email" value="' . $e($profile['email'] ?? '') . '" autocomplete="email" readonly></label></div>'
@@ -58,7 +53,7 @@ final class InstructorProfilePage
             . '<label>Teaching experience<textarea name="teaching_experience" rows="5" minlength="20" maxlength="2000" required>' . $e($profile['teaching_experience'] ?? '') . '</textarea></label>'
             . '<label>Course subjects<textarea name="course_subjects" rows="3" minlength="3" maxlength="1000" required>' . $e($profile['course_subjects'] ?? '') . '</textarea></label>'
             . '<label>Social or professional profile<input type="url" inputmode="url" name="social_profile_url" value="' . $e($profile['social_profile_url'] ?? '') . '" maxlength="500" placeholder="https://..."><small>HTTPS only.</small></label></div>'
-            . '<div class="instructor-profile-section"><div><span>PROFILE PHOTO</span><h3>Change portrait</h3></div><label>Choose a new passport-size photo<input type="file" name="profile_photo" accept="image/jpeg,image/png,image/webp"' . $disabled . '><small>Portrait JPG, PNG or WebP, at least 300 × 400 pixels, maximum 3 MB.</small></label></div>'
+            . '<div class="instructor-profile-section"><div><span>PROFILE PHOTO</span><h3>Change portrait</h3></div><label>Choose a new passport-size photo<input type="file" name="profile_photo" accept="image/jpeg,image/png,image/webp"><small>Portrait JPG, PNG or WebP, at least 300 × 400 pixels, maximum 3 MB.</small></label></div>'
             . '<div class="instructor-profile-submit"><button class="portal-button" type="submit">Save Instructor profile</button></div></form></section>'
             . $photoDialog . $removeDialog;
 
