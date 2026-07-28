@@ -1,252 +1,247 @@
 body.control-body {
     margin: 0;
     min-height: 100vh;
-    color: #e8edf3;
-    background: #101722;
+    color: #eef2f5;
+    background: #0f151d;
     font-family: "DM Sans", system-ui, sans-serif;
 }
-
 .control-shell {
     min-height: 100vh;
+    padding: clamp(16px, 2.6vw, 30px);
     display: grid;
-    grid-template-columns: minmax(0, .92fr) minmax(460px, 1.08fr);
+    grid-template-columns: minmax(0, .95fr) minmax(430px, 1.05fr);
+    gap: 18px;
 }
-
+.control-mark,
+.control-form-section {
+    min-height: calc(100vh - 60px);
+    border-radius: 22px;
+}
 .control-mark {
     position: relative;
-    padding: clamp(42px, 7vw, 104px);
+    padding: clamp(36px, 6vw, 82px);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    gap: 70px;
-    background: #151e2c;
-    border-right: 1px solid rgba(232, 237, 243, .12);
+    gap: 56px;
+    background:
+        linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px),
+        #151e29;
+    background-size: 32px 32px;
+    border: 1px solid rgba(255,255,255,.06);
     overflow: hidden;
 }
-
 .control-mark::after {
     content: "";
     position: absolute;
-    left: -18%;
-    bottom: -24%;
-    width: 62%;
-    aspect-ratio: 1;
-    border: 1px solid rgba(232, 237, 243, .1);
+    right: -170px;
+    bottom: -190px;
+    width: 470px;
+    height: 470px;
+    border: 1px solid rgba(255,255,255,.07);
     border-radius: 50%;
 }
-
 .control-brand,
 .control-intro,
-.control-facts {
-    position: relative;
-    z-index: 1;
-}
-
+.control-facts,
+.control-monitor { position: relative; z-index: 1; }
 .control-brand {
     display: flex;
     align-items: center;
     gap: 12px;
+}
+.control-brand > div { display: grid; gap: 2px; }
+.control-brand strong {
     color: #fff;
     font-family: "Playfair Display", Georgia, serif;
     font-size: 1.18rem;
     font-weight: 600;
 }
-
+.control-brand span {
+    color: #8f9aa8;
+    font-size: .64rem;
+    font-weight: 800;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
 .coursehub-control-logo {
     width: 44px;
     height: 44px;
     padding: 3px;
     display: block;
-    margin: 0;
+    background: #c99a53;
     border-radius: 12px;
-    background: #d7b261;
 }
-
 .control-intro > span,
 .control-terminal > header > span {
-    color: #d7b261;
-    font-size: .72rem;
-    font-weight: 700;
-    letter-spacing: .14em;
+    color: #d0a15a;
+    font-size: .68rem;
+    font-weight: 900;
+    letter-spacing: .16em;
 }
-
 .control-intro h1 {
-    margin: 19px 0 20px;
+    margin: 18px 0 19px;
     color: #fff;
     font-family: "Playfair Display", Georgia, serif;
-    font-size: clamp(3rem, 5.7vw, 6rem);
+    font-size: clamp(2.8rem, 5.4vw, 5.6rem);
     font-weight: 500;
-    line-height: .98;
-    letter-spacing: -.045em;
+    line-height: .99;
+    letter-spacing: -.04em;
 }
-
 .control-intro p {
-    max-width: 590px;
+    max-width: 620px;
     margin: 0;
-    color: rgba(232, 237, 243, .7);
-    line-height: 1.75;
+    color: rgba(238,242,245,.68);
+    line-height: 1.72;
 }
-
 .control-facts {
     margin: 0;
-    border-top: 1px solid rgba(232, 237, 243, .14);
+    border-top: 1px solid rgba(255,255,255,.11);
 }
-
 .control-facts > div {
     padding: 14px 0;
     display: grid;
-    grid-template-columns: 100px 1fr;
+    grid-template-columns: 95px 1fr;
     gap: 18px;
-    border-bottom: 1px solid rgba(232, 237, 243, .14);
+    border-bottom: 1px solid rgba(255,255,255,.11);
 }
-
 .control-facts dt {
-    color: #d7b261;
-    font-size: .75rem;
-    font-weight: 700;
+    color: #d0a15a;
+    font-size: .7rem;
+    font-weight: 900;
     letter-spacing: .08em;
     text-transform: uppercase;
 }
-
-.control-facts dd {
-    margin: 0;
-    color: rgba(232, 237, 243, .8);
-}
-
-.control-form-section {
-    padding: clamp(44px, 7vw, 96px);
-    display: grid;
-    place-items: center;
-    background: #f7f4ee;
-}
-
-.control-terminal {
-    width: min(480px, 100%);
-    margin: 0;
-    color: #182033;
-}
-
-.control-terminal > header {
-    padding-bottom: 24px;
-    border-bottom: 1px solid rgba(24, 32, 51, .12);
-}
-
-.control-terminal h2 {
-    margin: 10px 0 8px;
-    color: #182033;
-    font-family: "Playfair Display", Georgia, serif;
-    font-size: clamp(2.2rem, 4vw, 3.2rem);
-    font-weight: 500;
-    line-height: 1.05;
-    letter-spacing: -.035em;
-}
-
-.control-terminal > header p {
-    margin: 0;
-    color: #667085;
-    line-height: 1.6;
-}
-
-.control-terminal form {
-    margin-top: 27px;
-    display: grid;
-    gap: 18px;
-}
-
-.control-terminal label {
-    display: grid;
-    gap: 8px;
-}
-
-.control-terminal label > span {
-    color: #344054;
-    font-size: .84rem;
+.control-facts dd { margin: 0; color: rgba(238,242,245,.78); }
+.control-monitor {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: #aeb7c1;
+    font-size: .72rem;
     font-weight: 700;
 }
-
+.control-monitor i {
+    width: 8px;
+    height: 8px;
+    background: #5fb180;
+    border-radius: 50%;
+    box-shadow: 0 0 0 5px rgba(95,177,128,.1);
+}
+.control-form-section {
+    padding: clamp(34px, 6vw, 74px);
+    display: grid;
+    place-items: center;
+    color: #20262d;
+    background: #f2f0eb;
+}
+.control-terminal {
+    width: min(500px, 100%);
+    padding: clamp(28px, 4vw, 40px);
+    background: #fff;
+    border: 1px solid #dfdcd6;
+    border-radius: 20px;
+    box-shadow: 0 22px 54px rgba(0,0,0,.16);
+}
+.control-terminal-badge {
+    margin-bottom: 24px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    color: #434a52;
+    background: #f4f2ee;
+    border-radius: 10px;
+}
+.control-terminal-badge span {
+    color: #8e493f;
+    font-size: .66rem;
+    font-weight: 900;
+    letter-spacing: .1em;
+}
+.control-terminal-badge b { font-size: .68rem; }
+.control-terminal > header {
+    padding-bottom: 22px;
+    border-bottom: 1px solid #e7e3dd;
+}
+.control-terminal h2 {
+    margin: 9px 0 8px;
+    color: #20262d;
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight: 500;
+    line-height: 1.06;
+    letter-spacing: -.03em;
+}
+.control-terminal > header p { margin: 0; color: #737a82; line-height: 1.6; }
+.control-terminal form { margin-top: 24px; display: grid; gap: 17px; }
+.control-terminal label { display: grid; gap: 8px; }
+.control-terminal label > span { color: #4b525a; font-size: .78rem; font-weight: 800; }
 .control-terminal input {
     width: 100%;
     box-sizing: border-box;
     padding: 14px 15px;
-    color: #182033;
-    background: #fff;
-    border: 1px solid #d6d9df;
-    border-radius: 6px;
+    color: #20262d;
+    background: #faf9f7;
+    border: 1px solid #d6d2cc;
+    border-radius: 10px;
     outline: 0;
     font: inherit;
-    transition: border-color .18s ease, box-shadow .18s ease;
+    transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
 }
-
 .control-terminal input:focus {
-    border-color: #315efb;
-    box-shadow: 0 0 0 3px rgba(49, 94, 251, .1);
+    border-color: #8a5e4d;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(138,94,77,.11);
 }
-
 .control-terminal button {
     min-height: 50px;
     padding: 13px 18px;
     color: #fff;
-    background: #172238;
+    background: #1c242d;
     border: 0;
-    border-radius: 6px;
-    box-shadow: none;
+    border-radius: 10px;
+    box-shadow: 0 12px 24px rgba(28,36,45,.18);
     font: inherit;
-    font-weight: 700;
+    font-weight: 800;
     cursor: pointer;
-    transition: background .18s ease;
+    transition: transform .18s ease, background .18s ease;
 }
-
-.control-terminal button:hover {
-    background: #24324d;
-}
-
+.control-terminal button:hover { transform: translateY(-1px); background: #2a3541; }
 .control-error {
-    margin-top: 22px;
+    margin-top: 20px;
     padding: 13px 14px;
-    color: #9f2d2d;
-    background: #fff1f0;
-    border: 0;
-    border-left: 3px solid #c54444;
+    color: #8f312f;
+    background: #fff1ef;
+    border-left: 3px solid #b34c45;
+    border-radius: 8px;
 }
-
 .control-terminal footer {
-    margin-top: 24px;
+    margin-top: 23px;
     padding-top: 18px;
-    color: #7a8494;
-    border-top: 1px solid rgba(24, 32, 51, .1);
-    font-size: .82rem;
-    line-height: 1.6;
+    display: grid;
+    gap: 4px;
+    color: #7a8188;
+    border-top: 1px solid #e7e3dd;
+    font-size: .78rem;
+    line-height: 1.55;
 }
-
-@media (max-width: 900px) {
-    .control-shell {
-        grid-template-columns: 1fr;
-    }
-
-    .control-mark {
-        min-height: auto;
-        padding: 56px 28px;
-        gap: 54px;
-        border-right: 0;
-        border-bottom: 1px solid rgba(232, 237, 243, .12);
-    }
-
-    .control-form-section {
-        padding: 58px 28px 72px;
-    }
+.control-terminal footer strong { color: #4c535a; }
+@media (max-width: 920px) {
+    .control-shell { grid-template-columns: 1fr; }
+    .control-mark,
+    .control-form-section { min-height: auto; }
+    .control-mark { padding: 56px 28px; }
+    .control-form-section { padding: 52px 24px 68px; }
 }
-
-@media (max-width: 520px) {
-    .control-intro h1 {
-        font-size: clamp(2.8rem, 15vw, 4rem);
-    }
-
-    .control-facts > div {
-        grid-template-columns: 1fr;
-        gap: 6px;
-    }
-
-    .control-form-section {
-        padding-inline: 20px;
-    }
+@media (max-width: 540px) {
+    .control-shell { padding: 10px; }
+    .control-mark,
+    .control-form-section { border-radius: 17px; }
+    .control-intro h1 { font-size: clamp(2.6rem, 14vw, 3.8rem); }
+    .control-facts > div { grid-template-columns: 1fr; gap: 5px; }
+    .control-terminal { padding: 24px 20px; border-radius: 16px; }
+    .control-terminal-badge { align-items: flex-start; flex-direction: column; }
 }
