@@ -44,6 +44,15 @@ final class InstructorCoursesPage
             $image = $thumbnail !== ''
                 ? '<img src="' . $e($thumbnail) . '" alt="" loading="lazy">'
                 : '<div class="course-card-placeholder">CH</div>';
+            $regularPrice = max(0, (float) ($course['price'] ?? 0));
+            $rawDiscountPrice = $course['discount_price'] ?? null;
+            $discountPrice = $rawDiscountPrice !== null && $rawDiscountPrice !== ''
+                ? max(0, (float) $rawDiscountPrice)
+                : null;
+            $hasDiscount = $discountPrice !== null && $discountPrice < $regularPrice;
+            $priceText = $hasDiscount
+                ? 'NPR ' . number_format($discountPrice, 2) . ' (was NPR ' . number_format($regularPrice, 2) . ')'
+                : ($regularPrice > 0 ? 'NPR ' . number_format($regularPrice, 2) : 'Free');
 
             $actions = '<div class="course-row-actions">';
             if (in_array($status, ['draft', 'rejected'], true)) {
@@ -81,7 +90,7 @@ final class InstructorCoursesPage
             $cards .= '<article class="instructor-course-card"><div class="instructor-course-card-media">' . $image . '</div>'
                 . '<div class="instructor-course-card-top"><span class="status-badge ' . $e($status) . '">' . $e($status) . '</span><span class="secure-pill">Version ' . (int) ($course['content_version'] ?? 1) . '</span></div>'
                 . '<div class="instructor-course-card-body"><small>' . $e($course['category_name'] ?? 'Uncategorised') . '</small><h2>' . $e($course['title'] ?? 'Untitled course') . '</h2><p>' . $e($course['short_description'] ?? '') . '</p>'
-                . '<div class="instructor-course-card-meta"><span>' . $e(ucfirst((string) ($course['level'] ?? 'beginner'))) . '</span><span>NPR ' . number_format((float) ($course['price'] ?? 0), 2) . '</span><span>Lifetime</span></div>'
+                . '<div class="instructor-course-card-meta"><span>' . $e(ucfirst((string) ($course['level'] ?? 'beginner'))) . '</span><span>' . $e($priceText) . '</span><span>Lifetime</span></div>'
                 . $notes . $actions . '</div></article>';
         }
 
