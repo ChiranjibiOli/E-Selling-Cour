@@ -21,10 +21,15 @@ $files = [
     'gateway_settings' => 'services/payment-service/public/gateway-settings.php',
     'admin_settings_controller' => 'apps/web-platform/src/Admin/Settings/Controller.php',
     'admin_settings_page' => 'apps/web-platform/src/Admin/Settings/Page.php',
+    'withdrawal_api' => 'services/reporting-service/public/index.php',
+    'withdrawal_controller' => 'apps/web-platform/src/Instructor/Withdrawals/Controller.php',
+    'withdrawal_page' => 'apps/web-platform/src/Instructor/Withdrawals/Page.php',
+    'admin_withdrawal_page' => 'apps/web-platform/src/Admin/Withdrawals/Page.php',
     'compose' => 'docker-compose.yml',
     'env' => '.env.example',
     'removal_migration' => 'database/migrations/010_remove_access_removal_requests.sql',
     'permanent_access_migration' => 'database/migrations/011_restore_permanent_paid_enrollments.sql',
+    'retry_migration' => 'database/migrations/012_retry_rejected_withdrawals.sql',
     'migration_runner' => 'tools/run_migrations.php',
 ];
 
@@ -129,6 +134,37 @@ foreach (['esewa', 'khalti', 'available'] as $needle) {
     }
 }
 
+foreach (['ADD KEY withdrawal_earning_lookup_index', 'DROP INDEX withdrawal_earning_single_request_unique'] as $needle) {
+    if (!str_contains($content['retry_migration'], $needle)) {
+        $errors[] = 'Rejected-withdrawal retry migration is incomplete: ' . $needle;
+    }
+}
+foreach (['012_retry_rejected_withdrawals', 'database/migrations/012_retry_rejected_withdrawals.sql'] as $needle) {
+    if (!str_contains($content['migration_runner'], $needle)) {
+        $errors[] = 'Rejected-withdrawal retry migration is not registered: ' . $needle;
+    }
+}
+foreach (['retry_request_id', "request_status'] !== 'rejected'", "earning_status='available'", "request_status IN ('pending','approved','paid')"] as $needle) {
+    if (!str_contains($content['withdrawal_api'], $needle)) {
+        $errors[] = 'Retry-safe Instructor withdrawal API is missing: ' . $needle;
+    }
+}
+foreach (["$action === 'retry'", 'retry_request_id'] as $needle) {
+    if (!str_contains($content['withdrawal_controller'], $needle)) {
+        $errors[] = 'Instructor withdrawal retry controller is missing: ' . $needle;
+    }
+}
+foreach (['Request again', 'Waiting for transfer or Admin settlement'] as $needle) {
+    if (!str_contains($content['withdrawal_page'], $needle)) {
+        $errors[] = 'Instructor retry or payout-ready UI is missing: ' . $needle;
+    }
+}
+foreach (['Automatic payout queue', 'Rejecting releases the money back to the Instructor'] as $needle) {
+    if (!str_contains($content['admin_withdrawal_page'], $needle)) {
+        $errors[] = 'Admin payout queue explanation is missing: ' . $needle;
+    }
+}
+
 if ($errors !== []) {
     echo "PERMANENT ACCESS AND AUTOMATIC PAYMENT CHECK: FAIL\n";
     foreach ($errors as $error) {
@@ -143,5 +179,5 @@ echo "Old revoked paid enrollments: restored to active lifetime access\n";
 echo "Owned courses: hidden from browse and blocked from repeat cart purchase\n";
 echo "Student checkout: eSewa/Khalti automatic verification with manual fallback\n";
 echo "Commission: calculated per verified order item\n";
-echo "Instructor payout: idempotent queue plus optional disbursement API\n";
-echo "Failed payout transfer: remains approved for Admin settlement\n";
+echo "Instructor payout: idempotent automatic queue plus Admin settlement fallback\n";
+echo "Rejected withdrawal: earnings return to available balance and can be requested again\n";
