@@ -11,6 +11,7 @@ final class StudentCoursesPage
         array $courses,
         array $categories,
         array $ownedCourseIds,
+        array $cartCourseIds,
         array $selectedCourse = [],
         array $filters = [],
         string $error = '',
@@ -35,6 +36,7 @@ final class StudentCoursesPage
         $selectedPanel = '';
         if ($selectedCourse !== []) {
             $courseId = (int) ($selectedCourse['id'] ?? 0);
+            $isInCart = isset($cartCourseIds[$courseId]);
             $image = trim((string) ($selectedCourse['thumbnail_url'] ?? ''));
             $media = $image !== ''
                 ? '<img src="' . $e($image) . '" alt="" loading="lazy">'
@@ -46,13 +48,16 @@ final class StudentCoursesPage
             $priceLine = $originalPrice > $price
                 ? '<strong>NPR ' . number_format($price, 2) . '</strong><small><s>NPR ' . number_format($originalPrice, 2) . '</s></small>'
                 : '<strong>' . ($price > 0 ? 'NPR ' . number_format($price, 2) : 'Free') . '</strong>';
+            $selectedActions = $isInCart
+                ? '<a class="portal-button" href="/student/cart">View cart</a><span class="status-badge published">Already in cart</span>'
+                : '<a class="portal-button" href="/student/cart?add=' . $courseId . '">Add to cart</a><a class="portal-button secondary" href="/student/cart">View cart</a>';
 
             $selectedPanel = '<section class="data-card"><div class="data-card-head"><div><span>COURSE DETAILS</span><h3>' . $e($selectedCourse['title'] ?? 'Published course') . '</h3></div><a class="text-button" href="/student/courses">Close details</a></div>'
                 . '<div class="panel-split panel-split-wide"><div class="learning-course-card"><div class="learning-course-media">' . $media . '</div><div class="learning-course-copy"><span>'
                 . $e($selectedCourse['category_name'] ?? 'Course') . ' · ' . $e(ucfirst((string) ($selectedCourse['level'] ?? 'beginner'))) . '</span><h3>'
                 . $e($selectedCourse['title'] ?? 'Course') . '</h3><p>' . nl2br($e($selectedCourse['full_description'] ?? $selectedCourse['short_description'] ?? '')) . '</p><small>By '
                 . $e($selectedCourse['instructor_name'] ?? 'CourseHub instructor') . ' · ' . $e($selectedCourse['language'] ?? 'English') . ' · '
-                . $e($selectedCourse['duration'] ?? 'Self-paced') . '</small><footer><a class="portal-button" href="/student/cart?add=' . $courseId . '">Add to cart</a><a class="portal-button secondary" href="/student/cart">View cart</a></footer></div></div>'
+                . $e($selectedCourse['duration'] ?? 'Self-paced') . '</small><footer>' . $selectedActions . '</footer></div></div>'
                 . '<aside class="summary-card"><span>COURSE PRICE</span><div class="summary-total"><span>Payable</span><div>' . $priceLine . '</div></div>'
                 . ($outcomes !== '' ? '<h4>What you will learn</h4><ul class="clean-list">' . $outcomes . '</ul>' : '')
                 . ($requirements !== '' ? '<h4>Requirements</h4><ul class="clean-list">' . $requirements . '</ul>' : '')
@@ -66,6 +71,7 @@ final class StudentCoursesPage
             if (isset($ownedCourseIds[$courseId])) {
                 continue;
             }
+            $isInCart = isset($cartCourseIds[$courseId]);
             $image = trim((string) ($course['thumbnail_url'] ?? ''));
             $media = $image !== ''
                 ? '<img src="' . $e($image) . '" alt="" loading="lazy">'
@@ -76,14 +82,18 @@ final class StudentCoursesPage
             $priceCopy = $originalPrice > $rawPrice
                 ? '<b>NPR ' . $price . '</b><small><s>NPR ' . number_format($originalPrice, 2) . '</s></small>'
                 : '<b>' . ($rawPrice > 0 ? 'NPR ' . $price : 'Free') . '</b>';
+            $cartAction = $isInCart
+                ? '<a class="portal-button" href="/student/cart">View cart</a>'
+                : '<a class="portal-button" href="/student/cart?add=' . $courseId . '">Add to cart</a>';
+            $cartStatus = $isInCart ? 'In cart' : 'Available';
 
             $cards .= '<article class="learning-course-card"><div class="learning-course-media">' . $media
-                . '<span class="status-badge published">Available</span>'
+                . '<span class="status-badge published">' . $cartStatus . '</span>'
                 . '</div><div class="learning-course-copy"><span>' . $e($course['category_name'] ?? 'Course') . ' · '
                 . $e(ucfirst((string) ($course['level'] ?? 'beginner'))) . '</span><h3>' . $e($course['title'] ?? 'Published course') . '</h3><p>'
                 . $e($course['short_description'] ?? '') . '</p><small>By ' . $e($course['instructor_name'] ?? 'CourseHub instructor') . ' · '
                 . $e($course['language'] ?? 'English') . ' · ' . $e($course['duration'] ?? 'Self-paced') . '</small><div class="summary-row"><span>Lifetime access</span><span>'
-                . $priceCopy . '</span></div><footer><a class="portal-button" href="/student/cart?add=' . $courseId . '">Add to cart</a><a class="portal-button secondary" href="/student/courses?course=' . $courseId . '">View details</a></footer></div></article>';
+                . $priceCopy . '</span></div><footer>' . $cartAction . '<a class="portal-button secondary" href="/student/courses?course=' . $courseId . '">View details</a></footer></div></article>';
         }
 
         if ($cards === '') {
