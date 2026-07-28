@@ -14,7 +14,7 @@ return static function (Request $request) {
 
     $query = mb_substr(trim((string) ($request->query['q'] ?? '')), 0, 120);
     $category = mb_substr(trim((string) ($request->query['category'] ?? '')), 0, 120);
-    $level = strtolower(trim((string) ($request->query['level'] ?? '')));
+    $level = strtolower(trim((string) ($request->query['level'] ?? ''));
     if (!in_array($level, ['', 'beginner', 'intermediate', 'advanced'], true)) {
         $level = '';
     }
@@ -25,6 +25,7 @@ return static function (Request $request) {
     $courses = [];
     $categories = [];
     $ownedCourseIds = [];
+    $cartCourseIds = [];
     $selectedCourse = [];
     $messages = [];
 
@@ -72,6 +73,22 @@ return static function (Request $request) {
         $messages[] = 'Your purchased-course list could not be checked. Refresh before adding a course to the cart. ' . $exception->getMessage();
     }
 
+    try {
+        $cart = $api->get('/api/v1/cart')['data'] ?? [];
+        $cartItems = is_array($cart['items'] ?? null) ? $cart['items'] : [];
+        foreach ($cartItems as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $courseId = (int) ($item['course_id'] ?? 0);
+            if ($courseId > 0) {
+                $cartCourseIds[$courseId] = true;
+            }
+        }
+    } catch (DomainException $exception) {
+        $messages[] = 'Your cart could not be checked. Refresh the catalogue before adding another course. ' . $exception->getMessage();
+    }
+
     if ($ownedCourseIds !== []) {
         $courses = array_values(array_filter(
             $courses,
@@ -98,6 +115,7 @@ return static function (Request $request) {
         $courses,
         $categories,
         $ownedCourseIds,
+        $cartCourseIds,
         $selectedCourse,
         [
             'q' => $query,
