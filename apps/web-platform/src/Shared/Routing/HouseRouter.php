@@ -24,6 +24,11 @@ final class HouseRouter
             return $this->sessionStatus();
         }
 
+        $canonicalAlias = $this->canonicalAlias($request);
+        if ($canonicalAlias !== null) {
+            return Response::redirect($canonicalAlias);
+        }
+
         foreach (RoomRegistry::all() as $key => $metadata) {
             if ($metadata['path'] !== $request->path || !in_array($request->method, explode('|', $metadata['methods']), true)) {
                 continue;
@@ -70,6 +75,33 @@ final class HouseRouter
         }
 
         return Response::html('<h1>Room not found</h1>', 404);
+    }
+
+    private function canonicalAlias(Request $request): ?string
+    {
+        if ($request->method !== 'GET') {
+            return null;
+        }
+
+        $target = match ($request->path) {
+            '/student/all-course',
+            '/student/all-courses',
+            '/student/course',
+            '/student/course-catalogue',
+            '/student/courses.php' => '/student/courses',
+            default => null,
+        };
+
+        if ($target === null) {
+            return null;
+        }
+
+        $query = array_filter(
+            $request->query,
+            static fn (mixed $value): bool => is_scalar($value) && trim((string) $value) !== '',
+        );
+
+        return $target . ($query !== [] ? '?' . http_build_query($query, '', '&', PHP_QUERY_RFC3986) : '');
     }
 
     private function signedInRedirect(Request $request): ?Response
