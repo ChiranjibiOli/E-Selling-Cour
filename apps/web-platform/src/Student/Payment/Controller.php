@@ -104,7 +104,7 @@ return static function (Request $request) {
             if ($orderId < 1) {
                 throw new DomainException('Choose a valid unpaid order.');
             }
-            $paymentMethod = strtolower(trim((string) ($request->body['payment_method'] ?? 'manual'));
+            $paymentMethod = strtolower(trim((string) ($request->body['payment_method'] ?? 'manual')));
             if ($paymentMethod === 'esewa') {
                 $result = $client->post('/api/v1/payments/esewa/initiate', ['order_id' => $orderId]);
                 $gateway = is_array($result['data'] ?? null) ? $result['data'] : [];
