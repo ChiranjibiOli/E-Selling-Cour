@@ -14,17 +14,14 @@ final class PortalPage
         $e = static fn (mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         $navigation = self::navigation($role);
         $currentPath = rtrim(parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/', '/') ?: '/';
+        $activeHref = self::activeNavigationHref($navigation, $currentPath);
         $nav = '';
 
         foreach ($navigation as $group => $links) {
             $nav .= '<div class="portal-nav-group"><span class="portal-nav-label">' . $e($group) . '</span>';
             foreach ($links as $href => $label) {
                 $normalHref = rtrim($href, '/') ?: '/';
-                $activeMatch = $currentPath === $normalHref;
-                if (!$activeMatch && $normalHref !== '/' && str_starts_with($currentPath, $normalHref . '/')) {
-                    $activeMatch = !in_array($normalHref, ['/instructor/courses', '/student/payment'], true)
-                        || !array_key_exists($currentPath, $links);
-                }
+                $activeMatch = $normalHref === $activeHref;
                 $active = $activeMatch ? ' active' : '';
                 $current = $activeMatch ? ' aria-current="page"' : '';
                 $nav .= '<a class="portal-nav-link' . $active . '" href="' . $e($href) . '"' . $current . '><span>' . $e($label) . '</span></a>';
@@ -113,6 +110,38 @@ final class PortalPage
                 'Account' => ['/student/notifications' => 'Notifications', '/student/reviews' => 'My reviews'],
             ],
         };
+    }
+
+    /**
+     * Choose one active sidebar destination. Exact matches win; nested pages use
+     * the longest matching parent so broad links cannot steal the highlight.
+     *
+     * @param array<string, array<string, string>> $navigation
+     */
+    private static function activeNavigationHref(array $navigation, string $currentPath): ?string
+    {
+        $prefixMatches = [];
+
+        foreach ($navigation as $links) {
+            foreach (array_keys($links) as $href) {
+                $normalHref = rtrim($href, '/') ?: '/';
+
+                if ($currentPath === $normalHref) {
+                    return $normalHref;
+                }
+
+                if ($normalHref !== '/' && str_starts_with($currentPath, $normalHref . '/')) {
+                    $prefixMatches[] = $normalHref;
+                }
+            }
+        }
+
+        if ($prefixMatches === []) {
+            return null;
+        }
+
+        usort($prefixMatches, static fn (string $left, string $right): int => strlen($right) <=> strlen($left));
+        return $prefixMatches[0];
     }
 
     private static function initials(string $name): string
