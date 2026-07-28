@@ -82,7 +82,7 @@ foreach (['$repairPaidEnrollments', 'INSERT INTO enrollments', "o.order_status=\
         $errors[] = 'Runtime purchased-course repair is incomplete: ' . $needle;
     }
 }
-foreach (['INSERT INTO enrollments', 'ON DUPLICATE KEY UPDATE', "status = IF(status = 'refunded', 'refunded', 'active')"] as $needle) {
+foreach (['INSERT INTO enrollments', 'NOT EXISTS', 'UPDATE enrollments e', "e.status = 'revoked'", "e.status = 'active'"] as $needle) {
     if (!str_contains($content['paid_enrollment_backfill'], $needle)) {
         $errors[] = 'Missing paid-enrollment backfill protection: ' . $needle;
     }
