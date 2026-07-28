@@ -55,6 +55,7 @@ $migrations = [
     '009_google_oauth_accounts' => $repositoryRoot . '/database/migrations/009_google_oauth_accounts.sql',
     '010_remove_access_removal_requests' => $repositoryRoot . '/database/migrations/010_remove_access_removal_requests.sql',
     '011_restore_permanent_paid_enrollments' => $repositoryRoot . '/database/migrations/011_restore_permanent_paid_enrollments.sql',
+    '012_retry_rejected_withdrawals' => $repositoryRoot . '/database/migrations/012_retry_rejected_withdrawals.sql',
 ];
 
 $exists = $pdo->prepare('SELECT version FROM schema_migrations WHERE version = :version LIMIT 1');
