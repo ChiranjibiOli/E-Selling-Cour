@@ -14,7 +14,7 @@ return static function (Request $request) {
 
     $query = mb_substr(trim((string) ($request->query['q'] ?? '')), 0, 120);
     $category = mb_substr(trim((string) ($request->query['category'] ?? '')), 0, 120);
-    $level = strtolower(trim((string) ($request->query['level'] ?? ''));
+    $level = strtolower(trim((string) ($request->query['level'] ?? '')));
     if (!in_array($level, ['', 'beginner', 'intermediate', 'advanced'], true)) {
         $level = '';
     }
