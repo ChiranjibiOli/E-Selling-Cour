@@ -41,23 +41,42 @@ $contracts = [
     'apps/web-platform/src/Student/Login/StudentLoginScreen.php' => [
         'student-login-card-mark',
         'YOUR LEARNING SPACE',
-        'page.css?v=20260728-4',
+        '/assets/css/role-auth.css',
+        '/assets/js/role-auth.js',
+        'width="38" height="38"',
     ],
     'apps/web-platform/src/Instructor/Login/StudioAccessScreen.php' => [
         'studio-form-brand',
         'APPROVED INSTRUCTOR ACCESS',
-        'page.css?v=20260728-4',
+        '/assets/css/role-auth.css',
+        '/assets/js/role-auth.js',
+        'width="40" height="40"',
+        'width="38" height="38"',
     ],
     'apps/web-platform/src/Admin/Login/ControlRoomScreen.php' => [
         'control-terminal-badge',
         'PRIVATE CONTROL ENTRY',
-        'page.css?v=20260728-4',
+        '/assets/css/role-auth.css',
+        '/assets/js/role-auth.js',
+        'width="44" height="44"',
     ],
     'apps/web-platform/src/Shared/Ui/RegistrationPage.php' => [
         'instructor-registration.css',
         'instructor-application-shell',
         'Profile photo changeable anytime',
         'You can change the approved profile photo later at any time.',
+    ],
+    'apps/web-platform/public/assets/css/role-auth.css' => [
+        'body.student-login-body',
+        'body.studio-access-body',
+        'body.control-body',
+        'width:38px!important',
+        'width:44px!important',
+    ],
+    'apps/web-platform/public/assets/js/role-auth.js' => [
+        'courseHubGoogleSignIn',
+        'studio_email',
+        'control_identity',
     ],
 ];
 
@@ -91,11 +110,20 @@ foreach (['25-day', '25 days', 'only once every'] as $removedPhotoCooldownCopy) 
 }
 
 foreach ([
+    'apps/web-platform/src/Student/Login/StudentLoginScreen.php',
+    'apps/web-platform/src/Instructor/Login/StudioAccessScreen.php',
+    'apps/web-platform/src/Admin/Login/ControlRoomScreen.php',
+] as $screenPath) {
+    $screen = (string) file_get_contents($root . '/' . $screenPath);
+    if (str_contains($screen, '/room-assets/')) {
+        $errors[] = 'Auth screen must not depend on unavailable room-assets routes: ' . $screenPath;
+    }
+}
+
+foreach ([
     'apps/web-platform/public/assets/css/student-experience.css',
     'apps/web-platform/public/assets/css/instructor-registration.css',
-    'apps/web-platform/src/Student/Login/Assets/page.css',
-    'apps/web-platform/src/Instructor/Login/Assets/page.css',
-    'apps/web-platform/src/Admin/Login/Assets/page.css',
+    'apps/web-platform/public/assets/css/role-auth.css',
 ] as $stylePath) {
     $fullPath = $root . '/' . $stylePath;
     if (!is_file($fullPath) || filesize($fullPath) < 1000) {
@@ -114,4 +142,4 @@ if ($errors !== []) {
 echo "STUDENT OVERVIEW AND AUTH CHECK: PASS\n";
 echo "Student overview: live courses, progress, cart, notifications and catalogue\n";
 echo "Student purchase navigation: My cart owns checkout and payment steps\n";
-echo "Auth design: Student, Instructor, Instructor application and Admin refreshed\n";
+echo "Auth assets: public CSS and JS with fixed logo dimensions\n";
