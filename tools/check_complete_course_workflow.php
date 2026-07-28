@@ -101,7 +101,7 @@ $contracts = [
         'private/course-content',
         'media/course-thumbnails',
         "['text', 'word', 'video', 'pdf', 'audio', 'image', 'link']",
-        "'/api/v1/courses/' . \$courseId . '/duration'",
+        "'/api/v1/courses/' . $courseId . '/duration'",
         'SecureUpload::store',
         'SecureUpload::delete',
     ],
@@ -191,9 +191,9 @@ $contracts = [
         '/change-log',
     ],
     'apps/web-platform/src/Public/CourseDetails/Page.php' => [
-        'Open purchased course',
+        'Continue learning',
         'Buy once',
-        'Access active',
+        'Already purchased',
     ],
     'apps/web-platform/src/Instructor/Notifications/Page.php' => [
         'INSTRUCTOR INBOX',
