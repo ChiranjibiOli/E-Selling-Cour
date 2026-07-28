@@ -41,7 +41,6 @@ return [
     'Student/Progress' => ['title'=>'Progress','path'=>'/student/progress','methods'=>'GET|POST','role'=>'student','service'=>'learning-service','status'=>'implemented'],
     'Student/Notifications' => ['title'=>'Notifications','path'=>'/student/notifications','methods'=>'GET|POST','role'=>'student','service'=>'notification-service','status'=>'implemented'],
     'Student/Profile' => ['title'=>'Profile','path'=>'/student/profile','methods'=>'GET|POST','role'=>'student','service'=>'identity-service','status'=>'implemented'],
-    'Student/Unsubscribe' => ['title'=>'Unsubscribe request','path'=>'/student/unsubscribe','methods'=>'GET|POST','role'=>'student','service'=>'enrollment-service','status'=>'implemented'],
     'Student/Reviews' => ['title'=>'Reviews','path'=>'/student/reviews','methods'=>'GET|POST','role'=>'student','service'=>'review-service','status'=>'implemented'],
 
     'Instructor/Login' => ['title'=>'Instructor studio access','path'=>'/teach/studio-access','methods'=>'GET|POST','role'=>'guest','service'=>'identity-service','status'=>'implemented','middleware_file'=>'StudioGuestCheckpoint.php','controller_file'=>'OpenInstructorStudio.php','room_files'=>['StudioAccessRoute.php','StudioGuestCheckpoint.php','StudioAccessRequest.php','InstructorStudioGateway.php','OpenInstructorStudio.php','StudioLoginAction.php','StudioAccessScreen.php','ROOM.md','Components/README.md','Assets/page.css','Assets/page.js','Tests/README.md']],
@@ -73,7 +72,7 @@ return [
     'Admin/Students' => ['title'=>'Students','path'=>'/admin/students','methods'=>'GET|POST','role'=>'admin','service'=>'identity-service','status'=>'implemented'],
     'Admin/Instructors' => ['title'=>'Instructors','path'=>'/admin/instructors','methods'=>'GET|POST','role'=>'admin','service'=>'identity-service','status'=>'implemented'],
     'Admin/Users' => ['title'=>'Users','path'=>'/admin/users','methods'=>'GET|POST','role'=>'admin','service'=>'identity-service','status'=>'implemented'],
-    'Admin/Enrollments' => ['title'=>'Enrollments','path'=>'/admin/enrollments','methods'=>'GET|POST','role'=>'admin','service'=>'enrollment-service','status'=>'implemented'],
+    'Admin/Enrollments' => ['title'=>'Enrollments','path'=>'/admin/enrollments','methods'=>'GET','role'=>'admin','service'=>'enrollment-service','status'=>'implemented'],
     'Admin/Orders' => ['title'=>'Orders','path'=>'/admin/orders','methods'=>'GET|POST','role'=>'admin','service'=>'commerce-service','status'=>'implemented'],
     'Admin/Payments' => ['title'=>'Payments','path'=>'/admin/payments','methods'=>'GET|POST','role'=>'admin','service'=>'payment-service','status'=>'implemented'],
     'Admin/Refunds' => ['title'=>'Refunds','path'=>'/admin/refunds','methods'=>'GET|POST','role'=>'admin','service'=>'reporting-service','status'=>'implemented'],
