@@ -149,7 +149,7 @@ foreach (['retry_request_id', "request_status'] !== 'rejected'", "earning_status
         $errors[] = 'Retry-safe Instructor withdrawal API is missing: ' . $needle;
     }
 }
-foreach (["$action === 'retry'", 'retry_request_id'] as $needle) {
+foreach (["action === 'retry'", 'retry_request_id'] as $needle) {
     if (!str_contains($content['withdrawal_controller'], $needle)) {
         $errors[] = 'Instructor withdrawal retry controller is missing: ' . $needle;
     }
