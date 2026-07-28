@@ -56,7 +56,7 @@ final class StudentCoursesPage
                 . '<aside class="summary-card"><span>COURSE PRICE</span><div class="summary-total"><span>Payable</span><div>' . $priceLine . '</div></div>'
                 . ($outcomes !== '' ? '<h4>What you will learn</h4><ul class="clean-list">' . $outcomes . '</ul>' : '')
                 . ($requirements !== '' ? '<h4>Requirements</h4><ul class="clean-list">' . $requirements . '</ul>' : '')
-                . '<div class="payment-note"><span>i</span><p>Paid courses use manual payment proof and Admin verification. Automatic gateway checkout is not available.</p></div>'
+                . '<div class="payment-note"><span>i</span><p>Use an enabled eSewa or Khalti gateway for automatic verification, or submit manual proof when a gateway is unavailable.</p></div>'
                 . '</aside></div></section>';
         }
 
@@ -98,7 +98,7 @@ final class StudentCoursesPage
         $content = $alert
             . '<section class="metric-grid"><article class="metric-card blue"><div class="metric-top"><span>Available courses</span><i></i></div><strong>' . count($courses) . '</strong><small>Owned courses are hidden</small></article>'
             . '<article class="metric-card teal"><div class="metric-top"><span>Categories</span><i></i></div><strong>' . count($categories) . '</strong><small>Active catalogue groups</small></article>'
-            . '<article class="metric-card orange"><div class="metric-top"><span>Payment</span><i></i></div><strong>Manual</strong><small>Proof checked by Admin</small></article></section>'
+            . '<article class="metric-card orange"><div class="metric-top"><span>Payment</span><i></i></div><strong>Gateway</strong><small>Automatic verification when enabled</small></article></section>'
             . $selectedPanel
             . '<section class="data-card"><div class="data-card-head"><div><span>STUDENT CATALOGUE</span><h3>Courses available to buy</h3></div><a class="portal-button secondary" href="/student/cart">My cart</a></div>'
             . $filterForm . '<div class="learning-course-grid">' . $cards . '</div></section>';
