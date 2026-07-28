@@ -27,17 +27,17 @@ final class StudentCheckoutPage
         }
 
         $form = '<form method="post" action="/student/checkout">' . Csrf::field()
-            . '<div class="checkout-layout"><section class="data-card"><div class="stepper"><span class="done"><i>1</i>Cart</span><b></b><span class="active"><i>2</i>Checkout</span><b></b><span><i>3</i>Manual proof</span></div>'
+            . '<div class="checkout-layout"><section class="data-card"><div class="stepper"><span class="done"><i>1</i>Cart</span><b></b><span class="active"><i>2</i>Checkout</span><b></b><span><i>3</i>Payment</span></div>'
             . '<div class="data-card-head"><div><span>ACCOUNT DETAILS</span><h3>Confirm the order owner</h3></div><span class="secure-pill">Authenticated Student</span></div>'
             . '<div class="panel-form"><div class="field-grid"><label>Full name<input value="' . $e($user['name'] ?? '') . '" disabled></label><label>Email address<input value="' . $e($user['email'] ?? '') . '" disabled></label></div>'
             . '<label>Coupon code<input name="coupon_code" maxlength="50" value="' . $e($values['coupon_code'] ?? '') . '" placeholder="Optional code"></label>'
             . '<div class="payment-note"><span>i</span><p>Course availability, ownership, coupon eligibility and every price are checked again by the server. A course already in My Courses cannot be ordered again.</p></div>'
             . '<label class="check-line"><input type="checkbox" required> I confirm that this order is for the listed courses and lifetime access.</label>'
             . '<div class="form-actions"><a class="portal-button secondary" href="/student/cart">Back to cart</a>'
-            . (count($items) > 0 ? '<button class="portal-button" type="submit">Create order for manual payment →</button>' : '') . '</div></div></section>'
+            . (count($items) > 0 ? '<button class="portal-button" type="submit">Create secure order →</button>' : '') . '</div></div></section>'
             . '<aside class="summary-card"><span>YOUR ORDER</span>' . $orderItems . '<div class="summary-row"><span>Subtotal</span><strong>NPR ' . number_format($subtotal, 2) . '</strong></div>'
             . '<div class="summary-row"><span>Coupon discount</span><strong>Validated on submit</strong></div><div class="summary-total"><span>Maximum payable</span><strong>NPR ' . number_format($subtotal, 2) . '</strong></div>'
-            . '<p class="muted-copy">After the order is created, pay manually using the displayed wallet or bank details, then upload the real receipt for Admin verification.</p></aside></div></form>';
+            . '<p class="muted-copy">After creating the order, choose an enabled eSewa or Khalti gateway for automatic verification, or use manual payment proof as a fallback.</p></aside></div></form>';
 
         return PortalPage::render('student', 'Secure checkout', $alert . $form);
     }
