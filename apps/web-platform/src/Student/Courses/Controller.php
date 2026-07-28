@@ -29,7 +29,7 @@ return static function (Request $request) {
     $messages = [];
 
     if ((string) ($request->query['access'] ?? '') === 'required') {
-        $messages[] = 'This published course is not active in your learning library yet. Add it to your cart and complete manual payment verification before opening the course player.';
+        $messages[] = 'This course is not active in your learning library. Complete checkout and payment verification before opening the course player.';
     }
 
     try {
