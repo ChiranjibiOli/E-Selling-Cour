@@ -100,7 +100,7 @@ services:
   learning-service:
     <<: *domain-service
     working_dir: /repo/services/learning-service
-    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/router.php"]
+    command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/index.php"]
 
   commerce-service:
     <<: *domain-service
@@ -113,8 +113,10 @@ services:
     command: ["php", "-S", "0.0.0.0:8080", "-t", "public", "public/router.php"]
     environment:
       <<: *database-environment
+      APP_ENV: "${APP_ENV:-local}"
       APP_URL: "${APP_URL:-http://localhost:9001}"
       ESEWA_ENV: "${ESEWA_ENV:-sandbox}"
+      ESEWA_LOCAL_DEMO: "${ESEWA_LOCAL_DEMO:-true}"
       ESEWA_PRODUCT_CODE: "${ESEWA_PRODUCT_CODE:-EPAYTEST}"
       ESEWA_SECRET_KEY: "${ESEWA_SECRET_KEY:-}"
       ESEWA_PAYMENT_URL: "${ESEWA_PAYMENT_URL:-https://rc-epay.esewa.com.np/api/epay/main/v2/form}"
