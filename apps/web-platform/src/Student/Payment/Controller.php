@@ -22,6 +22,38 @@ return static function (Request $request) {
     $storedProof = null;
     $options = [];
 
+    $localCallback = static function (Request $request, int $orderId): ?array {
+        $hostHeader = strtolower(trim((string) ($request->server['HTTP_HOST'] ?? '')));
+        if ($hostHeader === '' || strlen($hostHeader) > 255 || preg_match('/^[a-z0-9.:-]+$/', $hostHeader) !== 1) {
+            return null;
+        }
+
+        $parts = parse_url('http://' . $hostHeader);
+        if (!is_array($parts)) {
+            return null;
+        }
+        $host = strtolower((string) ($parts['host'] ?? ''));
+        $port = isset($parts['port']) ? (int) $parts['port'] : null;
+        if (!in_array($host, ['localhost', '127.0.0.1', '::1'], true)
+            || ($port !== null && ($port < 1 || $port > 65535))
+        ) {
+            return null;
+        }
+
+        $https = strtolower((string) ($request->server['HTTPS'] ?? ''));
+        $scheme = $https !== '' && $https !== 'off' && $https !== '0' ? 'https' : 'http';
+        $authority = str_contains($host, ':') ? '[' . $host . ']' : $host;
+        if ($port !== null) {
+            $authority .= ':' . $port;
+        }
+        $callback = $scheme . '://' . $authority . '/student/payment';
+
+        return [
+            'success_url' => $callback,
+            'failure_url' => $callback . '?gateway=esewa&result=failure&order=' . $orderId,
+        ];
+    };
+
     $gatewayForm = static function (string $action, array $fields): Response {
         $parts = parse_url($action);
         $host = is_array($parts) ? strtolower((string) ($parts['host'] ?? '')) : '';
@@ -104,11 +136,17 @@ return static function (Request $request) {
             if ($orderId < 1) {
                 throw new DomainException('Choose a valid unpaid order.');
             }
-            $paymentMethod = strtolower(trim((string) ($request->body['payment_method'] ?? 'manual')));
+            $paymentMethod = strtolower(trim((string) ($request->body['payment_method'] ?? 'manual'));
             if ($paymentMethod === 'esewa') {
                 $result = $client->post('/api/v1/payments/esewa/initiate', ['order_id' => $orderId]);
                 $gateway = is_array($result['data'] ?? null) ? $result['data'] : [];
-                return $gatewayForm((string) ($gateway['action'] ?? ''), is_array($gateway['fields'] ?? null) ? $gateway['fields'] : []);
+                $fields = is_array($gateway['fields'] ?? null) ? $gateway['fields'] : [];
+                $localUrls = $localCallback($request, $orderId);
+                if ($localUrls !== null) {
+                    $fields['success_url'] = $localUrls['success_url'];
+                    $fields['failure_url'] = $localUrls['failure_url'];
+                }
+                return $gatewayForm((string) ($gateway['action'] ?? ''), $fields);
             }
             if ($paymentMethod === 'khalti') {
                 $result = $client->post('/api/v1/payments/khalti/initiate', ['order_id' => $orderId]);
