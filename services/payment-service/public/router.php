@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-
 use CourseHub\Services\Shared\Database;
 use CourseHub\Services\Shared\ServiceAuth;
 use CourseHub\Services\Shared\ServiceAuthenticationException;
@@ -37,6 +36,14 @@ if ($method === 'POST' && preg_match('#^/api/v1/payments/(\d+)/approve$#', $path
         }
     } catch (Throwable) {
         // The verification endpoint will return its own validation error.
+    }
+} elseif ($method === 'POST' && $path === '/api/v1/payments/esewa/demo-complete') {
+    try {
+        $input = json_decode($rawInput !== '' ? $rawInput : '{}', true, 32, JSON_THROW_ON_ERROR);
+        $payoutOrderId = is_array($input) ? (int) ($input['order_id'] ?? 0) : 0;
+        $shouldDispatchPayout = $payoutOrderId > 0;
+    } catch (Throwable) {
+        // The local simulator endpoint will return its own validation error.
     }
 } elseif ($method === 'POST' && $path === '/api/v1/payments/khalti/verify') {
     try {
@@ -126,6 +133,22 @@ if (in_array($path, ['/api/v1/payments/esewa/initiate', '/api/v1/payments/khalti
         echo json_encode(['error' => 'Payment gateway availability could not be verified.'], JSON_THROW_ON_ERROR);
         exit;
     }
+}
+
+$localDemoFlag = trim((string) getenv('ESEWA_LOCAL_DEMO'));
+$localDemoEnabled = $localDemoFlag === ''
+    ? true
+    : (filter_var($localDemoFlag, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? true);
+$useLocalEsewaDemo = strtolower(trim((string) (getenv('APP_ENV') ?: 'local'))) !== 'production'
+    && strtolower(trim((string) (getenv('ESEWA_ENV') ?: 'sandbox'))) !== 'production'
+    && $localDemoEnabled;
+
+if ($useLocalEsewaDemo
+    && $method === 'POST'
+    && in_array($path, ['/api/v1/payments/esewa/initiate', '/api/v1/payments/esewa/demo-complete'], true)
+) {
+    require __DIR__ . '/esewa-local-demo.php';
+    exit;
 }
 
 if ($path === '/api/v1/payments/manual' && $method === 'POST') {
