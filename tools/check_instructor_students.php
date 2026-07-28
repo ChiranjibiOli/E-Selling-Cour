@@ -9,7 +9,7 @@ $checks = [
         'instructor-students.php',
     ],
     'services/reporting-service/public/instructor-students.php' => [
-        "requireUser($database, $authorization, 'instructor')",
+        'requireUser($database, $authorization, \'instructor\')',
         'c.instructor_id=:instructor_id',
         "WHERE e.status='active'",
         'lesson_progress',
