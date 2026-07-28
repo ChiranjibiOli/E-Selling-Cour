@@ -13,8 +13,14 @@ final class PortalPage
     {
         $e = static fn (mixed $value): string => htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         $navigation = self::navigation($role);
-        $currentPath = rtrim(parse_url((string) ($_SERVER['REQUEST_URI'] ?? '/'), PHP_URL_PATH) ?: '/', '/') ?: '/';
-        $activeHref = self::activeNavigationHref($navigation, $currentPath);
+        $requestUri = (string) ($_SERVER['REQUEST_URI'] ?? '/');
+        $currentPath = rtrim(parse_url($requestUri, PHP_URL_PATH) ?: '/', '/') ?: '/';
+        $currentQuery = [];
+        $queryString = parse_url($requestUri, PHP_URL_QUERY);
+        if (is_string($queryString) && $queryString !== '') {
+            parse_str($queryString, $currentQuery);
+        }
+        $activeHref = self::activeNavigationHref($navigation, $currentPath, $currentQuery);
         $nav = '';
 
         foreach ($navigation as $group => $links) {
@@ -113,13 +119,34 @@ final class PortalPage
     }
 
     /**
-     * Choose one active sidebar destination. Exact matches win; nested pages use
-     * the longest matching parent so broad links cannot steal the highlight.
+     * Choose one active sidebar destination. Instructor course-filter panels
+     * redirect to /instructor/courses?status=..., so their query value must win
+     * before ordinary exact and longest-prefix path matching.
      *
      * @param array<string, array<string, string>> $navigation
+     * @param array<string, mixed> $currentQuery
      */
-    private static function activeNavigationHref(array $navigation, string $currentPath): ?string
+    private static function activeNavigationHref(array $navigation, string $currentPath, array $currentQuery = []): ?string
     {
+        if ($currentPath === '/instructor/courses') {
+            $rawStatus = $currentQuery['status'] ?? '';
+            $status = is_string($rawStatus) ? strtolower(trim($rawStatus)) : '';
+            $filteredCourseHref = match ($status) {
+                'draft' => '/instructor/courses/drafts',
+                'pending' => '/instructor/courses/pending',
+                'published' => '/instructor/courses/published',
+                default => null,
+            };
+
+            if ($filteredCourseHref !== null) {
+                foreach ($navigation as $links) {
+                    if (array_key_exists($filteredCourseHref, $links)) {
+                        return $filteredCourseHref;
+                    }
+                }
+            }
+        }
+
         $prefixMatches = [];
 
         foreach ($navigation as $links) {
