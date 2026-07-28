@@ -118,7 +118,7 @@ services:
       ESEWA_PRODUCT_CODE: "${ESEWA_PRODUCT_CODE:-EPAYTEST}"
       ESEWA_SECRET_KEY: "${ESEWA_SECRET_KEY:-}"
       ESEWA_PAYMENT_URL: "${ESEWA_PAYMENT_URL:-https://rc-epay.esewa.com.np/api/epay/main/v2/form}"
-      ESEWA_STATUS_URL: "${ESEWA_STATUS_URL:-https://rc.esewa.com.np/api/epay/transaction/status/}"
+      ESEWA_STATUS_URL: "${ESEWA_STATUS_URL:-https://uat.esewa.com.np/api/epay/transaction/status/}"
       KHALTI_ENV: "${KHALTI_ENV:-sandbox}"
       KHALTI_SECRET_KEY: "${KHALTI_SECRET_KEY:-}"
       KHALTI_API_URL: "${KHALTI_API_URL:-https://dev.khalti.com/api/v2}"
