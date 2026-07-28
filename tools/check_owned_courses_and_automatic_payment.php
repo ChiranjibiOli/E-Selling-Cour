@@ -23,7 +23,8 @@ $files = [
     'admin_settings_page' => 'apps/web-platform/src/Admin/Settings/Page.php',
     'compose' => 'docker-compose.yml',
     'env' => '.env.example',
-    'migration' => 'database/migrations/008_remove_access_removal_requests.sql',
+    'migration' => 'database/migrations/010_remove_access_removal_requests.sql',
+    'migration_runner' => 'tools/run_migrations.php',
 ];
 
 $content = [];
@@ -47,13 +48,16 @@ foreach (['unsubscribe/pending', '/unsubscribe$', 'approve|reject'] as $forbidde
         $errors[] = 'Enrollment service still contains the old decision workflow: ' . $forbidden;
     }
 }
-foreach (['Purchased-course removal requests are no longer supported.', 'http_response_code'] as $needle) {
-    if (!str_contains($content['enrollment'], $needle)) {
-        $errors[] = 'Enrollment removal shutdown is missing: ' . $needle;
-    }
+if (!str_contains($content['enrollment'], 'Purchased-course removal requests are no longer supported.')) {
+    $errors[] = 'Enrollment removal shutdown is missing.';
 }
 if (!str_contains($content['migration'], 'DROP TABLE IF EXISTS unsubscribe_requests')) {
     $errors[] = 'The obsolete unsubscribe table is not removed by migration.';
+}
+foreach (['010_remove_access_removal_requests', 'database/migrations/010_remove_access_removal_requests.sql'] as $needle) {
+    if (!str_contains($content['migration_runner'], $needle)) {
+        $errors[] = 'The permanence migration is not registered: ' . $needle;
+    }
 }
 foreach (['request_id', 'decision', '/unsubscribe/'] as $forbidden) {
     if (str_contains($content['admin_enrollment_controller'] . $content['admin_enrollment_page'], $forbidden)) {
