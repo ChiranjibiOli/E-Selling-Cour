@@ -42,7 +42,7 @@ final class AutomaticPayout
                 . 'FROM instructor_earnings ie '
                 . 'LEFT JOIN instructor_bank_details d ON d.instructor_id=ie.instructor_id '
                 . 'WHERE ie.payment_id=:payment_id AND ie.earning_status=\'available\' '
-                . 'AND NOT EXISTS (SELECT 1 FROM withdrawal_request_earnings wre WHERE wre.earning_id=ie.id) '
+                . "AND NOT EXISTS (SELECT 1 FROM withdrawal_request_earnings active_map INNER JOIN withdrawal_requests active_request ON active_request.id=active_map.withdrawal_request_id WHERE active_map.earning_id=ie.id AND active_request.request_status IN ('pending','approved','paid')) "
                 . 'ORDER BY ie.instructor_id,ie.id FOR UPDATE'
             );
             $statement->execute(['payment_id' => $paymentId]);
@@ -98,11 +98,11 @@ final class AutomaticPayout
                 ]);
                 $requestId = (int) $database->lastInsertId();
                 foreach ((array) $group['earning_ids'] as $earningId) {
-                    $map->execute(['request_id' => $requestId, 'earning_id' => (int) $earningId]);
                     $reserve->execute(['id' => (int) $earningId]);
                     if ($reserve->rowCount() !== 1) {
                         throw new RuntimeException('An Instructor earning changed while the payout was being queued.');
                     }
+                    $map->execute(['request_id' => $requestId, 'earning_id' => (int) $earningId]);
                 }
                 $queued[] = [
                     'withdrawal_request_id' => $requestId,
