@@ -122,7 +122,7 @@ $contracts = [
         'name="action" value="save_profile"',
         'type="tel"',
         'type="url"',
-        '25-day',
+        'at any time',
     ],
     'apps/web-platform/src/Instructor/Profile/Controller.php' => [
         'FormInput::text',
@@ -137,6 +137,7 @@ $contracts = [
         "['save_profile', 'remove_photo']",
         'profile_image=NULL',
         'profile_image_changed_at=NULL',
+        'photo_change_allowed',
         'FOR UPDATE',
         'old_profile_image',
         'normal HTTPS address',
@@ -167,7 +168,7 @@ $contracts = [
         'data-course-authoring',
         'updateCoursePreview',
         'URL.createObjectURL',
-        "input[type=\"number\"]",
+        'input[type="number"]',
         "fetch('/session-status'",
         'window.setInterval(checkSession, 12000)',
     ],
@@ -230,6 +231,18 @@ $instructorProfile = (string) file_get_contents($root . '/apps/web-platform/src/
 if (str_contains($accountProfile, 'target="_blank"') || str_contains($instructorProfile, 'target="_blank"')) {
     $errors[] = 'Profile photo viewing must stay in the same page dialog.';
 }
+foreach (['25-day', 'cooldown period', 'Photo controls unlock'] as $removedPhotoRestriction) {
+    if (str_contains($instructorProfile, $removedPhotoRestriction)) {
+        $errors[] = 'Instructor profile photos must remain available without a cooldown: ' . $removedPhotoRestriction;
+    }
+}
+
+$instructorProfileService = (string) file_get_contents($root . '/services/identity-service/public/instructor-profile.php');
+foreach (['INTERVAL 25 DAY', '$photoLocked', 'changed again on'] as $removedServiceRestriction) {
+    if (str_contains($instructorProfileService, $removedServiceRestriction)) {
+        $errors[] = 'Instructor profile service restored a removed photo cooldown: ' . $removedServiceRestriction;
+    }
+}
 
 if ($errors !== []) {
     echo "PANEL COVERAGE CHECK: FAIL\n";
@@ -244,6 +257,6 @@ echo "Panel routes: 55\n";
 echo "Authenticated panels: 50\n";
 echo "Instructor chrome: simplified\n";
 echo "Course authoring: live public-card preview enabled\n";
-echo "Profile photos: in-page view, zoom, change and removal enabled\n";
+echo "Profile photos: in-page view, zoom, unrestricted change and removal enabled\n";
 echo "Forms: central request hardening and typed validation enabled\n";
 echo "Revoked sessions: automatic portal logout enabled\n";
