@@ -27,11 +27,25 @@ INNER JOIN order_items oi
     ON oi.order_id = o.id
 WHERE o.order_status = 'paid'
   AND p.payment_status = 'paid'
-ON DUPLICATE KEY UPDATE
-    order_id = VALUES(order_id),
-    payment_id = VALUES(payment_id),
-    access_type = 'lifetime',
-    status = IF(status = 'refunded', 'refunded', 'active'),
-    granted_by = COALESCE(VALUES(granted_by), granted_by),
-    revoked_by_admin = IF(status = 'refunded', revoked_by_admin, NULL),
-    revoked_at = IF(status = 'refunded', revoked_at, NULL);
+  AND NOT EXISTS (
+      SELECT 1
+      FROM enrollments e
+      WHERE e.student_id = o.student_id
+        AND e.course_id = oi.course_id
+  );
+
+UPDATE enrollments e
+INNER JOIN payments p
+    ON p.id = e.payment_id
+    AND p.student_id = e.student_id
+INNER JOIN orders o
+    ON o.id = e.order_id
+    AND o.student_id = e.student_id
+SET
+    e.status = 'active',
+    e.access_type = 'lifetime',
+    e.revoked_by_admin = NULL,
+    e.revoked_at = NULL
+WHERE e.status = 'revoked'
+  AND p.payment_status = 'paid'
+  AND o.order_status = 'paid';
