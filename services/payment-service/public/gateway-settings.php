@@ -40,6 +40,15 @@ $environment = static function (string $name, string $fallback = ''): string {
     return $value !== '' ? $value : $fallback;
 };
 
+$booleanEnvironment = static function (string $name, bool $fallback): bool {
+    $raw = trim((string) getenv($name));
+    if ($raw === '') {
+        return $fallback;
+    }
+    $value = filter_var($raw, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE);
+    return is_bool($value) ? $value : $fallback;
+};
+
 $isPublicUrl = static function (string $url): bool {
     $parts = parse_url(trim($url));
     if (!is_array($parts)) {
@@ -57,10 +66,17 @@ $settingValue = static function (PDO $database, string $key): string {
     return $value === false ? '' : trim((string) $value);
 };
 
-$gatewayStates = static function (PDO $database) use ($environment, $isPublicUrl, $settingValue): array {
+$gatewayStates = static function (PDO $database) use ($environment, $booleanEnvironment, $isPublicUrl, $settingValue): array {
     $appUrl = $environment('APP_URL');
+    $appEnvironment = strtolower($environment('APP_ENV', 'local'));
+    $configuredEsewaEnvironment = strtolower($environment('ESEWA_ENV', 'sandbox'));
+    $useLocalEsewaDemo = $appEnvironment !== 'production'
+        && $configuredEsewaEnvironment !== 'production'
+        && $booleanEnvironment('ESEWA_LOCAL_DEMO', true);
 
-    $esewaMode = strtolower($environment('ESEWA_ENV', 'sandbox')) === 'production' ? 'production' : 'sandbox';
+    $esewaMode = $useLocalEsewaDemo
+        ? 'local-demo'
+        : ($configuredEsewaEnvironment === 'production' ? 'production' : 'sandbox');
     $esewaPaymentUrl = $environment(
         'ESEWA_PAYMENT_URL',
         $esewaMode === 'production'
@@ -71,7 +87,7 @@ $gatewayStates = static function (PDO $database) use ($environment, $isPublicUrl
     $esewaConfigured = $isPublicUrl($appUrl)
         && $environment('ESEWA_PRODUCT_CODE') !== ''
         && $environment('ESEWA_SECRET_KEY') !== ''
-        && in_array($esewaHost, ['rc-epay.esewa.com.np', 'epay.esewa.com.np'], true);
+        && ($useLocalEsewaDemo || in_array($esewaHost, ['rc-epay.esewa.com.np', 'epay.esewa.com.np'], true));
     $esewaEnabled = $settingValue($database, 'esewa_enabled') === '1';
 
     $khaltiMode = strtolower($environment('KHALTI_ENV', 'sandbox')) === 'production' ? 'production' : 'sandbox';
