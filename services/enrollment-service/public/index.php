@@ -23,6 +23,22 @@ $respond = static function (array $payload, int $status = 200): never {
     exit;
 };
 
+$repairPaidEnrollments = static function (PDO $database, int $studentId): void {
+    $statement = $database->prepare(
+        'INSERT INTO enrollments (student_id,course_id,order_id,payment_id,access_type,status,granted_by,granted_at) '
+        . 'SELECT o.student_id,oi.course_id,o.id,p.id,\'lifetime\',\'active\',p.verified_by,COALESCE(p.verified_at,NOW()) '
+        . 'FROM orders o INNER JOIN payments p ON p.order_id=o.id AND p.student_id=o.student_id '
+        . 'INNER JOIN order_items oi ON oi.order_id=o.id '
+        . 'WHERE o.student_id=:student_id AND o.order_status=\'paid\' AND p.payment_status=\'paid\' '
+        . 'ON DUPLICATE KEY UPDATE order_id=VALUES(order_id),payment_id=VALUES(payment_id),access_type=\'lifetime\','
+        . 'status=IF(status=\'refunded\',\'refunded\',\'active\'),'
+        . 'granted_by=COALESCE(VALUES(granted_by),granted_by),'
+        . 'revoked_by_admin=IF(status=\'refunded\',revoked_by_admin,NULL),'
+        . 'revoked_at=IF(status=\'refunded\',revoked_at,NULL)'
+    );
+    $statement->execute(['student_id' => $studentId]);
+};
+
 try {
     $database = Database::connect();
 
@@ -70,12 +86,13 @@ try {
 
     if ($path === '/api/v1/enrollments/mine' && $method === 'GET') {
         $student = ServiceAuth::requireUser($database, $authorization, 'student');
+        $repairPaidEnrollments($database, (int) $student['id']);
         $statement = $database->prepare(
             'SELECT e.id, e.course_id, e.access_type, e.status, e.granted_at, '
             . 'c.title, c.short_description, c.thumbnail, c.level, c.language, c.duration, u.full_name AS instructor_name, '
             . '(SELECT COUNT(*) FROM course_lessons cl INNER JOIN course_sections cs ON cs.id = cl.section_id WHERE cs.course_id = c.id) AS lesson_count '
             . 'FROM enrollments e INNER JOIN courses c ON c.id = e.course_id INNER JOIN users u ON u.id = c.instructor_id '
-            . 'WHERE e.student_id = :student_id ORDER BY e.granted_at DESC'
+            . 'WHERE e.student_id = :student_id AND e.status = \'active\' ORDER BY e.granted_at DESC'
         );
         $statement->execute(['student_id' => $student['id']]);
         $rows = $statement->fetchAll();
@@ -91,6 +108,7 @@ try {
 
     if (preg_match('#^/api/v1/enrollments/(\d+)/access$#', $path, $matches) === 1 && $method === 'GET') {
         $student = ServiceAuth::requireUser($database, $authorization, 'student');
+        $repairPaidEnrollments($database, (int) $student['id']);
         $statement = $database->prepare('SELECT e.id,e.status,e.access_type,e.granted_at FROM enrollments e WHERE e.student_id=:student_id AND e.course_id=:course_id AND e.status=\'active\' LIMIT 1');
         $statement->execute(['student_id' => $student['id'], 'course_id' => (int) $matches[1]]);
         $enrollment = $statement->fetch();
