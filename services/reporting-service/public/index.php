@@ -98,11 +98,20 @@ try {
 
     if ($path === '/api/v1/reports/withdrawals/mine' && $method === 'GET') {
         $instructor = ServiceAuth::requireUser($database, $authorization, 'instructor');
-        $balance = $database->prepare("SELECT COALESCE(SUM(instructor_amount),0) FROM instructor_earnings WHERE instructor_id=:id AND earning_status='available'");
-        $balance->execute(['id' => $instructor['id']]);
-        $requests = $database->prepare('SELECT * FROM withdrawal_requests WHERE instructor_id=:id ORDER BY requested_at DESC');
+        $balances = $database->prepare(
+            "SELECT COALESCE(SUM(CASE WHEN earning_status='available' THEN instructor_amount ELSE 0 END),0) AS available_balance,"
+            . "COALESCE(SUM(CASE WHEN earning_status='withdraw_requested' THEN instructor_amount ELSE 0 END),0) AS reserved_balance,"
+            . "COALESCE(SUM(CASE WHEN earning_status='paid' THEN instructor_amount ELSE 0 END),0) AS paid_total "
+            . 'FROM instructor_earnings WHERE instructor_id=:id'
+        );
+        $balances->execute(['id' => $instructor['id']]);
+        $summary = $balances->fetch() ?: ['available_balance' => '0', 'reserved_balance' => '0', 'paid_total' => '0'];
+        $requests = $database->prepare(
+            "SELECT wr.*,CASE WHEN wr.instructor_note LIKE 'Automatic payout generated%' THEN 'automatic' ELSE 'instructor' END AS request_source "
+            . 'FROM withdrawal_requests wr WHERE wr.instructor_id=:id ORDER BY wr.requested_at DESC'
+        );
         $requests->execute(['id' => $instructor['id']]);
-        $respond(['data' => ['available_balance' => (string) $balance->fetchColumn(), 'requests' => $requests->fetchAll()]]);
+        $respond(['data' => $summary + ['requests' => $requests->fetchAll()]]);
     }
 
     if ($path === '/api/v1/reports/withdrawals' && $method === 'POST') {
@@ -110,8 +119,24 @@ try {
         $input = $jsonInput();
         $paymentMethod = strtolower(trim((string) ($input['payment_method'] ?? 'bank')));
         $note = trim((string) ($input['note'] ?? ''));
-        if (!in_array($paymentMethod, ['bank','esewa','khalti'], true) || mb_strlen($note) > 1000) { throw new InvalidArgumentException('Choose a valid payout method and note.'); }
+        $retryValue = $input['retry_request_id'] ?? 0;
+        $retryRequestId = filter_var($retryValue, FILTER_VALIDATE_INT);
+        $retryRequestId = $retryRequestId !== false && $retryRequestId > 0 ? (int) $retryRequestId : 0;
+        if (mb_strlen($note) > 1000) { throw new InvalidArgumentException('The payout note is too long.'); }
+
         $database->beginTransaction();
+        $previousRequest = null;
+        if ($retryRequestId > 0) {
+            $previous = $database->prepare('SELECT * FROM withdrawal_requests WHERE id=:id AND instructor_id=:instructor_id FOR UPDATE');
+            $previous->execute(['id' => $retryRequestId, 'instructor_id' => $instructor['id']]);
+            $previousRequest = $previous->fetch();
+            if (!is_array($previousRequest) || (string) $previousRequest['request_status'] !== 'rejected') {
+                throw new InvalidArgumentException('Only your rejected withdrawal can be requested again.');
+            }
+            $paymentMethod = (string) $previousRequest['payment_method'];
+        }
+
+        if (!in_array($paymentMethod, ['bank','esewa','khalti'], true)) { throw new InvalidArgumentException('Choose a valid payout method.'); }
         $details = $database->prepare('SELECT * FROM instructor_bank_details WHERE instructor_id=:id FOR UPDATE');
         $details->execute(['id' => $instructor['id']]);
         $destination = $details->fetch();
@@ -119,29 +144,68 @@ try {
         if ($paymentMethod === 'bank' && trim((string) ($destination['account_number'] ?? '')) === '') { throw new InvalidArgumentException('A bank account is required for bank withdrawal.'); }
         if ($paymentMethod === 'esewa' && trim((string) ($destination['esewa_number'] ?? '')) === '') { throw new InvalidArgumentException('An eSewa number is required.'); }
         if ($paymentMethod === 'khalti' && trim((string) ($destination['khalti_number'] ?? '')) === '') { throw new InvalidArgumentException('A Khalti number is required.'); }
-        $earnings = $database->prepare("SELECT id,instructor_amount FROM instructor_earnings WHERE instructor_id=:id AND earning_status='available' ORDER BY created_at,id FOR UPDATE");
-        $earnings->execute(['id' => $instructor['id']]);
+
+        if ($retryRequestId > 0) {
+            $earnings = $database->prepare(
+                "SELECT DISTINCT ie.id,ie.instructor_amount FROM instructor_earnings ie "
+                . 'INNER JOIN withdrawal_request_earnings old_map ON old_map.earning_id=ie.id '
+                . "WHERE old_map.withdrawal_request_id=:retry_id AND ie.instructor_id=:instructor_id AND ie.earning_status='available' "
+                . "AND NOT EXISTS (SELECT 1 FROM withdrawal_request_earnings active_map INNER JOIN withdrawal_requests active_request ON active_request.id=active_map.withdrawal_request_id WHERE active_map.earning_id=ie.id AND active_request.request_status IN ('pending','approved','paid')) "
+                . 'ORDER BY ie.created_at,ie.id FOR UPDATE'
+            );
+            $earnings->execute(['retry_id' => $retryRequestId, 'instructor_id' => $instructor['id']]);
+        } else {
+            $earnings = $database->prepare(
+                "SELECT ie.id,ie.instructor_amount FROM instructor_earnings ie WHERE ie.instructor_id=:instructor_id AND ie.earning_status='available' "
+                . "AND NOT EXISTS (SELECT 1 FROM withdrawal_request_earnings active_map INNER JOIN withdrawal_requests active_request ON active_request.id=active_map.withdrawal_request_id WHERE active_map.earning_id=ie.id AND active_request.request_status IN ('pending','approved','paid')) "
+                . 'ORDER BY ie.created_at,ie.id FOR UPDATE'
+            );
+            $earnings->execute(['instructor_id' => $instructor['id']]);
+        }
+
         $available = $earnings->fetchAll();
         $amount = array_reduce($available, static fn(float $sum, array $row): float => $sum + (float) $row['instructor_amount'], 0.0);
-        if ($amount <= 0 || $available === []) { throw new InvalidArgumentException('No verified available earnings can be withdrawn.'); }
+        if ($amount <= 0 || $available === []) {
+            throw new InvalidArgumentException($retryRequestId > 0
+                ? 'This rejected withdrawal has no available earnings left to request again.'
+                : 'No verified available earnings can be withdrawn.');
+        }
+
+        $requestNote = $note !== '' ? $note : ($retryRequestId > 0 ? 'Requested again after rejected withdrawal #' . $retryRequestId . '.' : null);
         $request = $database->prepare("INSERT INTO withdrawal_requests (instructor_id,requested_amount,payment_method,account_name,account_number,bank_name,esewa_number,khalti_number,request_status,instructor_note) VALUES (:instructor_id,:amount,:method,:account_name,:account_number,:bank_name,:esewa_number,:khalti_number,'pending',:note)");
-        $request->execute(['instructor_id'=>$instructor['id'],'amount'=>number_format($amount,2,'.',''),'method'=>$paymentMethod,'account_name'=>$destination['account_name'],'account_number'=>$destination['account_number'],'bank_name'=>$destination['bank_name'],'esewa_number'=>$destination['esewa_number'],'khalti_number'=>$destination['khalti_number'],'note'=>$note!==''?$note:null]);
+        $request->execute([
+            'instructor_id' => $instructor['id'],
+            'amount' => number_format($amount, 2, '.', ''),
+            'method' => $paymentMethod,
+            'account_name' => $destination['account_name'],
+            'account_number' => $destination['account_number'],
+            'bank_name' => $destination['bank_name'],
+            'esewa_number' => $destination['esewa_number'],
+            'khalti_number' => $destination['khalti_number'],
+            'note' => $requestNote,
+        ]);
         $requestId = (int) $database->lastInsertId();
         $map = $database->prepare('INSERT INTO withdrawal_request_earnings (withdrawal_request_id,earning_id) VALUES (:request_id,:earning_id)');
-        $reserve = $database->prepare("UPDATE instructor_earnings SET earning_status='withdraw_requested' WHERE id=:id AND earning_status='available'");
+        $reserve = $database->prepare("UPDATE instructor_earnings SET earning_status='withdraw_requested' WHERE id=:id AND instructor_id=:instructor_id AND earning_status='available'");
         foreach ($available as $earning) {
-            $map->execute(['request_id'=>$requestId,'earning_id'=>(int)$earning['id']]);
-            $reserve->execute(['id'=>(int)$earning['id']]);
+            $earningId = (int) $earning['id'];
+            $reserve->execute(['id' => $earningId, 'instructor_id' => $instructor['id']]);
+            if ($reserve->rowCount() !== 1) { throw new ServiceAuthorizationException('An earning changed while the withdrawal was being created.'); }
+            $map->execute(['request_id' => $requestId, 'earning_id' => $earningId]);
         }
         $notify = $database->prepare("INSERT INTO notifications (user_id,title,message,notification_type) SELECT id,'Withdrawal needs review',:message,'withdrawal_request' FROM users WHERE role='admin' AND status='active'");
-        $notify->execute(['message'=>'Instructor withdrawal #' . $requestId . ' requires review.']);
+        $notify->execute(['message' => 'Instructor withdrawal #' . $requestId . ($retryRequestId > 0 ? ' retries rejected request #' . $retryRequestId . '.' : ' requires review.')]);
         $database->commit();
-        $respond(['message'=>'All currently available earnings were reserved in withdrawal request #' . $requestId . '.','id'=>$requestId,'amount'=>number_format($amount,2,'.','')],201);
+        $respond([
+            'message' => ($retryRequestId > 0 ? 'Rejected withdrawal requested again as #' : 'All currently available earnings were reserved in withdrawal request #') . $requestId . '.',
+            'id' => $requestId,
+            'amount' => number_format($amount, 2, '.', ''),
+        ], 201);
     }
 
     if ($path === '/api/v1/reports/withdrawals/pending' && $method === 'GET') {
         ServiceAuth::requireUser($database, $authorization, 'admin');
-        $statement = $database->query("SELECT wr.*,u.full_name AS instructor_name,u.email AS instructor_email FROM withdrawal_requests wr INNER JOIN users u ON u.id=wr.instructor_id WHERE wr.request_status IN ('pending','approved') ORDER BY wr.requested_at ASC");
+        $statement = $database->query("SELECT wr.*,u.full_name AS instructor_name,u.email AS instructor_email,CASE WHEN wr.instructor_note LIKE 'Automatic payout generated%' THEN 'automatic' ELSE 'instructor' END AS request_source FROM withdrawal_requests wr INNER JOIN users u ON u.id=wr.instructor_id WHERE wr.request_status IN ('pending','approved') ORDER BY wr.requested_at ASC");
         $respond(['data' => $statement->fetchAll()]);
     }
 
@@ -159,33 +223,40 @@ try {
         $statement = $database->prepare('SELECT * FROM withdrawal_requests WHERE id=:id FOR UPDATE');
         $statement->execute(['id' => $requestId]);
         $withdrawal = $statement->fetch();
-        if (!is_array($withdrawal)) { $respond(['error'=>'Withdrawal request not found.'],404); }
+        if (!is_array($withdrawal)) { throw new InvalidArgumentException('Withdrawal request not found.'); }
         if ($action === 'approve' && $withdrawal['request_status'] !== 'pending') { throw new ServiceAuthorizationException('Only a pending withdrawal can be approved.'); }
         if ($action === 'reject' && !in_array($withdrawal['request_status'], ['pending','approved'], true)) { throw new ServiceAuthorizationException('This withdrawal cannot be rejected.'); }
         if ($action === 'paid' && $withdrawal['request_status'] !== 'approved') { throw new ServiceAuthorizationException('Approve the withdrawal before recording payment.'); }
         if ($action === 'approve') {
             $update = $database->prepare("UPDATE withdrawal_requests SET request_status='approved',admin_note=:note,processed_by=:admin,processed_at=NOW() WHERE id=:id");
-            $update->execute(['note'=>$note!==''?$note:null,'admin'=>$admin['id'],'id'=>$requestId]);
-            $title='Withdrawal approved'; $body='Your withdrawal request #' . $requestId . ' was approved for payment.';
+            $update->execute(['note' => $note !== '' ? $note : null, 'admin' => $admin['id'], 'id' => $requestId]);
+            $title = 'Withdrawal approved';
+            $body = 'Your withdrawal request #' . $requestId . ' was approved for payment.';
         } elseif ($action === 'reject') {
             $update = $database->prepare("UPDATE withdrawal_requests SET request_status='rejected',admin_note=:note,processed_by=:admin,processed_at=NOW() WHERE id=:id");
-            $update->execute(['note'=>$note,'admin'=>$admin['id'],'id'=>$requestId]);
-            $release = $database->prepare("UPDATE instructor_earnings ie INNER JOIN withdrawal_request_earnings wre ON wre.earning_id=ie.id SET ie.earning_status='available' WHERE wre.withdrawal_request_id=:id AND ie.earning_status='withdraw_requested'");
-            $release->execute(['id'=>$requestId]);
-            $title='Withdrawal rejected'; $body='Your withdrawal request #' . $requestId . ' was rejected. ' . $note;
+            $update->execute(['note' => $note, 'admin' => $admin['id'], 'id' => $requestId]);
+            $release = $database->prepare(
+                "UPDATE instructor_earnings ie INNER JOIN withdrawal_request_earnings target_map ON target_map.earning_id=ie.id "
+                . "SET ie.earning_status='available' WHERE target_map.withdrawal_request_id=:request_id AND ie.earning_status='withdraw_requested' "
+                . "AND NOT EXISTS (SELECT 1 FROM withdrawal_request_earnings other_map INNER JOIN withdrawal_requests other_request ON other_request.id=other_map.withdrawal_request_id WHERE other_map.earning_id=ie.id AND other_map.withdrawal_request_id<>:other_request_id AND other_request.request_status IN ('pending','approved','paid'))"
+            );
+            $release->execute(['request_id' => $requestId, 'other_request_id' => $requestId]);
+            $title = 'Withdrawal rejected';
+            $body = 'Your withdrawal request #' . $requestId . ' was rejected. The money is available again and you can request it again. Reason: ' . $note;
         } else {
             $payout = $database->prepare("INSERT INTO payouts (withdrawal_request_id,payout_source,instructor_id,paid_amount,payment_method,transaction_reference,payout_status,paid_by,admin_note,paid_at) VALUES (:request_id,'withdrawal',:instructor_id,:amount,:method,:reference,'paid',:admin,:note,NOW())");
-            $payout->execute(['request_id'=>$requestId,'instructor_id'=>(int)$withdrawal['instructor_id'],'amount'=>$withdrawal['requested_amount'],'method'=>$withdrawal['payment_method'],'reference'=>$reference,'admin'=>$admin['id'],'note'=>$note!==''?$note:null]);
+            $payout->execute(['request_id' => $requestId, 'instructor_id' => (int) $withdrawal['instructor_id'], 'amount' => $withdrawal['requested_amount'], 'method' => $withdrawal['payment_method'], 'reference' => $reference, 'admin' => $admin['id'], 'note' => $note !== '' ? $note : null]);
             $update = $database->prepare("UPDATE withdrawal_requests SET request_status='paid',admin_note=:note,processed_by=:admin,processed_at=NOW() WHERE id=:id");
-            $update->execute(['note'=>$note!==''?$note:null,'admin'=>$admin['id'],'id'=>$requestId]);
+            $update->execute(['note' => $note !== '' ? $note : null, 'admin' => $admin['id'], 'id' => $requestId]);
             $paid = $database->prepare("UPDATE instructor_earnings ie INNER JOIN withdrawal_request_earnings wre ON wre.earning_id=ie.id SET ie.earning_status='paid',ie.paid_at=NOW() WHERE wre.withdrawal_request_id=:id AND ie.earning_status='withdraw_requested'");
-            $paid->execute(['id'=>$requestId]);
-            $title='Withdrawal paid'; $body='Your withdrawal request #' . $requestId . ' was paid. Reference: ' . $reference;
+            $paid->execute(['id' => $requestId]);
+            $title = 'Withdrawal paid';
+            $body = 'Your withdrawal request #' . $requestId . ' was paid. Reference: ' . $reference;
         }
         $notify = $database->prepare("INSERT INTO notifications (user_id,title,message,notification_type) VALUES (:user_id,:title,:message,'withdrawal_update')");
-        $notify->execute(['user_id'=>(int)$withdrawal['instructor_id'],'title'=>$title,'message'=>$body]);
+        $notify->execute(['user_id' => (int) $withdrawal['instructor_id'], 'title' => $title, 'message' => $body]);
         $database->commit();
-        $respond(['message'=>$title . '.']);
+        $respond(['message' => $title . '.']);
     }
 
     $respond(['error' => 'Reporting route not found.'], 404);
@@ -198,6 +269,7 @@ try {
     if (isset($database) && $database instanceof PDO && $database->inTransaction()) { $database->rollBack(); }
     $respond(['error' => $exception->getMessage()], 422);
 } catch (JsonException) {
+    if (isset($database) && $database instanceof PDO && $database->inTransaction()) { $database->rollBack(); }
     $respond(['error' => 'Malformed JSON request.'], 400);
 } catch (PDOException $exception) {
     if (isset($database) && $database instanceof PDO && $database->inTransaction()) { $database->rollBack(); }
