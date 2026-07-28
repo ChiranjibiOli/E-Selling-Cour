@@ -123,6 +123,11 @@ services:
       KHALTI_SECRET_KEY: "${KHALTI_SECRET_KEY:-}"
       KHALTI_API_URL: "${KHALTI_API_URL:-https://dev.khalti.com/api/v2}"
       KHALTI_WEBSITE_URL: "${KHALTI_WEBSITE_URL:-http://localhost:9001}"
+      AUTO_PAYOUT_ENABLED: "${AUTO_PAYOUT_ENABLED:-false}"
+      PAYOUT_API_URL: "${PAYOUT_API_URL:-}"
+      PAYOUT_API_TOKEN: "${PAYOUT_API_TOKEN:-}"
+      PAYOUT_HMAC_SECRET: "${PAYOUT_HMAC_SECRET:-}"
+      PAYOUT_METHOD_PRIORITY: "${PAYOUT_METHOD_PRIORITY:-bank,esewa,khalti}"
 
   enrollment-service:
     <<: *domain-service
