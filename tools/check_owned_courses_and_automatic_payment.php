@@ -25,11 +25,13 @@ $files = [
     'withdrawal_controller' => 'apps/web-platform/src/Instructor/Withdrawals/Controller.php',
     'withdrawal_page' => 'apps/web-platform/src/Instructor/Withdrawals/Page.php',
     'admin_withdrawal_page' => 'apps/web-platform/src/Admin/Withdrawals/Page.php',
+    'instructor_courses_page' => 'apps/web-platform/src/Instructor/MyCourses/Page.php',
     'compose' => 'docker-compose.yml',
     'env' => '.env.example',
     'removal_migration' => 'database/migrations/010_remove_access_removal_requests.sql',
     'permanent_access_migration' => 'database/migrations/011_restore_permanent_paid_enrollments.sql',
     'retry_migration' => 'database/migrations/012_retry_rejected_withdrawals.sql',
+    'paid_enrollment_backfill' => 'database/migrations/013_backfill_missing_paid_enrollments.sql',
     'migration_runner' => 'tools/run_migrations.php',
 ];
 
@@ -73,6 +75,26 @@ foreach (["e.status = 'active'", "p.payment_status = 'paid'", "o.order_status = 
 foreach (['011_restore_permanent_paid_enrollments', 'database/migrations/011_restore_permanent_paid_enrollments.sql'] as $needle) {
     if (!str_contains($content['migration_runner'], $needle)) {
         $errors[] = 'The paid-enrollment repair migration is not registered: ' . $needle;
+    }
+}
+foreach (['$repairPaidEnrollments', 'INSERT INTO enrollments', "o.order_status=\\'paid\\'", "p.payment_status=\\'paid\\'", "e.status = \\'active\\'"] as $needle) {
+    if (!str_contains($content['enrollment'], $needle)) {
+        $errors[] = 'Runtime purchased-course repair is incomplete: ' . $needle;
+    }
+}
+foreach (['INSERT INTO enrollments', 'ON DUPLICATE KEY UPDATE', "status = IF(status = 'refunded', 'refunded', 'active')"] as $needle) {
+    if (!str_contains($content['paid_enrollment_backfill'], $needle)) {
+        $errors[] = 'Missing paid-enrollment backfill protection: ' . $needle;
+    }
+}
+foreach (['013_backfill_missing_paid_enrollments', 'database/migrations/013_backfill_missing_paid_enrollments.sql'] as $needle) {
+    if (!str_contains($content['migration_runner'], $needle)) {
+        $errors[] = 'The missing paid-enrollment backfill is not registered: ' . $needle;
+    }
+}
+foreach (['discount_price', '$hasDiscount', '(was NPR '] as $needle) {
+    if (!str_contains($content['instructor_courses_page'], $needle)) {
+        $errors[] = 'Instructor course cards do not show the discounted price correctly: ' . $needle;
     }
 }
 foreach (['request_id', 'decision', '/unsubscribe/'] as $forbidden) {
@@ -174,9 +196,9 @@ if ($errors !== []) {
 }
 
 echo "PERMANENT ACCESS AND AUTOMATIC PAYMENT CHECK: PASS\n";
-echo "Purchased courses: permanent Student access, no removal request workflow\n";
-echo "Old revoked paid enrollments: restored to active lifetime access\n";
+echo "Purchased courses: missing or old paid enrollments are restored to active lifetime access\n";
 echo "Owned courses: hidden from browse and blocked from repeat cart purchase\n";
+echo "Instructor pricing: regular and discounted prices are both visible in My courses\n";
 echo "Student checkout: eSewa/Khalti automatic verification with manual fallback\n";
 echo "Commission: calculated per verified order item\n";
 echo "Instructor payout: idempotent automatic queue plus Admin settlement fallback\n";
