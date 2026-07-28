@@ -64,7 +64,6 @@ $cleanText = static function (mixed $value, string $label, int $min, int $max, b
 $profile = static function (PDO $database, int $userId): array {
     $statement = $database->prepare(
         'SELECT u.id,u.full_name,u.email,u.phone,u.bio,u.profile_image,u.profile_image_changed_at,'
-        . 'DATE_ADD(u.profile_image_changed_at,INTERVAL 25 DAY) AS profile_image_change_available_at,'
         . 'a.professional_headline,a.expertise,a.teaching_experience,a.social_profile_url,a.course_subjects '
         . 'FROM users u LEFT JOIN instructor_applications a ON a.instructor_id=u.id '
         . 'WHERE u.id=:id AND u.role=\'instructor\' AND u.status=\'active\' LIMIT 1'
@@ -74,8 +73,10 @@ $profile = static function (PDO $database, int $userId): array {
     if (!is_array($record)) {
         throw new SessionAuthenticationException('The Instructor profile is unavailable.');
     }
-    $record['photo_change_allowed'] = $record['profile_image_changed_at'] === null
-        || strtotime((string) $record['profile_image_change_available_at']) <= time();
+
+    // Retain these response fields for existing clients, but profile photos are never time-locked.
+    $record['photo_change_allowed'] = true;
+    $record['profile_image_change_available_at'] = null;
     return $record;
 };
 
@@ -105,8 +106,8 @@ try {
 
     $database->beginTransaction();
     $currentStatement = $database->prepare(
-        'SELECT profile_image,profile_image_changed_at,DATE_ADD(profile_image_changed_at,INTERVAL 25 DAY) AS available_at '
-        . 'FROM users WHERE id=:id AND role=\'instructor\' AND status=\'active\' LIMIT 1 FOR UPDATE'
+        'SELECT profile_image,profile_image_changed_at FROM users '
+        . 'WHERE id=:id AND role=\'instructor\' AND status=\'active\' LIMIT 1 FOR UPDATE'
     );
     $currentStatement->execute(['id' => $userId]);
     $current = $currentStatement->fetch();
@@ -116,15 +117,8 @@ try {
     }
 
     $oldProfileImage = trim((string) ($current['profile_image'] ?? ''));
-    $photoLocked = $current['profile_image_changed_at'] !== null
-        && strtotime((string) ($current['available_at'] ?? '')) > time();
 
     if ($action === 'remove_photo') {
-        if ($photoLocked) {
-            $availableAt = date('F j, Y', strtotime((string) $current['available_at']));
-            $database->rollBack();
-            throw new InvalidArgumentException('Your verified profile photo can be removed or replaced again on ' . $availableAt . '.');
-        }
         $update = $database->prepare(
             'UPDATE users SET profile_image=NULL,profile_image_changed_at=NULL '
             . 'WHERE id=:id AND role=\'instructor\' AND status=\'active\''
@@ -167,15 +161,10 @@ try {
     }
 
     $newProfileImage = trim((string) ($input['profile_image'] ?? ''));
-    if ($newProfileImage !== '') {
-        if (preg_match('#^private/instructor-profiles/[a-f0-9]{40}\.(?:jpg|png|webp)$#', $newProfileImage) !== 1) {
-            throw new InvalidArgumentException('The new Instructor profile photo reference is invalid.');
-        }
-        if ($photoLocked) {
-            $availableAt = date('F j, Y', strtotime((string) $current['available_at']));
-            $database->rollBack();
-            throw new InvalidArgumentException('Your profile photo can be changed again on ' . $availableAt . '.');
-        }
+    if ($newProfileImage !== ''
+        && preg_match('#^private/instructor-profiles/[a-f0-9]{40}\.(?:jpg|png|webp)$#', $newProfileImage) !== 1
+    ) {
+        throw new InvalidArgumentException('The new Instructor profile photo reference is invalid.');
     }
 
     $updateUserSql = 'UPDATE users SET full_name=:full_name,phone=:phone,bio=:bio';
@@ -210,7 +199,7 @@ try {
 
     $respond([
         'message' => $newProfileImage !== ''
-            ? 'Instructor profile updated. The new profile photo is locked for 25 days.'
+            ? 'Instructor profile and photo updated.'
             : 'Instructor profile updated.',
         'old_profile_image' => $newProfileImage !== '' ? $oldProfileImage : '',
         'data' => $profile($database, $userId),
