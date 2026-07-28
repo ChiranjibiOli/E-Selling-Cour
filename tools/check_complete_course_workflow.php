@@ -101,7 +101,7 @@ $contracts = [
         'private/course-content',
         'media/course-thumbnails',
         "['text', 'word', 'video', 'pdf', 'audio', 'image', 'link']",
-        "'/api/v1/courses/' . $courseId . '/duration'",
+        "'/api/v1/courses/' . \$courseId . '/duration'",
         'SecureUpload::store',
         'SecureUpload::delete',
     ],
