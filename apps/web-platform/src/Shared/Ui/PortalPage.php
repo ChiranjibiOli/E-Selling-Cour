@@ -81,7 +81,7 @@ final class PortalPage
         $brand = '<a class="portal-brand" href="' . $e($dashboard) . '"><span class="coursehub-brand-mark"><img src="/assets/images/coursehub-robot.svg" alt=""></span><strong>CourseHub</strong></a>';
 
         $html = '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
-            . '<meta name="theme-color" content="#f4ede2"><title>' . $e($title) . ' | CourseHub</title><link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/assets/css/commerce.css"><link rel="stylesheet" href="/assets/css/portal-fixes.css"><link rel="stylesheet" href="/assets/css/admin-console.css"><link rel="stylesheet" href="/assets/css/profile-links.css"><link rel="stylesheet" href="/assets/css/profile-dialog.css"><link rel="stylesheet" href="/assets/css/instructor-console.css"><link rel="stylesheet" href="/assets/css/instructor-identity.css"><link rel="stylesheet" href="/assets/css/workflow-console.css"><link rel="stylesheet" href="/assets/css/learning-commerce.css"><link rel="stylesheet" href="/assets/css/instructor-communication.css"><link rel="stylesheet" href="/assets/css/course-card-theme.css"><link rel="stylesheet" href="/assets/css/portal-headless.css"><link rel="stylesheet" href="/assets/css/coursehub-coral.css"><link rel="stylesheet" href="/assets/css/coursehub-editorial.css"><link rel="stylesheet" href="/assets/css/coursehub-instructor-polish.css"><link rel="stylesheet" href="/assets/css/authoring-height.css?v=20260728-4"><link rel="stylesheet" href="/assets/css/admin-panel-separation.css?v=20260728-1"><link rel="stylesheet" href="/assets/css/course-human-system.css?v=20260728-1"><link rel="stylesheet" href="/assets/css/course-player-cover.css?v=20260728-1"></head>'
+            . '<meta name="theme-color" content="#f4ede2"><title>' . $e($title) . ' | CourseHub</title><link rel="stylesheet" href="/assets/css/app.css"><link rel="stylesheet" href="/assets/css/commerce.css"><link rel="stylesheet" href="/assets/css/portal-fixes.css"><link rel="stylesheet" href="/assets/css/admin-console.css"><link rel="stylesheet" href="/assets/css/profile-links.css"><link rel="stylesheet" href="/assets/css/profile-dialog.css"><link rel="stylesheet" href="/assets/css/instructor-console.css"><link rel="stylesheet" href="/assets/css/instructor-identity.css"><link rel="stylesheet" href="/assets/css/workflow-console.css"><link rel="stylesheet" href="/assets/css/learning-commerce.css"><link rel="stylesheet" href="/assets/css/instructor-communication.css"><link rel="stylesheet" href="/assets/css/course-card-theme.css"><link rel="stylesheet" href="/assets/css/portal-headless.css"><link rel="stylesheet" href="/assets/css/coursehub-coral.css"><link rel="stylesheet" href="/assets/css/coursehub-editorial.css"><link rel="stylesheet" href="/assets/css/coursehub-instructor-polish.css"><link rel="stylesheet" href="/assets/css/authoring-height.css?v=20260728-5"><link rel="stylesheet" href="/assets/css/admin-panel-separation.css?v=20260728-1"><link rel="stylesheet" href="/assets/css/course-human-system.css?v=20260728-1"><link rel="stylesheet" href="/assets/css/course-player-cover.css?v=20260728-1"><link rel="stylesheet" href="/assets/css/student-experience.css?v=20260728-1"></head>'
             . '<body class="portal-shell portal-role-' . $e($role) . '" data-portal-role="' . $e($role) . '"><button class="portal-mobile-toggle" type="button" data-portal-toggle aria-label="Open navigation" aria-expanded="false"><span></span><span></span><span></span></button>'
             . '<div class="portal-overlay" data-portal-overlay></div><aside class="portal-sidebar" data-portal-sidebar>' . $brand
             . $workspace . '<nav class="portal-sidebar-nav" data-portal-nav>' . $nav . '</nav>'
@@ -112,7 +112,7 @@ final class PortalPage
             ],
             default => [
                 'Learning' => ['/student/dashboard' => 'Overview', '/student/courses' => 'All courses', '/student/my-courses' => 'My courses', '/student/course-player' => 'Course player', '/student/progress' => 'Progress'],
-                'Purchases' => ['/student/cart' => 'My cart', '/student/checkout' => 'Checkout', '/student/payment' => 'Payment', '/student/payment-history' => 'Payment history'],
+                'Purchases' => ['/student/cart' => 'My cart', '/student/payment-history' => 'Payment history'],
                 'Account' => ['/student/notifications' => 'Notifications', '/student/reviews' => 'My reviews'],
             ],
         };
@@ -123,11 +123,18 @@ final class PortalPage
      * redirect to /instructor/courses?status=..., so their query value must win
      * before ordinary exact and longest-prefix path matching.
      *
+     * Checkout and payment are internal My cart steps, not separate Student
+     * navigation destinations, so My cart remains highlighted through the flow.
+     *
      * @param array<string, array<string, string>> $navigation
      * @param array<string, mixed> $currentQuery
      */
     private static function activeNavigationHref(array $navigation, string $currentPath, array $currentQuery = []): ?string
     {
+        if (in_array($currentPath, ['/student/checkout', '/student/payment'], true)) {
+            return '/student/cart';
+        }
+
         if ($currentPath === '/instructor/courses') {
             $rawStatus = $currentQuery['status'] ?? '';
             $status = is_string($rawStatus) ? strtolower(trim($rawStatus)) : '';
