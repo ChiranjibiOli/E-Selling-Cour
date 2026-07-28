@@ -110,7 +110,7 @@ final class PortalPage
             default => [
                 'Learning' => ['/student/dashboard' => 'Overview', '/student/courses' => 'All courses', '/student/my-courses' => 'My courses', '/student/course-player' => 'Course player', '/student/progress' => 'Progress'],
                 'Purchases' => ['/student/cart' => 'My cart', '/student/checkout' => 'Checkout', '/student/payment' => 'Payment', '/student/payment-history' => 'Payment history'],
-                'Account' => ['/student/notifications' => 'Notifications', '/student/reviews' => 'My reviews', '/student/unsubscribe' => 'Access requests'],
+                'Account' => ['/student/notifications' => 'Notifications', '/student/reviews' => 'My reviews'],
             ],
         };
     }
