@@ -38,6 +38,7 @@ final class StudentPaymentPage
             . '.payment-provider-logo.provider-khalti .provider-symbol{background:#5c2d91}'
             . '.payment-provider-logo.provider-manual{color:#315eea!important;border-color:rgba(49,94,234,.22)!important}'
             . '.payment-provider-logo.provider-manual .provider-symbol{background:#315eea;font-size:.58rem;letter-spacing:.01em}'
+            . '.payment-method[disabled]{cursor:not-allowed;opacity:.72}.payment-method[disabled] small{color:#a03d4f!important}'
             . '@media(max-width:720px){.payment-provider-logo{width:58px!important;flex-basis:58px!important}.payment-provider-logo .provider-word{display:none}}'
             . '</style>';
 
@@ -45,9 +46,12 @@ final class StudentPaymentPage
             $available = ($state['available'] ?? false) === true;
             $providerName = $provider === 'esewa' ? 'eSewa' : 'Khalti';
             $symbol = $provider === 'esewa' ? 'e' : 'K';
+            $unavailableReason = trim((string) ($state['unavailable_reason'] ?? ''));
             $copy = $available
                 ? 'Pay securely with ' . $providerName
-                : (($state['configured'] ?? false) === true ? 'Temporarily unavailable' : 'Merchant connection is not configured');
+                : ($unavailableReason !== ''
+                    ? $unavailableReason
+                    : (($state['configured'] ?? false) === true ? 'Temporarily unavailable' : 'Merchant connection is not configured'));
             $logo = '<i class="payment-provider-logo provider-' . $e($provider) . '" aria-hidden="true"><span class="provider-symbol">' . $e($symbol) . '</span><span class="provider-word">' . $e($providerName) . '</span></i>';
 
             return '<button class="payment-method" type="' . ($available ? 'submit' : 'button') . '" name="payment_method" value="' . $e($provider) . '"'
@@ -56,6 +60,10 @@ final class StudentPaymentPage
 
         $esewa = is_array($options['esewa'] ?? null) ? $options['esewa'] : [];
         $khalti = is_array($options['khalti'] ?? null) ? $options['khalti'] : [];
+        if ($amount < 10.0) {
+            $khalti['available'] = false;
+            $khalti['unavailable_reason'] = 'Minimum payment is NPR 10.00';
+        }
 
         $manualLogo = '<i class="payment-provider-logo provider-manual" aria-hidden="true"><span class="provider-symbol">QR</span><span class="provider-word">Manual</span></i>';
         $form = $paymentBrandStyles . '<form method="post" action="/student/payment?order=' . $orderId . '" enctype="multipart/form-data" novalidate data-payment-proof-form>' . Csrf::field() . '<input type="hidden" name="order_id" value="' . $orderId . '">'
