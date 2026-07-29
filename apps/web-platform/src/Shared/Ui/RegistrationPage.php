@@ -26,9 +26,15 @@ final class RegistrationPage
         $emailPattern = $instructor ? '' : ' pattern="[A-Za-z0-9._%+\-]+@[Gg][Mm][Aa][Ii][Ll]\.[Cc][Oo][Mm]"';
         $checked = isset($values['agree_instructor_rules']) ? ' checked' : '';
 
-        $baseFields = '<label>Full name<input type="text" inputmode="text" name="full_name" value="' . $e($values['full_name'] ?? '') . '" minlength="2" maxlength="100" autocomplete="name" required></label>'
+        $fullNameField = $instructor
+            ? '<label>Full name<input type="text" inputmode="text" name="full_name" value="' . $e($values['full_name'] ?? '') . '" minlength="2" maxlength="100" autocomplete="name" required></label>'
+            : '<label>Full name<input type="text" inputmode="text" name="full_name" value="' . $e($values['full_name'] ?? '') . '" minlength="2" maxlength="100" pattern="[\p{L}]+(?: [\p{L}]+)*" title="Use letters and spaces only." autocomplete="name" oninput="this.value=this.value.replace(/[^\p{L} ]/gu, \'\').replace(/ {2,}/g, \' \')" required><small>Letters and spaces only.</small></label>';
+        $phoneField = $instructor
+            ? '<label>Phone number<input type="tel" inputmode="tel" name="phone" value="' . $e($values['phone'] ?? '') . '" minlength="7" maxlength="20" pattern="[0-9+() -]{7,20}" autocomplete="tel" required></label>'
+            : '<label>Phone number<input type="tel" inputmode="numeric" name="phone" value="' . $e($values['phone'] ?? '') . '" minlength="7" maxlength="20" pattern="[0-9]{7,20}" title="Use numbers only." autocomplete="tel" oninput="this.value=this.value.replace(/[^0-9]/g, \'\')" required><small>Numbers only, 7 to 20 digits.</small></label>';
+        $baseFields = $fullNameField
             . '<label>' . $emailLabel . '<input type="email" inputmode="email" name="email" value="' . $e($values['email'] ?? '') . '" maxlength="150" autocomplete="email" placeholder="' . $emailPlaceholder . '"' . $emailPattern . ' required>' . $emailHelp . '</label>'
-            . '<label>Phone number<input type="tel" inputmode="tel" name="phone" value="' . $e($values['phone'] ?? '') . '" minlength="7" maxlength="20" pattern="[0-9+() -]{7,20}" autocomplete="tel" required></label>';
+            . $phoneField;
 
         $passwordFields = '<div class="form-columns"><label>Password<input type="password" name="password" minlength="8" maxlength="200" autocomplete="new-password" required></label>'
             . '<label>Confirm password<input type="password" name="password_confirmation" minlength="8" maxlength="200" autocomplete="new-password" required></label></div>';
